@@ -17,9 +17,10 @@ import matplotlib.pyplot as plt
 
 import numpy as np
 import punpy
+import comet_maths as cm
+
 
 prop = punpy.MCPropagation(1)
-
 
 
 class Interpolator:
@@ -159,7 +160,7 @@ def interpolate_1d(x_i,y_i,x,method="cubic",u_y_i=None,min_scale=0.3,return_unce
             y_corr[np.where(np.isnan(y_corr))]=0
 
         if add_error:
-            y = prop.generate_sample(y,y_unc,corr_x=y_corr)[:,0].squeeze()
+            y = cm.generate_sample(1,y,y_unc,corr_x=y_corr)[:,0].squeeze()
 
         if return_uncertainties:
             if return_corr:

@@ -1,4 +1,11 @@
 """comet_maths - Mathematical algorithms and tools to use within CoMet toolkit."""
+from comet_maths.random.generate_sample import generate_sample, generate_sample_systematic, generate_sample_random, generate_sample_cov, correlate_sample_corr
+
+from comet_maths.linear_algebra.matrix_calculation import calculate_Jacobian, calculate_corr, nearestPD_cholesky, isPD
+from comet_maths.linear_algebra.matrix_conversion import (calculate_flattened_corr, separate_flattened_corr,
+                                                          convert_corr_to_cov, convert_cov_to_corr,
+                                                          correlation_from_covariance, uncertainty_from_covariance)
+
 
 __author__ = "Pieter De Vis <pieter.de.vis@npl.co.uk>"
 __all__ = []

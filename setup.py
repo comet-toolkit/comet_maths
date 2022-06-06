@@ -15,13 +15,12 @@ def read(filename):
 
 
 setup(
-    version=versioneer.get_version(),
-    cmdclass=versioneer.get_cmdclass(),
+    version='0.01',
     name="comet_maths",
-    url="https://gitlab.npl.co.uk/eco/tools/comet_maths",
-    license="None",
-    author="Pieter De Vis",
-    author_email="pieter.de.vis@npl.co.uk",
+    url="https://github.com/comet-toolkit/comet_maths",
+    license="LGPLv3",
+    author="CoMet Toolkit Team",
+    author_email="team@comet-toolkit.org",
     description="Mathematical algorithms and tools to use within CoMet toolkit.",
     long_description=read("README.rst"),
     packages=find_packages(exclude=("tests",)),
