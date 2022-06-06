@@ -172,7 +172,11 @@ def nearestPD_cholesky(A, diff=0.001, corr=False, return_cholesky=True):
     A3 = (A2 + A2.T) / 2
 
     try:
-        return np.linalg.cholesky(A3)
+        chol=np.linalg.cholesky(A3)
+        if return_cholesky:
+            return chol
+        else:
+            return A3
     except:
 
         spacing = np.spacing(np.linalg.norm(A))
