@@ -63,19 +63,19 @@ class Interpolator:
         :rtype: ndarray
         """
 
-        y_hr_i = interpolate_1d(x_hr,y_hr,x_i,method=self.method_hr,add_error=self.add_error,min_scale=self.min_scale)
+        y_hr_i = interpolate_1d(x_hr,y_hr,x_i,method=self.method_hr,add_error=self.add_error,min_scale=self.min_scale, extrapolate=self.extrapolate)
 
         if x == x_hr:
             y_hr_out = y_hr
         else:
-            y_hr_out = interpolate_1d(x_hr,y_hr,x,method=self.method_hr,add_error=self.add_error,min_scale=self.min_scale)
+            y_hr_out = interpolate_1d(x_hr,y_hr,x,method=self.method_hr,add_error=self.add_error,min_scale=self.min_scale, extrapolate=self.extrapolate)
 
         if self.relative:
             y_norm_i = y_i/y_hr_i
         else:
             y_norm_i = y_i-y_hr_i
 
-        y_norm_hr = interpolate_1d(x_i,y_norm_i,x,method=self.method_main,add_error=self.add_error,min_scale=self.min_scale)
+        y_norm_hr = interpolate_1d(x_i,y_norm_i,x,method=self.method_main,add_error=self.add_error,min_scale=self.min_scale, extrapolate=self.extrapolate)
 
         if self.relative:
             y_out = y_norm_hr*y_hr_out
@@ -116,7 +116,7 @@ def interpolate(x_i, y_i, x, method="linear",return_uncertainties=False,add_erro
         interpolate_1d(x_i, y_i, x, method, return_uncertainties, add_error)
 
 
-def interpolate_1d(x_i,y_i,x,method="cubic",u_y_i=None,min_scale=0.3,return_uncertainties=False,add_error=False,return_corr=False):
+def interpolate_1d(x_i,y_i,x,method="cubic",u_y_i=None,min_scale=0.3,return_uncertainties=False,add_error=False,return_corr=False,extrapolate="nearest"):
     """
     Interpolates 1D data to defined coordinates x in 1D
 
@@ -140,7 +140,7 @@ def interpolate_1d(x_i,y_i,x,method="cubic",u_y_i=None,min_scale=0.3,return_unce
 
     else:
         if method.lower() in ["linear", "nearest", "nearest-up", "zero", "slinear", "quadratic", "cubic", "previous", "next"]:
-            if self.extrapolate=="nearest":
+            if extrapolate=="nearest":
                 fill_value=[y_i[0],y_i[-1]]
             f_i = interp1d(x_i, y_i, kind=method.lower(),fill_value=fill_value)
             y= f_i(x).squeeze()
