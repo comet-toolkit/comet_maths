@@ -141,8 +141,12 @@ def interpolate_1d(x_i,y_i,x,method="cubic",u_y_i=None,min_scale=0.3,return_unce
     else:
         if method.lower() in ["linear", "nearest", "nearest-up", "zero", "slinear", "quadratic", "cubic", "previous", "next"]:
             if extrapolate=="nearest":
-                fill_value=(y_i[0],y_i[-1])
-            f_i = interp1d(x_i, y_i, kind=method.lower(),fill_value=fill_value)
+                f_i = interp1d(x_i, y_i, kind=method.lower(),fill_value=(y_i[0],y_i[-1]), bounds_error=False)
+            elif extrapolate=="extrapolate":
+                f_i = interp1d(x_i, y_i, kind=method.lower(),fill_value="extrapolate")
+            else:
+                f_i = interp1d(x_i, y_i, kind=method.lower())
+
             y= f_i(x).squeeze()
 
         elif method.lower()=="ius":
