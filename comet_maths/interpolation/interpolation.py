@@ -139,7 +139,7 @@ def interpolate_1d(x_i,y_i,x,method="cubic",u_y_i=None,min_scale=0.3,return_unce
 
     else:
         if method.lower() in ["linear", "nearest", "nearest-up", "zero", "slinear", "quadratic", "cubic", "previous", "next"]:
-            f_i = interp1d(x_i, y_i, kind=method.lower())
+            f_i = interp1d(x_i, y_i, kind=method.lower(),fill_value="extrapolate")
             y= f_i(x).squeeze()
 
         elif method.lower()=="ius":

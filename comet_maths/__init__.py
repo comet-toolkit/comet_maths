@@ -6,6 +6,7 @@ from comet_maths.linear_algebra.matrix_conversion import (calculate_flattened_co
                                                           convert_corr_to_cov, convert_cov_to_corr,
                                                           correlation_from_covariance, uncertainty_from_covariance)
 
+from comet_maths.interpolation.interpolation import Interpolator
 
 __author__ = "Pieter De Vis <pieter.de.vis@npl.co.uk>"
 __all__ = []
