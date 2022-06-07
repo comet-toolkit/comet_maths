@@ -24,12 +24,13 @@ prop = punpy.MCPropagation(1)
 
 
 class Interpolator:
-    def __init__(self, relative=True,method_hr="cubic",method_main="cubic",add_error=True,min_scale=0.3):
+    def __init__(self, relative=True,method_hr="cubic",method_main="cubic",add_error=True,min_scale=0.3,extrapolate="nearest"):
         self.relative = relative
         self.method_hr = method_hr
         self.method_main = method_main
         self.add_error = add_error
-        self.min_scale=min_scale
+        self.min_scale = min_scale
+        self.extrapolate = extrapolate
 
     def interpolate_1d_along_example(self,x_i,y_i,x_hr,y_hr,x):
         """
@@ -139,7 +140,9 @@ def interpolate_1d(x_i,y_i,x,method="cubic",u_y_i=None,min_scale=0.3,return_unce
 
     else:
         if method.lower() in ["linear", "nearest", "nearest-up", "zero", "slinear", "quadratic", "cubic", "previous", "next"]:
-            f_i = interp1d(x_i, y_i, kind=method.lower(),fill_value="extrapolate")
+            if self.extrapolate=="nearest":
+                fill_value=[y_i[0],y_i[-1]]
+            f_i = interp1d(x_i, y_i, kind=method.lower(),fill_value=fill_value)
             y= f_i(x).squeeze()
 
         elif method.lower()=="ius":
