@@ -19,10 +19,6 @@ import numpy as np
 import punpy
 import comet_maths as cm
 
-
-prop = punpy.MCPropagation(1)
-
-
 class Interpolator:
     def __init__(self, relative=True,method_hr="cubic",method_main="cubic",add_error=True,min_scale=0.3,extrapolate="nearest"):
         self.relative = relative
