@@ -243,7 +243,7 @@ def gaussian_progress_regression(x_i, y_i, x,u_y_i=None,kernel="RBF",min_scale=0
 def interpolate_1d_along_example(x_i,y_i,x_hr,y_hr,x,relative=True,u_y_i=None,
                                  u_y_hr=None,min_scale=0.3,method_hr="cubic",
                                  method_main="gpr",return_uncertainties=False,
-                                 add_error=False):
+                                 add_error=False,plot_residuals=False):
     """
     Method for interpolating between datapoints by following an example.
     The example can come from either models or higher-resolution observations.
@@ -307,6 +307,17 @@ def interpolate_1d_along_example(x_i,y_i,x_hr,y_hr,x,relative=True,u_y_i=None,
             y_out = y_norm_hr+y_hr_out
             u_y_out = ((u_y_norm_hr)**2+(u_y_hr_out)**2+2*r*u_y_norm_hr*u_y_hr_out)**0.5
 
+        if plot_residuals:
+            plt.plot(x_i,y_norm_i,"ro",label="low-res residuals")
+            plt.plot(x,y_norm_hr,"g-",label="high-res residuals")
+            plt.fill_between(x,y_norm_hr-1.9600*u_y_norm_hr,(y_norm_hr+1.9600*u_y_norm_hr),alpha=0.25,fc="g",ec="None",
+                             label="95% confidence interval",lw=0)
+            
+            plt.ylabel("Residuals")
+            plt.xlabel("x")
+            plt.legend()
+            plt.savefig("residuals.png")
+
         return y_out,u_y_out
 
     else:
@@ -332,5 +343,12 @@ def interpolate_1d_along_example(x_i,y_i,x_hr,y_hr,x,relative=True,u_y_i=None,
         else:
             y_out = y_norm_hr+y_hr_out
 
-
+        if plot_residuals:
+            plt.plot(x_i,y_norm_i,"ro",label="low-res residuals")
+            plt.plot(x,y_norm_hr,"g-",label="high-res residuals")
+            plt.ylabel("Residuals")
+            plt.xlabel("x")
+            plt.legend()
+            plt.savefig("residuals.png")
+        
         return y_out
