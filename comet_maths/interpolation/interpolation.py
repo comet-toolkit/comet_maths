@@ -20,13 +20,14 @@ import punpy
 import comet_maths as cm
 
 class Interpolator:
-    def __init__(self, relative=True,method_hr="cubic",method_main="cubic",add_error=True,min_scale=0.3,extrapolate="nearest"):
+    def __init__(self, relative=True,method_hr="cubic",method_main="cubic",add_error=True,min_scale=0.3,extrapolate="nearest",plot_residuals=False):
         self.relative = relative
         self.method_hr = method_hr
         self.method_main = method_main
         self.add_error = add_error
         self.min_scale = min_scale
         self.extrapolate = extrapolate
+        self.plot_residuals = plot_residuals
 
     def interpolate_1d_along_example(self,x_i,y_i,x_hr,y_hr,x):
         """
@@ -58,27 +59,10 @@ class Interpolator:
         :return: The measurand y evaluated at the values x
         :rtype: ndarray
         """
-
-        y_hr_i = interpolate_1d(x_hr,y_hr,x_i,method=self.method_hr,add_error=self.add_error,min_scale=self.min_scale, extrapolate=self.extrapolate)
-
-        if x == x_hr:
-            y_hr_out = y_hr
-        else:
-            y_hr_out = interpolate_1d(x_hr,y_hr,x,method=self.method_hr,add_error=self.add_error,min_scale=self.min_scale, extrapolate=self.extrapolate)
-
-        if self.relative:
-            y_norm_i = y_i/y_hr_i
-        else:
-            y_norm_i = y_i-y_hr_i
-
-        y_norm_hr = interpolate_1d(x_i,y_norm_i,x,method=self.method_main,add_error=self.add_error,min_scale=self.min_scale, extrapolate=self.extrapolate)
-
-        if self.relative:
-            y_out = y_norm_hr*y_hr_out
-        else:
-            y_out = y_norm_hr+y_hr_out
-
-        return y_out
+        return interpolate_1d_along_example(x_i,y_i,x_hr,y_hr,x,relative=True,u_y_i=None,
+                                 u_y_hr=None,min_scale=self.min_scale,method_hr=self.method_hr,
+                                 method_main=self.method_main,return_uncertainties=False,
+                                 add_error=self.add_error,extrapolate=self.extrapolate,plot_residuals=self.plot_residuals)
 
 def interpolate(x_i, y_i, x, method="linear",return_uncertainties=False,add_error=False):
     """
@@ -243,7 +227,7 @@ def gaussian_progress_regression(x_i, y_i, x,u_y_i=None,kernel="RBF",min_scale=0
 def interpolate_1d_along_example(x_i,y_i,x_hr,y_hr,x,relative=True,u_y_i=None,
                                  u_y_hr=None,min_scale=0.3,method_hr="cubic",
                                  method_main="gpr",return_uncertainties=False,
-                                 add_error=False,plot_residuals=False):
+                                 add_error=False,extrapolate="nearest",plot_residuals=False):
     """
     Method for interpolating between datapoints by following an example.
     The example can come from either models or higher-resolution observations.
@@ -276,14 +260,14 @@ def interpolate_1d_along_example(x_i,y_i,x_hr,y_hr,x,relative=True,u_y_i=None,
     if return_uncertainties:
         y_hr_i,u_y_hr_i = interpolate_1d(x_hr,y_hr,x_i,method=method_hr,u_y_i=u_y_hr,
                                          min_scale=min_scale,
-                                         return_uncertainties=return_uncertainties)
+                                         return_uncertainties=return_uncertainties, extrapolate=extrapolate)
 
         if x == x_hr:
             y_hr_out = y_hr
         else:
             y_hr_out,u_y_hr_out = interpolate_1d(x_hr,y_hr,x,method=method_hr,
                                                  u_y_i=u_y_hr,min_scale=min_scale,
-                                                 return_uncertainties=return_uncertainties)
+                                                 return_uncertainties=return_uncertainties, extrapolate=extrapolate)
 
         if relative:
             y_norm_i = y_i/y_hr_i
@@ -294,7 +278,7 @@ def interpolate_1d_along_example(x_i,y_i,x_hr,y_hr,x,relative=True,u_y_i=None,
 
         y_norm_hr,u_y_norm_hr = interpolate_1d(x_i,y_norm_i,x,method=method_main,
                                                u_y_i=u_y_norm_i,min_scale=min_scale,
-                                               return_uncertainties=return_uncertainties)
+                                               return_uncertainties=return_uncertainties, extrapolate=extrapolate)
         y_norm_hr = y_norm_hr.squeeze()
 
         r = -u_y_hr_out/u_y_norm_hr
@@ -317,18 +301,18 @@ def interpolate_1d_along_example(x_i,y_i,x_hr,y_hr,x,relative=True,u_y_i=None,
             plt.xlabel("x")
             plt.legend()
             plt.savefig("residuals.png")
-
+            plt.clf()
         return y_out,u_y_out
 
     else:
         y_hr_i = interpolate_1d(x_hr,y_hr,x_i,method=method_hr,u_y_i=u_y_hr,
-                                min_scale=min_scale)
+                                min_scale=min_scale, extrapolate=extrapolate)
 
         if x == x_hr:
             y_hr_out = y_hr
         else:
             y_hr_out = interpolate_1d(x_hr,y_hr,x,method=method_hr,u_y_i=u_y_hr,
-                                      min_scale=min_scale)
+                                      min_scale=min_scale, extrapolate=extrapolate)
 
         if relative:
             y_norm_i = y_i/y_hr_i
@@ -336,7 +320,7 @@ def interpolate_1d_along_example(x_i,y_i,x_hr,y_hr,x,relative=True,u_y_i=None,
             y_norm_i = y_i-y_hr_i
 
         y_norm_hr = interpolate_1d(x_i,y_norm_i,x,method=method_main,u_y_i=u_y_i,
-                                   min_scale=min_scale)
+                                   min_scale=min_scale, extrapolate=extrapolate)
 
         if relative:
             y_out = y_norm_hr*y_hr_out
@@ -350,5 +334,5 @@ def interpolate_1d_along_example(x_i,y_i,x_hr,y_hr,x,relative=True,u_y_i=None,
             plt.xlabel("x")
             plt.legend()
             plt.savefig("residuals.png")
-        
-        return y_out
+            plt.clf()
+    return y_out
