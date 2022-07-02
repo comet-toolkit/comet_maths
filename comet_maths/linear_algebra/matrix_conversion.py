@@ -5,6 +5,7 @@
 
 """___Third-Party Modules___"""
 import warnings
+from typing import List, Tuple
 import numpy as np
 
 """___NPL Modules___"""
@@ -18,14 +19,12 @@ __email__ = "pieter.de.vis@npl.co.uk"
 __status__ = "Development"
 
 
-def correlation_from_covariance(covariance):
+def correlation_from_covariance(covariance: np.ndarray) -> np.ndarray:
     """
     Convert covariance matrix to correlation matrix
 
     :param covariance: Covariance matrix
-    :type covariance: array
     :return: Correlation matrix
-    :rtype: array
     """
     v = np.sqrt(np.diag(covariance))
     outer_v = np.outer(v, v)
@@ -34,58 +33,47 @@ def correlation_from_covariance(covariance):
     return correlation
 
 
-def uncertainty_from_covariance(covariance):
+def uncertainty_from_covariance(covariance: np.ndarray) -> np.ndarray:
     """
     Convert covariance matrix to uncertainty
 
     :param covariance: Covariance matrix
-    :type covariance: array
     :return: uncertainties
-    :rtype: array
     """
     return np.sqrt(np.diag(covariance))
 
 
-def convert_corr_to_cov(corr, u):
+def convert_corr_to_cov(corr: np.ndarray, u: np.ndarray) -> np.ndarray:
     """
     Convert correlation matrix to covariance matrix
 
     :param corr: correlation matrix
-    :type corr: array
     :param u: uncertainties
-    :type u: array
     :return: covariance matrix
-    :rtype: array
     """
     return u.reshape((-1, 1)) * corr * (u.reshape((1, -1)))
 
 
-def convert_cov_to_corr(cov, u):
+def convert_cov_to_corr(cov: np.ndarray, u: np.ndarray) -> np.ndarray:
     """
     Convert covariance matrix to correlation matrix
 
     :param corr: covariance matrix
-    :type corr: array
     :param u: uncertainties
-    :type u: array
     :return: correlation matrix
-    :rtype: array
     """
     return 1 / u.reshape((-1, 1)) * cov / (u.reshape((1, -1)))
 
 
-def calculate_flattened_corr(corrs, corr_between):
+def calculate_flattened_corr(corrs: List[np.ndarray], corr_between: np.ndarray) -> np.ndarray:
     """
     Combine correlation matrices for different input quantities, with a correlation
     matrix that gives the correlation between the input quantities into a full
     (flattened) correlation matrix combining the two.
 
     :param corrs: list of correlation matrices for each input quantity
-    :type corrs: list[array]
     :param corr_between: correlation matrix between the input quantities
-    :type corr_between: array
     :return: full correlation matrix combining the correlation matrices
-    :rtype: array
     """
     totcorrlen = 0
     for i in range(len(corrs)):
@@ -104,18 +92,14 @@ def calculate_flattened_corr(corrs, corr_between):
     return totcorr
 
 
-def separate_flattened_corr(corr, ndim):
+def separate_flattened_corr(corr: np.ndarray, ndim: int) -> Tuple[np.ndarray, np.ndarray]:
     """
     Separate a full (flattened) correlation matrix into a list of correlation matrices
     for each output variable and a correlation matrix between the output variables.
 
     :param corr: full correlation matrix
-    :type corr: array
     :param ndim: number of output variables
-    :type ndim: int
     :return: list of correlation matrices for each output variable, correlation matrix between the output variables
-    :type corrs: list[array]
-    :rtype: list[array], array
     """
 
     corrs = np.empty(ndim, dtype=object)
