@@ -38,7 +38,9 @@ def generate_sample(MCsteps,x,u_x,corr_x,i=None,dtype=None):
         u_x = np.array([u_x])
         corr_x = np.array([corr_x])
         i = 0
-    if not hasattr(x[i],"__len__"):
+    if np.count_nonzero(u_x[i])==0:
+        sample = generate_sample_same(MCsteps,x[i],dtype=dtype)
+    elif not hasattr(x[i],"__len__"):
         sample = generate_sample_systematic(MCsteps,x[i],u_x[i],dtype=dtype)
     elif isinstance(corr_x[i],str):
         if corr_x[i] == "rand":
@@ -89,6 +91,21 @@ def generate_sample_correlated(MCsteps,x,u_x,corr_x,i,dtype=None):
             x[i].shape+(MCsteps,))
 
     return MC_data
+
+def generate_sample_same(MCsteps,param,dtype=None):
+    """
+    Generate MC sample of input quantity with zero uncertainties.
+
+    :param param: values of input quantity (mean of distribution)
+    :type param: float or array
+    :param dtype: dtype of the produced sample, optional
+    :type dtype: numpy.dtype
+    :return: generated sample
+    :rtype: array
+    """
+    MC_sample=np.tile(param,(MCsteps,)+(1,)*param.ndim)
+    MC_sample = np.moveaxis(MC_sample, 0, -1)
+    return MC_sample
 
 
 def generate_sample_random(MCsteps,param,u_param,dtype=None):

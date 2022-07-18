@@ -15,7 +15,7 @@ def read(filename):
 
 
 setup(
-    version='0.03',
+    version='0.04',
     name="comet_maths",
     url="https://github.com/comet-toolkit/comet_maths",
     license="LGPLv3",
