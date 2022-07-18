@@ -4,9 +4,10 @@ from comet_maths.random.generate_sample import generate_sample, generate_sample_
 from comet_maths.linear_algebra.matrix_calculation import calculate_Jacobian, calculate_corr, nearestPD_cholesky, isPD
 from comet_maths.linear_algebra.matrix_conversion import (calculate_flattened_corr, separate_flattened_corr,
                                                           convert_corr_to_cov, convert_cov_to_corr,
-                                                          correlation_from_covariance, uncertainty_from_covariance)
+                                                          correlation_from_covariance, uncertainty_from_covariance, change_order_errcorr_dims, expand_errcorr_dims)
 
 from comet_maths.interpolation.interpolation import Interpolator
+
 
 __author__ = "Pieter De Vis <pieter.de.vis@npl.co.uk>"
 __all__ = []
