@@ -2,6 +2,7 @@
 
 """___Built-In Modules___"""
 import comet_maths as cm
+
 """___Third-Party Modules___"""
 import warnings
 import numpy as np
@@ -16,7 +17,6 @@ __created__ = "01/02/2021"
 __maintainer__ = "Pieter De Vis"
 __email__ = "pieter.de.vis@npl.co.uk"
 __status__ = "Development"
-
 
 
 def calculate_Jacobian(fun, x, Jx_diag=False, step=None):
@@ -61,7 +61,7 @@ def calculate_Jacobian(fun, x, Jx_diag=False, step=None):
     return Jx
 
 
-def calculate_corr(MC_y, corr_axis=-99,dtype=None):
+def calculate_corr(MC_y, corr_axis=-99, dtype=None):
     """
     Calculate the correlation matrix between the MC-generated samples of output quantities.
     If corr_axis is specified, this axis will be the one used to calculate the correlation matrix (e.g. if corr_axis=0 and x.shape[0]=n, the correlation matrix will have shape (n,n)).
@@ -75,24 +75,20 @@ def calculate_corr(MC_y, corr_axis=-99,dtype=None):
     :rtype: array
     """
     # print("the shape is:",MC_y.shape)
-    MCsteps=MC_y.shape[-1]
+    MCsteps = MC_y.shape[-1]
 
     if len(MC_y.shape) < 3:
         corr_y = np.corrcoef(MC_y)
 
     elif len(MC_y.shape) == 3:
         if corr_axis == 0:
-            corr_ys = np.zeros(
-                (len(MC_y[:, 0, 0]), len(MC_y[:, 0, 0])), dtype=dtype
-            )
+            corr_ys = np.zeros((len(MC_y[:, 0, 0]), len(MC_y[:, 0, 0])), dtype=dtype)
             for i in range(len(MC_y[0])):
                 corr_ys += np.corrcoef(MC_y[:, i])
             corr_y = corr_ys / len(MC_y[0])
 
         elif corr_axis == 1:
-            corr_ys = np.zeros(
-                (len(MC_y[0, :, 0]), len(MC_y[0, :, 0])), dtype=dtype
-            )
+            corr_ys = np.zeros((len(MC_y[0, :, 0]), len(MC_y[0, :, 0])), dtype=dtype)
             # corr_ys = np.zeros(MC_y[0].shape)
             for i in range(len(MC_y)):
                 corr_ys += np.corrcoef(MC_y[i])
@@ -144,6 +140,7 @@ def calculate_corr(MC_y, corr_axis=-99,dtype=None):
 
     return corr_y
 
+
 def nearestPD_cholesky(A, diff=0.001, corr=False, return_cholesky=True):
     """
     Find the nearest positive-definite matrix
@@ -172,7 +169,7 @@ def nearestPD_cholesky(A, diff=0.001, corr=False, return_cholesky=True):
     A3 = (A2 + A2.T) / 2
 
     try:
-        chol=np.linalg.cholesky(A3)
+        chol = np.linalg.cholesky(A3)
         if return_cholesky:
             return chol
         else:
@@ -241,4 +238,3 @@ def isPD(B):
         return True
     except np.linalg.LinAlgError:
         return False
-

@@ -16,6 +16,7 @@ __maintainer__ = "Pieter De Vis"
 __email__ = "pieter.de.vis@npl.co.uk"
 __status__ = "Development"
 
+
 class TestMatrixCalculation(unittest.TestCase):
     """
     Class for unit tests
