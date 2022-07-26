@@ -75,7 +75,7 @@ def generate_sample_correlated(MCsteps, x, u_x, corr_x, i, dtype=None):
     :return: generated sample
     :rtype: array
     """
-    if len(x[i].shape) == 2:
+    if x[i].ndim == 2:
         if len(corr_x[i]) == len(u_x[i]):
             MC_data = np.zeros((u_x[i].shape) + (MCsteps,))
             for j in range(len(u_x[i][0])):
@@ -219,7 +219,7 @@ def generate_sample_systematic(MCsteps, param, u_param, dtype=None):
         )
 
 
-def generate_sample_cov(MCsteps, param, cov_param, dtype=None):
+def generate_sample_cov(MCsteps, param, cov_param, dtype=None, diff=0.01):
     """
     Generate correlated MC sample of input quantity with a given covariance matrix.
     sample are generated independent and then correlated using Cholesky decomposition.
@@ -236,7 +236,7 @@ def generate_sample_cov(MCsteps, param, cov_param, dtype=None):
     try:
         L = np.linalg.cholesky(cov_param)
     except:
-        L = cm.nearestPD_cholesky(cov_param)
+        L = cm.nearestPD_cholesky(cov_param,diff=diff)
 
     if dtype is None:
         return np.dot(L, np.random.normal(size=(len(param), MCsteps))) + param[:, None]
