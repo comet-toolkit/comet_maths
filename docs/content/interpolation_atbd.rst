@@ -300,8 +300,7 @@ the measured data points :math:`u_{y}\left( x_{i} \right)`, one from the
 high-resolution model :math:`u_{\text{HR}}(x)`, and one from the
 interpolation model error.
 
-Within the **comet_maths** interpolation module, the uncertainties on
-both the low and high resolution datapoints are propagated using
+The uncertainties on both the low and high resolution datapoints are propagated using
 a MC method (see also `this ATBD <https://punpy.readthedocs.io/en/latest/content/atbd.html#monte-carlo-method>`_).
 The interpolation model uncertainties for classical methods (Section 2.1)
 are estimated by calculating the standard deviation between trying various
