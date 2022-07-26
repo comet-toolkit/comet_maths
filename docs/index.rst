@@ -12,11 +12,13 @@ The interpolation submodules focuses on two aspects. First, it aims to provide i
    :maxdepth: 1
 
    content/getting_started
-   content/linear_algebra
-   content/random_generator
    content/interpolation
+   content/interpolation_atbd
+   content/linear_algebra
+   content/linear_algebra_atbd
+   content/random_generator
+   content/random_generator_atbd
    content/examples
-   content/atbd
 
 
 API Documentation
