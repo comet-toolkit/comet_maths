@@ -17,10 +17,10 @@
 # relative to the documentation root, use os.path.abspath to make it
 # absolute, like shown here.
 #
-import comet_maths
 import os
 import sys
 sys.path.insert(0, os.path.abspath('..'))
+import comet_maths
 
 # SH added to run apidoc on build
 this_directory = os.path.dirname(__file__)
