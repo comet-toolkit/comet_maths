@@ -7,5 +7,6 @@ punpy
 scipy
 
 # for docs
+Jinja2==3.0
 sphinx==3.0.1
 sphinx-rtd-theme==0.4.3
