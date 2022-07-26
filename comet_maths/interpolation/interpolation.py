@@ -4,13 +4,7 @@ from scipy.interpolate import lagrange
 
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import RBF, Matern, ConstantKernel as C
-from sklearn import svm
-from sklearn.model_selection import GridSearchCV
-from sklearn.datasets import make_classification
-from sklearn.svm import SVC
-from sklearn.experimental import enable_halving_search_cv  # noqa
-from sklearn.model_selection import HalvingGridSearchCV
-import pandas as pd
+
 
 import matplotlib.pyplot as plt
 
@@ -180,7 +174,7 @@ def interpolate_1d(
     :rtype: numpy.ndarray
     """
     if method.lower() == "gpr":
-        return gaussian_progress_regression(
+        return gaussian_process_regression(
             x_i,
             y_i,
             x,
@@ -239,8 +233,8 @@ def interpolate_1d(
 
     else:
         if unc_methods is None:
-            if method.lower() == "nearest":
-                unc_methods = ["nearest", "previous", "next"]
+            if method.lower() in ["nearest","previous", "next"]:
+                unc_methods = ["nearest", "previous", "next","linear"]
             elif method.lower() == "linear":
                 unc_methods = ["linear", "quadratic", "cubic"]
             elif method.lower() == "quadratic":
@@ -296,7 +290,7 @@ def std_interpolation_methods(x_i, y_i, x, methods=["linear", "quadratic", "cubi
     return np.std(data, axis=1), np.corrcoef(data), np.cov(data)
 
 
-def gaussian_progress_regression(
+def gaussian_process_regression(
     x_i,
     y_i,
     x,

@@ -28,7 +28,7 @@ from comet_maths.interpolation.interpolation import (
     interpolate_1d,
     interpolate_1d_along_example,
     Interpolator,
-    gaussian_progress_regression,
+    gaussian_process_regression,
 )
 
 __author__ = "Pieter De Vis <pieter.de.vis@npl.co.uk>"
