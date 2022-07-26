@@ -11,10 +11,10 @@ Interpolation Algorithm Theoretical Basis
 ===========================================
 
 
-Terminology and Notation
+1. Terminology and Notation
 ========================
 
-Here we define how we use certain terms and notations in this document.
+First we define how we use certain terms and notations in this document.
 Of course, these meanings only supplement (rather than replace) the full
 meaning of these terms in the VIM and the GUM suite of documents. First,
 we define what we understand by interpolation. Interpolation is a statistical
@@ -23,21 +23,21 @@ are used to estimate unknown parameter values at some other provided coordinates
 Here, we consider interpolation to only include cases where the interpolation
 function goes through the estimated parameter values.
 
--  Measurand :math:`Y`: The quantity of interest or dependent quantity.
+*  Measurand :math:`Y`: The quantity of interest or dependent quantity.
    Within the context of interpolation, this is the quantity we are
    trying to obtain from the interpolation process. Typically, the
    y-axis quantity in classical interpolation examples.
 
--  Independent variable quantity :math:`X`: The values for which we are
+*  Independent variable quantity :math:`X`: The values for which we are
    trying to obtain the measurand. Within the context of interpolation,
    these are the known values (typically the x-axis) that we will give
    to the interpolation function.
 
--  Measurement function :math:`f`: The function linking the measurand
+*  Measurement function :math:`f`: The function linking the measurand
    :math:`Y` to the independent variable :math:`X` so that
    :math:`Y = f(X)` for any :math:`X`
 
--  Measured data points: The data points for which we have data
+*  Measured data points: The data points for which we have data
    available for both the measurand and independent variable quantities.
    These are the data points between which we try to interpolate. The
    quantities :math:`X_{i}\ `\ and :math:`Y_{i}` are used as (dummy)
@@ -45,11 +45,10 @@ function goes through the estimated parameter values.
    point. :math:`x_{i}` and :math:`y_{i}\ `\ are the measured values (or
    estimates) of the coordinates of the *i-*\ th data point.
 
--  Interpolation function :math:`\widehat{f}`: The measurement
+*  Interpolation function :math:`\widehat{f}`: The measurement
    model, i.e., the function that determines the measurands for a given
-   set of independent variable quantities. For the tool we are
-   developing, we constrain this function to pass through the measured
-   data points.
+   set of independent variable quantities. By definition, this function must
+   pass through the measured data points.
 
 As an example for this terminology, we can describe a use case in the
 Earth Observation (EO) field using these terms. One of our most common use cases is
@@ -67,11 +66,11 @@ have measurements (i.e. estimates) for the radiances (:math:`x_{i}`) and
 wavelengths (:math:`y_{i}`). We’ll then define an interpolation function
 :math:`\widehat{f}` which has parameters that depend on the values of
 (:math:`x_{i},y_{i}`). There are various interpolation methods we could use,
-but none of them will be perfect (and exactly the same as the true
+but none of them will be perfect (nor exactly the same as the true
 measurement function f). The details of interpolation will be discussed
 throughout this document using the above terms.
 
-1D-interpolation without high resolution example
+2. 1D-interpolation without high resolution example
 ================================================
 
 Our first use case is a simple interpolation along one dimension, where
@@ -96,11 +95,11 @@ value :math:`\widehat{f}` for the corresponding measurand :math:`Y`:
    \widehat{f} = \widehat{f}(x).
 
 The interpolation function :math:`\widehat{f}` depends on the independent
-variable quantity :math:`` and contains some parameters that are defined
+variable quantity :math:`x` and contains some parameters that are defined
 by the set of data-points
 :math:`\left\{ \left( x_{i},\ y_{i} \right) \right\}` used to constraint
 it. A more rigorous notation, yet more cumbersome, would be
- :math:`{\widehat{f}}_{\left\{ \left(_{}_{} \right) \right\}}\left( \left\{ \left(_{}_{} \right) \right\} x \right)`.
+:math:`\widehat{f}_{(x_{i},\ y_{i})}(x)`.
 
 The general measurement model can be written as:
 
@@ -108,7 +107,7 @@ The general measurement model can be written as:
    Y = \widehat{f}(X) + \Delta(X)
 
 where the :math:`+ \Delta(X)` term is added to account for the model
-error in the interpolation, that is, the information about :math:`` that
+error in the interpolation, that is, the information about :math:`f` that
 cannot be captured by choosing a specific shape for :math:`\widehat{f}`.
 
 2.1. Analytical interpolation methods
@@ -125,11 +124,11 @@ straight-line interpolation).
 
 Here we provide some more details on the example of straight-line
 interpolation. With this method, the interpolated measurand value
-at\ :math:`\text{\ x}` (here with :math:`x_{1} < x < x_{2}` ) is defined
+at :math:`\text{\ x}` (here with :math:`x_{1} < x < x_{2}` ) is defined
 as:
 
 .. math::
- \widehat{f}\widehat{f}() = \left\lbrack 1\  - \ \alpha(x) \right\rbrack y_{1}\  + \ \alpha(x)y_{2},
+ \widehat{y}=\widehat{f}(x) = \left\lbrack 1\  - \ \alpha(x) \right\rbrack y_{1}\  + \ \alpha(x)y_{2},
 
 where
 
@@ -137,12 +136,12 @@ where
  \alpha(x) = \frac{x - x_{1}}{x_{2} - x_{1}}\ .
 
 If here we assume the errors associated with the values :math:`y_{1}`
-and :math:`y_{2}` are uncorrelated [1]_, and there is no uncertainty
+and :math:`y_{2}` are uncorrelated, and there is no uncertainty
 associated with the :math:`x_{i}`, it is straightforward to propagate
 the standard uncertainties on the measured data points as:
 
 .. math::
- u_{\widehat{f}}^{2}\  = \left\lbrack () \right\rbrack^{2}_{_{}}^{}\  + \ {()}^{2}_{_{}}^{}\ .
+ u_{\widehat{y}}^{2}\  = \left\lbrack 1\  - \ \alpha(x) \right\rbrack^{2} u_{y_{1}}^{2}\  + \ {\alpha(x)}^{2}u_{y_{2}}^{2}\ .
 
 Here the standard uncertainty associated with a value :math:`q` is
 denoted by :math:`u_{q}`. However, :math:`u_{y}\ `\ is the standard
@@ -194,8 +193,8 @@ choose the appropriate one).
 .. image:: images/image1.png
 
 
-1D-interpolation using high-resolution example
-==============================================
+3. 1D-interpolation using high-resolution example
+=================================================
 
 For our next use case, we are still interpolating along a single
 dimension, but now we have some model for how the measurand varies in
@@ -215,11 +214,11 @@ interpolating the original data points using analytical methods (such as
 cubic spline).
 
 In the climate & earth observation group, we also have multiple current
-use cases [2]_ where, rather than having a multivariate model, we have
+use cases where, rather than having a multivariate model, we have
 some higher resolution (in the :math:`x` dimension) measurements for an
 analogous measurement. Here when referring to high-resolution we mean a
 higher sampling rate (rather than bandwidth resolution etc, see Section
-3.3). Here, we want to use this high-resolution example [3]_ to inform
+3.3). Here, we want to use this high-resolution example to inform
 us on how to interpolate between our measured (low-resolution in
 :math:`x`) data points. Of course, since we are interpolating, we still
 usually want our final interpolation function to go through the measured
@@ -234,31 +233,21 @@ the measured data points. Residuals can be defined in an absolute and
 relative way. We’ll start by discussing the absolute case, and then
 consider relative residuals.
 
-.. math::
 
-   \begin{matrix}
-   \left( \left\{ \left(_{}_{} \right) \right\}\left\{ \left(_{}_{} \right) \right\} \right)() \\
-   \end{matrix}
+The measurement model for the measurement function :math:`f` can again
+be written as :math:`Y = f(X)=\widehat{f}(X) + \Delta(X)`. In order to show the
+difference with the equations in the previous section, we here use the more rigorous notation:
 
-.. math::
+:math:`Y=f(x)=\widehat{f}_{\left\{(x_{i},\ y_{i})\right\};\left\{(x_{HR,i},\ y_{HR,i})\right\}}(x)+\Delta{x}`.
 
-   \begin{matrix}
-   (){\widehat{f}}_{\left\{ \left(_{}_{} \right) \right\}\left\{ \left(_{}_{} \right) \right\}}(){\widehat{f}}_{}()\Delta()\#() \\
-   \end{matrix}
-
-| The measurement model for the measurement function :math:`f` can again
-  be written as
-| :math:`Y = f(X)\widehat{f}() + \Delta(X)`. In order to show the
-  difference with Equation (3), we here use the more rigorous notation:
 
 where
 :math:`\left\{ \left( x_{\text{HR,i}},\ y_{\text{HR,i}} \right) \right\}`
 is the set of high resolution measurements that serve as the
-high-resolution example, and all the other terms are defined as in
-Equation (3).
+high-resolution example, and all the other terms are defined as previously.
 
-Interpolation of absolute residuals
------------------------------------
+3.1 Interpolation of absolute residuals
+-----------------------------------------
 
 One potential solution is to define a new model in such a way that it
 starts from the high-resolution model :math:`y_{\text{HR}}(x)`, and to
@@ -267,13 +256,10 @@ This can be done multiplicatively, or additively. We first define a
 measurement model for :math:`y_{\text{HR}}`, which interpolates between
 the high-resolution data points:
 
-.. math::
+.. math::h(x)=f ̂_HR (x)+Δ_"HR"  (x)
+ h(x) = {\widehat{f}}_{HR}(x)+ \Delta_{HR}(x),
 
-   \begin{matrix}
-   (x) = {\widehat{f}}_{}\left( \left\{ \left(_{}_{} \right) \right\} x \right) + \Delta_{\text{HR}}(x),\#() \\
-   \end{matrix}
-
-Where :math:`{\widehat{f}}_{}` provides the interpolation between the set
+Where :math:`{\widehat{f}}_{HR}` provides the interpolation between the set
 of high resolution measurements
 :math:`\left\{ \left( x_{\text{HR,i}},\ y_{\text{HR,i}} \right) \right\}`,
 which can be performed as in Section 2.
@@ -282,16 +268,7 @@ For an additive model, the interpolation function f between the
 low-resolution measured data points, can then be defined as:
 
 .. math::
-
-   \begin{matrix}
-   \widehat{f}()() \\
-   \end{matrix}
-
-.. math::
-
-   \begin{matrix}
-   {\widehat{f}}_{}(){\widehat{f}}_{}()\widetilde{f}()() \\
-   \end{matrix}
+ \widehat{f}(x) = h(x) + p(x)
 
 where :math:`\widetilde{f}(x)` gives the residuals of the difference
 between the model and the high-resolution example. In order to fully
@@ -301,34 +278,13 @@ data points, we have specified the model goes through the measured data
 points, and we thus know that:
 
 .. math::
-
-   \begin{matrix}
-   \widehat{f}{\widehat{f}}_{}\left( x_{i} \right) = y_{i}\#() \\
-   \end{matrix}
+ \widehat{f}(x_{i}) = y_{i}
 
 .. math::
-
-   \begin{matrix}
-   \left(_{} \right)\left(_{} \right)_{}() \\
-   \end{matrix}
+ h(x_{i}) + p(x_{i}) = y_{i}
 
 .. math::
-
-   \begin{matrix}
-   {\widehat{f}}_{}\left(_{} \right)\widetilde{f}\left(_{} \right)_{}() \\
-   \end{matrix}\begin{matrix}
-   \left(_{} \right)\left(_{} \right)_{}() \\
-   \end{matrix}
-
-.. math::
-
-   \begin{matrix}
-   \left(_{} \right)_{}\left(_{} \right)() \\
-   \end{matrix}\begin{matrix}
-   \widetilde{f}\left(_{} \right)\left(_{} \right)_{}{\widehat{f}}_{}\left(_{} \right)\left(_{} \right)() \\
-   \end{matrix}\begin{matrix}
-   \left(_{} \right)_{}\left(_{} \right)() \\
-   \end{matrix}
+  p(x_{i}) = y_{i} - h(x_{i})
 
 This defines the value of the residuals in each of the data points. In
 order to know the values between these, we can apply standard
@@ -342,8 +298,17 @@ Equation (14).
 For the uncertainties, there would now be three contributions: one from
 the measured data points :math:`u_{y}\left( x_{i} \right)`, one from the
 high-resolution model :math:`u_{\text{HR}}(x)`, and one from the
-interpolation model error. These uncertainty components can be
-propagated using standard approaches.
+interpolation model error.
+
+Within the **comet_maths** interpolation module, the uncertainties on
+both the low and high resolution datapoints are propagated using
+a MC method (see also `this ATBD <https://punpy.readthedocs.io/en/latest/content/atbd.html#monte-carlo-method>`_).
+The interpolation model uncertainties for classical methods (Section 2.1)
+are estimated by calculating the standard deviation between trying various
+different interpolation methods. At least three different methods are compared
+to determine this uncertainty contribution. For statistical interpolation
+methods (Section 2.2), the model uncertainties are calculated as one of
+the output of the algorithm and can thus readily be used.
 
 Interpolation of relative residuals
 -----------------------------------
@@ -352,23 +317,17 @@ An equivalent prescription can be made where the model :math:`f` is
 defined instead as:
 
 .. math::
-
-   \begin{matrix}
-   f(x) = \ h(x) \times p(x).\#() \\
-   \end{matrix}
+ f(x) = \ h(x) \times p(x).
 
 In this case it follows from the assumption that this model must go
 through the measured data points that:
 
 .. math::
-
-   \begin{matrix}
-   p\left( x_{i} \right) = \frac{y_{i}}{h\left( x_{i} \right)},\ \#() \\
-   \end{matrix}
+ p\left( x_{i} \right) = \frac{y_{i}}{h\left( x_{i} \right)},
 
 which again yields a value for the :math:`p(x)` function for each of the
 data points, for which again we can use the interpolation methods from
-Section 2 to get\ :math:`\text{\ p}(x)`\ for any data point and
+Section 2 to get\ :math:`p(x)`\ for any data point and
 substitute the result in Equation (18).
 
 We note that both cases are equivalent, and can be converted into each
