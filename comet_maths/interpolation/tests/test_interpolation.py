@@ -42,7 +42,7 @@ class TestInterpolation(unittest.TestCase):
         xi = np.arange(0, 3.0, 0.2)
         yi = function2(xi)
         u_yi = 0.05 * yi
-        yi = cm.generate_sample(1, yi, u_yi, corr_x="rand")[:, 0]
+        yi = cm.generate_sample(1, yi, u_yi, corr_x="rand")
 
         x = np.array([0.33333, 0.666666, 1, 1.33333, 1.66666, 2, 2.3333])
         # t1=time.time()
@@ -145,7 +145,7 @@ class TestInterpolation(unittest.TestCase):
         y_HR = function2(x_HR)
         u_y_HR = 0.9 * np.ones_like(y_HR)
         corr_y_HR = np.ones((len(y_HR), len(y_HR)))  # + 0.05 * np.eye(len(y_HR))
-        y_HR = cm.generate_sample(1, y_HR, u_y_HR, corr_x="syst")[:, 0]
+        y_HR = cm.generate_sample(1, y_HR, u_y_HR, corr_x="syst")
 
         xx = np.arange(0, 2.5, 0.01)
 

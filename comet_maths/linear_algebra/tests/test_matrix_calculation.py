@@ -6,8 +6,7 @@ import unittest
 
 import numpy as np
 import numpy.testing as npt
-
-import punpy.utilities.utilities as util
+import comet_maths as cm
 
 """___Authorship___"""
 __author__ = "Pieter De Vis"
@@ -24,18 +23,18 @@ class TestMatrixCalculation(unittest.TestCase):
 
     def test_nearestPD_cholesky(self):
         A = np.ones((10, 10)) + np.diag(np.ones(10))
-        B = util.nearestPD_cholesky(A, diff=0.001, corr=False)
-        B = util.nearestPD_cholesky(A, diff=0.001, corr=False, return_cholesky=False)
+        B = cm.nearestPD_cholesky(A, diff=0.001, corr=False)
+        B = cm.nearestPD_cholesky(A, diff=0.001, corr=False, return_cholesky=False)
         npt.assert_allclose(A, B, atol=0.06)
 
         A = np.ones((10, 10))
-        B = util.nearestPD_cholesky(A, diff=0.001, corr=True)
-        B = util.nearestPD_cholesky(A, diff=0.001, corr=False, return_cholesky=False)
+        B = cm.nearestPD_cholesky(A, diff=0.001, corr=True)
+        B = cm.nearestPD_cholesky(A, diff=0.001, corr=False, return_cholesky=False)
         npt.assert_allclose(A, B, atol=0.06)
 
         A = np.ones((10, 10)) - np.diag(np.ones(10))
         try:
-            B = util.nearestPD_cholesky(A, diff=0.001, corr=False)
+            B = cm.nearestPD_cholesky(A, diff=0.001, corr=False)
         except:
             print("done")
 
