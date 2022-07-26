@@ -238,8 +238,7 @@ The measurement model for the measurement function :math:`f` can again
 be written as :math:`Y = f(X)=\widehat{f}(X) + \Delta(X)`. In order to show the
 difference with the equations in the previous section, we here use the more rigorous notation:
 
-:math:`Y=f(x)=\widehat{f}_{\left\{(x_{i},\ y_{i})\right\};\left\{(x_{HR,i},\ y_{HR,i})\right\}}(x)+\Delta{x}`.
-
+.. math::`Y=f(x)=\widehat{f}_{\left\{(x_{i},\ y_{i})\right\};\left\{(x_{HR,i},\ y_{HR,i})\right\}}(x)+\Delta{x}`.
 
 where
 :math:`\left\{ \left( x_{\text{HR,i}},\ y_{\text{HR,i}} \right) \right\}`
