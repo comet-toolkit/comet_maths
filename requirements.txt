@@ -1,0 +1,11 @@
+# required modules
+numpy >= 1.18.1
+matplotlib >= 3.1.0
+numdifftools==0.9.39
+sklearn
+punpy
+scipy
+
+# for docs
+sphinx==3.0.1
+sphinx-rtd-theme==0.4.3
