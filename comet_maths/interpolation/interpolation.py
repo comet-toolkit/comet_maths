@@ -307,7 +307,7 @@ def interpolate_1d(
 
         if add_model_error or include_model_uncertainties:
             u_y_model, corr_y_model, cov_model = model_error_analytical_methods(
-                x_i, y_i, x, methods=unc_methods
+                x_i, y_i, x, unc_methods=unc_methods
             )
 
         if add_model_error:
