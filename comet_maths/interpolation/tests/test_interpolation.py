@@ -95,11 +95,16 @@ class TestInterpolation(unittest.TestCase):
         # t5=time.time()
         # print("t5",t5-t4)
 
-        fig=plt.figure(figsize=(10,5))
+        fig = plt.figure(figsize=(10, 5))
         ax = fig.add_subplot(1, 1, 1)
         ax.plot(xx, function2(xx), "b", label="true values")
         ax.errorbar(xi, yi, yerr=u_yi, fmt="bo", ls=None, label="observed values")
-        ax.plot(xx, cm.interpolate_1d(xi, yi, xx, method="cubic"), "r:", label="cubic interpolation")
+        ax.plot(
+            xx,
+            cm.interpolate_1d(xi, yi, xx, method="cubic"),
+            "r:",
+            label="cubic interpolation",
+        )
         ax.fill_between(
             xx,
             yy2 - 1.9600 * u_yy2,
@@ -109,7 +114,7 @@ class TestInterpolation(unittest.TestCase):
             ec="None",
             label="95% confidence interval",
             lw=0,
-            )
+        )
         ax.plot(xx, yy, "g", label="gpr interpolation")
         ax.fill_between(
             xx,
@@ -120,18 +125,18 @@ class TestInterpolation(unittest.TestCase):
             ec="None",
             label="95% confidence interval",
             lw=0,
-            )
+        )
         ax.legend()
         fig.savefig("interpolation_test_1d.png", bbox_inches="tight")
 
-        fig2=plt.figure(figsize=(10,5))
+        fig2 = plt.figure(figsize=(10, 5))
         ax = fig2.add_subplot(1, 2, 1)
         ax2 = fig2.add_subplot(1, 2, 2)
-        p1=ax.imshow(corr_yy, vmin=-1, vmax=1, cmap="bwr")
+        p1 = ax.imshow(corr_yy, vmin=-1, vmax=1, cmap="bwr")
         ax.set_title("gpr interpolation")
-        p2=ax2.imshow(corr_yy2, vmin=-1, vmax=1, cmap="bwr")
+        p2 = ax2.imshow(corr_yy2, vmin=-1, vmax=1, cmap="bwr")
         ax2.set_title("cubic interpolation")
-        #cb_ax = fig.add_axes([0.9, 0.2, 0.04, 1.0])
+        # cb_ax = fig.add_axes([0.9, 0.2, 0.04, 1.0])
         fig2.colorbar(p2)
         fig2.savefig("interpolation_test_1d_corrs.png", bbox_inches="tight")
 
@@ -149,26 +154,45 @@ class TestInterpolation(unittest.TestCase):
 
         xx = np.arange(0, 2.5, 0.01)
 
-        fig=plt.figure(figsize=(10,5))
+        fig = plt.figure(figsize=(10, 5))
         ax = fig.add_subplot(1, 1, 1)
         ax.plot(xx, function2(xx), "b", label="true values")
         ax.plot(xi, yi, "ro", label="LR observed values")
         ax.plot(x_HR, y_HR, "mo", label="HR observed values")
-        ax.plot(xx, cm.interpolate_1d(xi, yi, xx, method="cubic"), "r:", label="cubic interpolation")
-        ax.plot(xx, cm.interpolate_1d(x_HR, y_HR, xx, method="cubic"), "m:", label="cubic interpolation HR")
+        ax.plot(
+            xx,
+            cm.interpolate_1d(xi, yi, xx, method="cubic"),
+            "r:",
+            label="cubic interpolation",
+        )
+        ax.plot(
+            xx,
+            cm.interpolate_1d(x_HR, y_HR, xx, method="cubic"),
+            "m:",
+            label="cubic interpolation HR",
+        )
         ax.plot(
             xx,
             cm.interpolate_1d_along_example(
-                xi, yi, x_HR, y_HR, xx, method="cubic", method_hr="cubic", relative=False
+                xi,
+                yi,
+                x_HR,
+                y_HR,
+                xx,
+                method="cubic",
+                method_hr="cubic",
+                relative=False,
             ),
-            "r-.", label="cubic interpolation along example"
+            "r-.",
+            label="cubic interpolation along example",
         )
         ax.plot(
             xx,
             cm.interpolate_1d_along_example(
                 xi, yi, x_HR, y_HR, xx, method="gpr", method_hr="gpr", relative=False
             ),
-            "g-.", label="gpr interpolation along example"
+            "g-.",
+            label="gpr interpolation along example",
         )
         ax.legend()
         fig.savefig("interpolation_test_1d_along_example.png", bbox_inches="tight")
@@ -225,7 +249,7 @@ class TestInterpolation(unittest.TestCase):
             return_corr=False,
         )
 
-        npt.assert_allclose(y_hr_cubic,y_hr_cubic2,atol=0.01)
+        npt.assert_allclose(y_hr_cubic, y_hr_cubic2, atol=0.01)
 
         y_gpr, u_y_gpr = cm.interpolate_1d(
             xi,
@@ -247,7 +271,7 @@ class TestInterpolation(unittest.TestCase):
             method_hr="gpr",
             min_scale=0.3,
         )
-        y_hr_gpr2, u_y_hr_gpr2= cm.interpolate_1d_along_example(
+        y_hr_gpr2, u_y_hr_gpr2 = cm.interpolate_1d_along_example(
             xi,
             yi,
             x_HR,
@@ -263,26 +287,30 @@ class TestInterpolation(unittest.TestCase):
             min_scale=0.3,
             return_uncertainties=True,
             plot_residuals=False,
-            return_corr=False
+            return_corr=False,
         )
 
         # npt.assert_allclose(y_hr_gpr,y_hr_gpr2,atol=0.01)
 
-
         mcprop = punpy.MCPropagation(100, parallel_cores=4)
 
         inp2 = cm.Interpolator(
-            relative=False, method="gpr", method_hr="gpr", min_scale=0.3,add_model_error=True
+            relative=False,
+            method="gpr",
+            method_hr="gpr",
+            min_scale=0.3,
+            add_model_error=True,
         )
         u_y_hr, corr2 = mcprop.propagate_random(
             inp2.interpolate_1d_along_example,
             [xi, yi, x_HR, y_HR, xx],
             [None, u_yi, None, u_y_HR, None],
-            corr_x=[None, "rand", None, corr_y_HR, None],return_corr=True
+            corr_x=[None, "rand", None, corr_y_HR, None],
+            return_corr=True,
         )
 
-        #npt.assert_allclose(u_y_hr_cubic2, u_y_hr, rtol=0.01)
-        fig=plt.figure(figsize=(10,5))
+        # npt.assert_allclose(u_y_hr_cubic2, u_y_hr, rtol=0.01)
+        fig = plt.figure(figsize=(10, 5))
         ax = fig.add_subplot(1, 1, 1)
         ax.plot(xx, function2(xx), "b", label="True line")
         ax.plot(xi, yi, "ro", label="low-res data")
@@ -308,8 +336,16 @@ class TestInterpolation(unittest.TestCase):
             label="95% confidence interval",
             lw=0,
         )
-        ax.fill_between(xx,y_hr_gpr2-1.9600*u_y_hr_gpr2,(y_hr_gpr2+1.9600*u_y_hr_gpr2),alpha=0.25,fc="g",ec="None",
-                         label="95% confidence interval",lw=0)
+        ax.fill_between(
+            xx,
+            y_hr_gpr2 - 1.9600 * u_y_hr_gpr2,
+            (y_hr_gpr2 + 1.9600 * u_y_hr_gpr2),
+            alpha=0.25,
+            fc="g",
+            ec="None",
+            label="95% confidence interval",
+            lw=0,
+        )
         ax.fill_between(
             xx,
             y_hr_cubic2 - 1.9600 * u_y_hr_cubic2,
@@ -345,65 +381,85 @@ class TestInterpolation(unittest.TestCase):
         y_HR = cm.generate_sample(1, y_HR, u_y_HR, corr_x=corr_y_HR)
 
         xx = np.arange(0.1, 2.5, 0.02)
-        y_gpr,u_y_gpr = cm.gaussian_process_regression(
-            xi,
-            yi,
-            xx,
-            min_scale=0.3,
-            return_uncertainties=True
+        y_gpr, u_y_gpr = cm.gaussian_process_regression(
+            xi, yi, xx, min_scale=0.3, return_uncertainties=True
         )
 
-        y_gpr2,u_y_gpr2 = cm.gaussian_process_regression(
+        y_gpr2, u_y_gpr2 = cm.gaussian_process_regression(
             xi,
             yi,
             xx,
-            u_y_i=np.arange(len(u_yi))*u_yi,
-            min_scale=0.3,
-            return_uncertainties=True
-        )
-
-        y_gpr3,u_y_gpr3 = cm.gaussian_process_regression(
-            xi,
-            yi,
-            xx,
-            u_y_i=np.arange(len(u_yi))*u_yi,
+            u_y_i=np.arange(len(u_yi)) * u_yi,
             min_scale=0.3,
             return_uncertainties=True,
-            include_model_uncertainties=False
         )
 
-        u_y_gpr=(u_y_gpr**2+(u_y_gpr3)**2)**0.5
+        y_gpr3, u_y_gpr3 = cm.gaussian_process_regression(
+            xi,
+            yi,
+            xx,
+            u_y_i=np.arange(len(u_yi)) * u_yi,
+            min_scale=0.3,
+            return_uncertainties=True,
+            include_model_uncertainties=False,
+        )
 
+        u_y_gpr = (u_y_gpr ** 2 + (u_y_gpr3) ** 2) ** 0.5
 
-        y_hr_gpr,u_y_hr_gpr = cm.gaussian_process_regression(
+        y_hr_gpr, u_y_hr_gpr = cm.gaussian_process_regression(
             x_HR,
             y_HR,
             xx,
             u_y_i=u_y_HR,
             corr_y_i=corr_y_HR,
             min_scale=0.3,
-            return_uncertainties=True
+            return_uncertainties=True,
         )
 
-        print(u_y_hr_gpr,u_y_HR)
+        print(u_y_hr_gpr, u_y_HR)
 
-        fig=plt.figure(figsize=(10,5))
+        fig = plt.figure(figsize=(10, 5))
         ax = fig.add_subplot(1, 1, 1)
         ax.plot(xx, function2(xx), "b", label="True line")
         ax.plot(xi, yi, "ro", label="low-res data")
         ax.plot(x_HR, y_HR, "go", label="high-res data")
         ax.plot(xx, y_hr_gpr, "g-.", label="GPR interpolation HR example")
-        ax.fill_between(xx,y_hr_gpr-1.9600*u_y_hr_gpr,(y_hr_gpr+1.9600*u_y_hr_gpr),alpha=0.25,fc="g",ec="None",
-                        label="95% confidence interval",lw=0)
+        ax.fill_between(
+            xx,
+            y_hr_gpr - 1.9600 * u_y_hr_gpr,
+            (y_hr_gpr + 1.9600 * u_y_hr_gpr),
+            alpha=0.25,
+            fc="g",
+            ec="None",
+            label="95% confidence interval",
+            lw=0,
+        )
         ax.plot(xx, y_gpr, "r-", label="GPR interpolation example")
-        ax.fill_between(xx,y_gpr-1.9600*u_y_gpr,(y_gpr+1.9600*u_y_gpr),alpha=0.25,fc="r",ec="None",
-                        label="95% confidence interval uncertainties added separately",lw=0)
+        ax.fill_between(
+            xx,
+            y_gpr - 1.9600 * u_y_gpr,
+            (y_gpr + 1.9600 * u_y_gpr),
+            alpha=0.25,
+            fc="r",
+            ec="None",
+            label="95% confidence interval uncertainties added separately",
+            lw=0,
+        )
         ax.plot(xx, y_gpr2, "m-", label="GPR interpolation example with combined unc")
-        ax.fill_between(xx,y_gpr2-1.9600*u_y_gpr2,(y_gpr2+1.9600*u_y_gpr2),alpha=0.25,fc="m",ec="None",
-                        label="95% confidence interval",lw=0)
+        ax.fill_between(
+            xx,
+            y_gpr2 - 1.9600 * u_y_gpr2,
+            (y_gpr2 + 1.9600 * u_y_gpr2),
+            alpha=0.25,
+            fc="m",
+            ec="None",
+            label="95% confidence interval",
+            lw=0,
+        )
         ax.legend(ncol=2, prop={"size": 6})
         ax.set_xlim([0.1, 2.5])
         fig.savefig("interpolation_gpr.png")
+
 
 if __name__ == "__main__":
     with warnings.catch_warnings():

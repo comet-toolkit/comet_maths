@@ -163,7 +163,7 @@ def nearestPD_cholesky(A, diff=0.001, corr=False, return_cholesky=True):
     try:
         _, s, V = np.linalg.svd(B)
     except:
-        _, s, V = np.linalg.svd(B+1.e-6*np.eye(A.shape[0]))
+        _, s, V = np.linalg.svd(B + 1.0e-6 * np.eye(A.shape[0]))
 
     H = np.dot(V.T, np.dot(np.diag(s), V))
 

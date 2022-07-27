@@ -51,8 +51,8 @@ def generate_sample(MCsteps, x, u_x, corr_x, i=None, dtype=None):
     else:
         sample = generate_sample_correlated(MCsteps, x, u_x, corr_x, i, dtype=dtype)
 
-    if MCsteps==1:
-        sample=sample.squeeze()
+    if MCsteps == 1:
+        sample = sample.squeeze()
     return sample
 
 
@@ -236,7 +236,7 @@ def generate_sample_cov(MCsteps, param, cov_param, dtype=None, diff=0.01):
     try:
         L = np.linalg.cholesky(cov_param)
     except:
-        L = cm.nearestPD_cholesky(cov_param,diff=diff)
+        L = cm.nearestPD_cholesky(cov_param, diff=diff)
 
     if dtype is None:
         return np.dot(L, np.random.normal(size=(len(param), MCsteps))) + param[:, None]

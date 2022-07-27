@@ -59,6 +59,31 @@ calculated in a relative or absolute way (depending on which is most appropriate
 for a given use case). The interpolation steps throughout this method use the same
 interpolation methods and uncertainty propagation as the **normal 1D interpolation**.
 
+Extrapolation
+=================
+Extrapolation is also possible using the **comet_maths** interpolation module.
+There are two options for extrapolation: "nearest" and "extrapolate".
+For "nearest", the extrapolated values are just the nearest bounds of the
+provided values (i.e. constant value). For "extrapolate", the extrapolation
+is done using the same method as chosen for the interpolation. In this case,
+the extrapolation is done using built-in scipy (or sklearn for gpr) functionality.
+To determine the model uncertainties for extrapolation, we again have different
+approaches for analytical and statistical (gpr) methods, similar to the approach
+for the interpolation model uncertainties. For gpr, the extrapolation
+model uncertainty is again returned as one of the outputs of the algorithm.
+For the analytical methods, we again calculate the std between various cases,
+where now we vary between "nearest" and "extrapolate" as the extrapolation methods,
+while still also varying the interpolation methods. The latter also affects
+the extrapolated values.
+
+When doing an interpolation along a high-resolution example, we recommend to use the
+"nearest" option for extrapolation. By default, the "extrapolate" option will be used
+when doing normal 1d interpolation, yet internally the "nearest" extrapolate option
+will be used by default to interpolate the residuals when interpolating along a high-resolution
+example. This way the high resolution data is followed as closely as possible in the
+regions where no low resolution data is available to constrain it.
+
+
 Usage
 =========
 We here give some basic examples of usages, for further examples, we refer to `this jupyter notebook <https://colab.research.google.com/github/comet-toolkit/comet_training/blob/main/interpolation_example.ipynb>`_
