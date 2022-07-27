@@ -1,5 +1,5 @@
-comet_maths package
-======================
+comet_maths package API
+========================
 
 .. automodule:: comet_maths
    :members:

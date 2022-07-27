@@ -1,5 +1,5 @@
-comet_maths.interpolation.interpolation module
-===============================================
+comet_maths.interpolation.interpolation module API
+===================================================
 
 .. automodule:: comet_maths.interpolation.interpolation
    :members:
