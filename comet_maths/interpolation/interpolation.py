@@ -46,7 +46,7 @@ class Interpolator:
         :type add_model_error:
         :param min_scale: minimum bound on the scale parameter in the gaussian process regression. Only used if gpr is selected as method. Defaults to 0.3
         :type min_scale: float (optional)
-        :param extrapolate: extrpolation method, which can be set to "nearest" (in which case nearest values are used for extrapolation) or "extrapolate" (in which case extrapolation is used using interpolation method defined in "method"), defaults to "extrapolate".
+        :param extrapolate: extrapolation method, which can be set to "extrapolate" (in which case extrapolation is used using interpolation method defined in "method"), "nearest" (in which case nearest values are used for extrapolation), or "linear" (in which case linear extrapolation is used). Defaults to "extrapolate".
         :type extrapolate: str (optional)
         :param add_model_error: Boolean to indicate whether model error should be added to interpolated values to account for interpolation errors (useful in Monte Carlo approaches). Defaults to False
         :type add_model_error: bool (optional)
@@ -205,7 +205,7 @@ def interpolate_1d(
     :type corr_y_i: np.ndarray or str (optional)
     :param min_scale: minimum bound on the scale parameter in the gaussian process regression. Only used if gpr is selected as method. Defaults to 0.3
     :type min_scale: float (optional)
-    :param extrapolate: extrpolation method, which can be set to "nearest" (in which case nearest values are used for extrapolation) or "extrapolate" (in which case extrapolation is used using interpolation method defined in "method"), defaults to "extrapolate".
+    :param extrapolate: extrapolation method, which can be set to "extrapolate" (in which case extrapolation is used using interpolation method defined in "method"), "nearest" (in which case nearest values are used for extrapolation), or "linear" (in which case linear extrapolation is used). Defaults to "extrapolate".
     :type extrapolate: str (optional)
     :param return_uncertainties: Boolean to indicate whether interpolation uncertainties should be calculated and returned. Defaults to False
     :type return_uncertainties: bool (optional)
@@ -249,27 +249,11 @@ def interpolate_1d(
         "previous",
         "next",
     ]:
-        if extrapolate == "nearest":
-            f_i = interp1d(
-                x_i,
-                y_i,
-                kind=method.lower(),
-                fill_value=(y_i[0], y_i[-1]),
-                bounds_error=False,
-            )
-        elif extrapolate == "extrapolate":
-            f_i = interp1d(x_i, y_i, kind=method.lower(), fill_value="extrapolate")
-        else:
-            f_i = interp1d(x_i, y_i, kind=method.lower())
-
+        f_i = interp1d(x_i, y_i, kind=method.lower(), fill_value="extrapolate")
         y = f_i(x).squeeze()
 
     elif method.lower() == "ius":
-        if extrapolate == "nearest":
-            ext = 3
-        else:
-            ext = 0
-        f_i = InterpolatedUnivariateSpline(x_i, y_i, ext=ext)
+        f_i = InterpolatedUnivariateSpline(x_i, y_i, ext=0)
         y = f_i(x).squeeze()
 
     elif method.lower() == "lagrange":
@@ -281,6 +265,8 @@ def interpolate_1d(
             "comet_maths.interpolation: this interpolation method (%s) is not implemented"
             % (method)
         )
+
+    y=redo_extrapolation(x_i,y_i,x,y,extrapolate)
 
     if (not return_corr) and (not return_uncertainties) and (not add_model_error):
         return y
@@ -340,6 +326,33 @@ def interpolate_1d(
         else:
             return y, y_unc
 
+def redo_extrapolation(x_i,y_i,x,y,extrapolate):
+    """
+    function to check if extrapolate is "nearest" or "linear, and if so, redo the extrapolation
+
+    :param x_i: Independent variable quantity x (coordinate data of y_i)
+    :type x_i: np.ndarray
+    :param y_i: measured variable quantity y (data to interpolate)
+    :type y_i: np.ndarray
+    :param x: Independent variable quantity x for which we are trying to obtain the measurand y
+    :type x: np.ndarray
+    :param y: interpolated values using standard method
+    :type y: np.ndarray
+    :param extrapolate: extrapolation method, which can be set to "extrapolate" (in which case extrapolation is used using interpolation method defined in "method"), "nearest" (in which case nearest values are used for extrapolation), or "linear" (in which case linear extrapolation is used). Defaults to "extrapolate".
+    :type extrapolate: str (optional)
+    :return: interpolated values with correct extrapolation
+    :rtype: np.ndarray
+    """
+    if extrapolate == "nearest":
+        y[x < x_i[0]] = y_i[0]
+        y[x > x_i[-1]] = y_i[-1]
+
+    elif extrapolate == "linear":
+        f_lin = interp1d(x_i, y_i, kind="linear", fill_value="extrapolate")
+        y[x < x_i[0]] = f_lin(x[x < x_i[0]])
+        y[x > x_i[-1]] = f_lin(x[x > x_i[-1]])
+
+    return y
 
 def model_error_analytical_methods(
     x_i, y_i, x, unc_methods=["linear", "quadratic", "cubic"]
@@ -415,7 +428,7 @@ def gaussian_process_regression(
     :type min_scale: float (optional)
     :param max_scale: maximum bound on the scale parameter in the gaussian process regression. Defaults to 100
     :type max_scale: float (optional)
-    :param extrapolate: extrpolation method, which can be set to "nearest" (in which case nearest values are used for extrapolation) or "extrapolate" (in which case extrapolation is used using interpolation method defined in "method"), defaults to "extrapolate".
+    :param extrapolate: extrapolation method, which can be set to "extrapolate" (in which case extrapolation is used using interpolation method defined in "method"), "nearest" (in which case nearest values are used for extrapolation), or "linear" (in which case linear extrapolation is used). Defaults to "extrapolate".
     :type extrapolate: str (optional)
     :param return_uncertainties: Boolean to indicate whether interpolation uncertainties should be calculated and returned. Defaults to False
     :type return_uncertainties: bool (optional)
@@ -437,6 +450,8 @@ def gaussian_process_regression(
         x_i, y_i, x, kernel=kernel, min_scale=min_scale, max_scale=max_scale
     )
 
+    y_out=redo_extrapolation(x_i,y_i,x,y_out,extrapolate)
+
     if add_model_error:
         y_out = cm.generate_sample_cov(1, y_out, cov_model, diff=0.1).squeeze()
 
@@ -446,10 +461,6 @@ def gaussian_process_regression(
     if (u_y_i is None) and include_model_uncertainties:
         corr_y_out = cm.correlation_from_covariance(cov_model)
         u_y_out = cm.uncertainty_from_covariance(cov_model)
-
-    if extrapolate == "nearest":
-        y_out[x < x_i[0]] = y_i[0]
-        y_out[x > x_i[-1]] = y_i[-1]
 
     else:
         # next determine if a simple uncertainty from gpr is possible or if MC is necessary
@@ -622,7 +633,7 @@ def interpolate_1d_along_example(
     :type corr_y_hr: np.ndarray or str (optional)
     :param min_scale: minimum bound on the scale parameter in the gaussian process regression. Only used if gpr is selected as method. Defaults to 0.3
     :type min_scale: float (optional)
-    :param extrapolate: extrpolation method, which can be set to "nearest" (in which case nearest values are used for extrapolation) or "extrapolate" (in which case extrapolation is used using interpolation method defined in "method"), defaults to "extrapolate".
+    :param extrapolate: extrapolation method, which can be set to "extrapolate" (in which case extrapolation is used using interpolation method defined in "method"), "nearest" (in which case nearest values are used for extrapolation), or "linear" (in which case linear extrapolation is used). Defaults to "extrapolate".
     :type extrapolate: str (optional)
     :param return_uncertainties: Boolean to indicate whether interpolation uncertainties should be calculated and returned. Defaults to False
     :type return_uncertainties: bool (optional)
