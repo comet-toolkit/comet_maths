@@ -89,7 +89,7 @@ def calculate_flattened_corr(
                 jst = j * len(corrs[j])
                 jend = (j + 1) * len(corrs[j])
                 totcorr[ist:iend, jst:jend] = (
-                    corr_between[i, j] * corrs[i] ** 0.5 * corrs[j] ** 0.5
+                    corr_between[i, j] * ((corrs[i]+corrs[j])/2.)
                 )
     return totcorr
 
@@ -122,9 +122,7 @@ def separate_flattened_corr(
                 corr[
                     int(i * len(corr) / ndim) : int((i + 1) * len(corr) / ndim),
                     int(j * len(corr) / ndim) : int((j + 1) * len(corr) / ndim),
-                ]
-                / corrs[i] ** 0.5
-                / corrs[j] ** 0.5
+                ] / ((corrs[i]+corrs[j])/2.)
             )
 
     return corrs, corrs_between
