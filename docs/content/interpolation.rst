@@ -62,9 +62,10 @@ interpolation methods and uncertainty propagation as the **normal 1D interpolati
 Extrapolation
 =================
 Extrapolation is also possible using the **comet_maths** interpolation module.
-There are two options for extrapolation: "nearest" and "extrapolate".
+There are three options for extrapolation: "nearest", "linear" and "extrapolate".
 For "nearest", the extrapolated values are just the nearest bounds of the
-provided values (i.e. constant value). For "extrapolate", the extrapolation
+provided values (i.e. constant value). For "linear", linear extrapolation is used
+using the first and last two values. For "extrapolate", the extrapolation
 is done using the same method as chosen for the interpolation. In this case,
 the extrapolation is done using built-in scipy (or sklearn for gpr) functionality.
 To determine the model uncertainties for extrapolation, we again have different
