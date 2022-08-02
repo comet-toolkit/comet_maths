@@ -291,14 +291,23 @@ def interpolate_1d(
                     % (method)
                 )
 
-        if add_model_error or include_model_uncertainties:
+        if include_model_uncertainties:
             u_y_model, corr_y_model, cov_model = model_error_analytical_methods(
                 x_i, y_i, x, unc_methods=unc_methods
             )
 
         if add_model_error:
-            # y=cm.generate_sample(1,y,u_y_model,corr_y_model)
-            y = cm.generate_sample_cov(1, y, cov_model, diff=0.1).squeeze()
+            extrapolate_methods=[extrapolate,"nearest"]
+            y=interpolate_1d(
+                x_i,
+                y_i,
+                x,
+                method=np.random.choice(unc_methods,1)[0],
+                extrapolate=np.random.choice(extrapolate_methods,1)[0],
+                return_uncertainties=False,
+                add_model_error=False,
+            )
+
 
         if (not return_uncertainties) and (not return_corr):
             return y
