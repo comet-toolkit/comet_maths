@@ -78,16 +78,19 @@ def calculate_flattened_corr(
     :return: full correlation matrix combining the correlation matrices
     """
     totcorrlen = 0
+    corr_lims = [0,]
     for i in range(len(corrs)):
         totcorrlen += len(corrs[i])
+        corr_lims.append(totcorrlen)
     totcorr = np.eye(totcorrlen)
+    
     for i in range(len(corrs)):
         for j in range(len(corrs)):
             if corr_between[i, j] > 0:
-                ist = i * len(corrs[i])
-                iend = (i + 1) * len(corrs[i])
-                jst = j * len(corrs[j])
-                jend = (j + 1) * len(corrs[j])
+                ist = corr_lims[i]
+                iend = corr_lims[i + 1]
+                jst = corr_lims[j]
+                jend = corr_lims[j+1]
                 totcorr[ist:iend, jst:jend] = (
                     corr_between[i, j] * ((corrs[i]+corrs[j])/2.)
                 )
@@ -220,7 +223,7 @@ def first_dim_loop(in_corr, out_corr, loopshape):
     :return: correlation matrix contribution to the full correlation matrix
     :rtype: np.ndarray
     """
-    looplen = np.prod(loopshape)
+    looplen = int(np.prod(loopshape))
     for ii, mi in enumerate(np.ndindex(loopshape)):
         idx_start = ii
         idx_end = len(out_corr)
