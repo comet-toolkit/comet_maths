@@ -41,7 +41,7 @@ def generate_sample(MCsteps, x, u_x, corr_x, i=None, dtype=None):
         i = 0
     if np.count_nonzero(u_x[i]) == 0:
         sample = generate_sample_same(MCsteps, x[i], dtype=dtype)
-    elif not hasattr(x[i], "__len__"):
+    elif (not hasattr(x[i], "__len__")) or (len(x[i])==1):
         sample = generate_sample_systematic(MCsteps, x[i], u_x[i], dtype=dtype)
     elif isinstance(corr_x[i], str):
         if corr_x[i] == "rand":
@@ -75,26 +75,30 @@ def generate_sample_correlated(MCsteps, x, u_x, corr_x, i, dtype=None):
     :return: generated sample
     :rtype: array
     """
-    if x[i].ndim == 2:
-        if len(corr_x[i]) == len(u_x[i]):
+    if corr_x[i].ndim == 2:
+        if len(corr_x[i]) == len(u_x[i].ravel()):
+            cov_x = cm.convert_corr_to_cov(corr_x[i], u_x[i])
+            MC_data = generate_sample_cov(
+                MCsteps, x[i].flatten(), cov_x, dtype=dtype
+            ).reshape(x[i].shape + (MCsteps,))
+        elif len(corr_x[i]) == len(u_x[i]):
             MC_data = np.zeros((u_x[i].shape) + (MCsteps,))
             for j in range(len(u_x[i][0])):
                 cov_x = cm.convert_corr_to_cov(corr_x[i], u_x[i][:, j])
                 MC_data[:, j, :] = generate_sample_cov(
                     MCsteps, x[i][:, j].flatten(), cov_x, dtype=dtype
                 ).reshape(x[i][:, j].shape + (MCsteps,))
-        else:
+        elif len(corr_x[i]) == len(u_x[i][0]):
             MC_data = np.zeros((u_x[i].shape) + (MCsteps,))
             for j in range(len(u_x[i][:, 0])):
                 cov_x = cm.convert_corr_to_cov(corr_x[i], u_x[i][j])
                 MC_data[j, :, :] = generate_sample_cov(
                     MCsteps, x[i][j].flatten(), cov_x, dtype=dtype
                 ).reshape(x[i][j].shape + (MCsteps,))
+        else:
+            raise NotImplementedError("comet_maths.generate_Sample: This combination of dimension of correlation matrix (%s) and uncertainty (%s) is currently not implemented."%(corr_x[i],u_x[i]))
     else:
-        cov_x = cm.convert_corr_to_cov(corr_x[i], u_x[i])
-        MC_data = generate_sample_cov(
-            MCsteps, x[i].flatten(), cov_x, dtype=dtype
-        ).reshape(x[i].shape + (MCsteps,))
+        raise NotImplementedError("comet_maths.generate_Sample: This combination of dimension of correlation matrix (%s) and uncertainty (%s) is currently not implemented."%(corr_x[i],u_x[i]))
 
     return MC_data
 
