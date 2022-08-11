@@ -114,7 +114,11 @@ def generate_sample_same(MCsteps, param, dtype=None):
     :return: generated sample
     :rtype: array
     """
-    MC_sample = np.tile(param, (MCsteps,) + (1,) * param.ndim)
+    if isinstance(param, np.ndarray):
+        tileshape=(MCsteps,) + (1,) * param.ndim
+    else:
+        tileshape=(MCsteps,) + (1,)
+    MC_sample = np.tile(param, tileshape)
     MC_sample = np.moveaxis(MC_sample, 0, -1)
     return MC_sample
 
