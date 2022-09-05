@@ -26,11 +26,12 @@ def correlation_from_covariance(covariance: np.ndarray) -> np.ndarray:
     :param covariance: Covariance matrix
     :return: Correlation matrix
     """
-    v = np.sqrt(np.diag(covariance))
-    outer_v = np.outer(v, v)
-    correlation = covariance / outer_v
-    correlation[covariance == 0] = 0
-    return correlation
+    if covariance is not None:
+        v = np.sqrt(np.diag(covariance))
+        outer_v = np.outer(v, v)
+        correlation = covariance / outer_v
+        correlation[covariance == 0] = 0
+        return correlation
 
 
 def uncertainty_from_covariance(covariance: np.ndarray) -> np.ndarray:
@@ -40,7 +41,8 @@ def uncertainty_from_covariance(covariance: np.ndarray) -> np.ndarray:
     :param covariance: Covariance matrix
     :return: uncertainties
     """
-    return np.sqrt(np.diag(covariance))
+    if covariance is not None:
+        return np.sqrt(np.diag(covariance))
 
 
 def convert_corr_to_cov(corr: np.ndarray, u: np.ndarray) -> np.ndarray:
@@ -153,7 +155,8 @@ def expand_errcorr_dims(in_corr, in_dim, out_dim, dim_sizes):
         totcorrlen *= dim_sizes[out_dim[i]]
     out_corr = np.eye(totcorrlen)
 
-    loopshape = tuple([dim_sizes[dim] for dim in out_dim if dim not in in_dim])
+    loopdim = [dim for dim in out_dim if dim not in in_dim]
+    loopshape = tuple([dim_sizes[dim] for dim in loopdim])
     # if the input correlation is only along one dimension, do one of the three types of loop, depending if the correlation dimension is first, last or other in the output dimensions.
     if isinstance(in_dim, str):
         if in_dim == out_dim[0]:
@@ -172,41 +175,61 @@ def expand_errcorr_dims(in_corr, in_dim, out_dim, dim_sizes):
     # if the input correlation matrix is a list with one element, convert this dimension to string and restart
     elif len(in_dim) == 1:
         expand_errcorr_dims(in_corr, in_dim[0], out_dim, dim_sizes)
+    
     # if the input correlation matrix is along 2 dimensions, check if these dimensions are the first two or last two, and use similar approach as above
-    elif len(in_dim) == 2:
-        if in_dim[0] == out_dim[0] and in_dim[1] == out_dim[1]:
-            out_corr = first_dim_loop(in_corr, out_corr, loopshape)
-        elif in_dim[1] == out_dim[0] and in_dim[0] == out_dim[1]:
-            # in case the in in_corr dimensions are not in the same order as the out_dim, the in_corr is first reordered
-            in_corr_flipped = change_order_errcorr_dims(
-                in_corr, in_dim, [in_dim[1], in_dim[0]], dim_sizes
-            )
-            out_corr = first_dim_loop(in_corr_flipped, out_corr, loopshape)
-        elif in_dim[0] == out_dim[-2] and in_dim[1] == out_dim[-1]:
-            out_corr = last_dim_loop(
-                in_corr,
-                out_corr,
-                loopshape,
-                dim_sizes[out_dim[-1]] * dim_sizes[out_dim[-2]],
-            )
-        elif in_dim[1] == out_dim[-2] and in_dim[0] == out_dim[-1]:
-            in_corr_flipped = change_order_errcorr_dims(
-                in_corr, in_dim, [in_dim[1], in_dim[0]], dim_sizes
-            )
-            out_corr = last_dim_loop(
-                in_corr_flipped,
-                out_corr,
-                loopshape,
-                dim_sizes[out_dim[-1]] * dim_sizes[out_dim[-2]],
-            )
-        else:
-            raise ValueError(
-                "comet_maths.matrix_conversion: this type of 2D indim not yet supported"
-            )
+    # elif len(in_dim) == 2:
+    #     if in_dim[0] == out_dim[0] and in_dim[1] == out_dim[1]:
+    #         out_corr = first_dim_loop(in_corr, out_corr, loopshape)
+    #     elif in_dim[1] == out_dim[0] and in_dim[0] == out_dim[1]:
+    #         # in case the in in_corr dimensions are not in the same order as the out_dim, the in_corr is first reordered
+    #         in_corr_flipped = change_order_errcorr_dims(
+    #             in_corr, in_dim, [in_dim[1], in_dim[0]], dim_sizes
+    #         )
+    #         out_corr = first_dim_loop(in_corr_flipped, out_corr, loopshape)
+    #     elif in_dim[0] == out_dim[-2] and in_dim[1] == out_dim[-1]:
+    #         out_corr = last_dim_loop(
+    #             in_corr,
+    #             out_corr,
+    #             loopshape,
+    #             dim_sizes[out_dim[-1]] * dim_sizes[out_dim[-2]],
+    #         )
+    #     elif in_dim[1] == out_dim[-2] and in_dim[0] == out_dim[-1]:
+    #         in_corr_flipped = change_order_errcorr_dims(
+    #             in_corr, in_dim, [in_dim[1], in_dim[0]], dim_sizes
+    #         )
+    #         out_corr = last_dim_loop(
+    #             in_corr_flipped,
+    #             out_corr,
+    #             loopshape,
+    #             dim_sizes[out_dim[-1]] * dim_sizes[out_dim[-2]],
+    #         )
+    #     else:
+    #         raise ValueError(
+    #             "comet_maths.matrix_conversion: this type of 2D indim not yet supported"
+    #         )
     else:
-        raise ValueError(
-            "comet_maths.matrix_conversion: this type of indim not yet supported"
-        )
+        if np.all([in_dim[i] in out_dim[0:len(in_dim)] for i in range(len(in_dim))]):
+            if not in_dim==out_dim[0:len(in_dim)]:
+                in_corr = change_order_errcorr_dims(
+                    in_corr, in_dim, out_dim[0:len(in_dim)], dim_sizes
+                )
+            out_corr = first_dim_loop(in_corr, out_corr, loopshape)
+        elif np.all([in_dim[i] in out_dim[-len(in_dim)::] for i in range(len(in_dim))]):
+            if not in_dim==out_dim[-len(in_dim)::]:
+                in_corr = change_order_errcorr_dims(
+                    in_corr, in_dim, out_dim[-len(in_dim)::], dim_sizes
+                )
+            out_corr = last_dim_loop(in_corr, out_corr, loopshape, np.prod([dim_sizes[dim] for dim in out_dim[-len(in_dim)::]]))
+        else:
+            out_corrb = np.eye(totcorrlen)
+            out_dimb = np.concatenate([in_dim,loopdim])
+
+            out_corrb = first_dim_loop(in_corr, out_corrb, loopshape)
+
+            out_corr = change_order_errcorr_dims(
+                out_corrb, out_dimb, out_dim, dim_sizes
+                )
+            
     return out_corr
 
 
@@ -309,7 +332,7 @@ def change_order_errcorr_dims(in_corr, in_dim, out_dim, dim_sizes):
         raise ValueError(
             "comet_maths.matrix_conversion: in_dim and out_dim should be list of dimension, not a single string"
         )
-    elif in_dim == out_dim:
+    elif np.all(in_dim == out_dim):
         return in_corr
     else:
         out_corr = np.eye(len(in_corr))
@@ -323,8 +346,28 @@ def change_order_errcorr_dims(in_corr, in_dim, out_dim, dim_sizes):
                     ii2 = j % dim_sizes[in_dim[0]]
                     j2 = jj2 + ii2 * dim_sizes[out_dim[0]]
                     out_corr[i, j] = in_corr[i2, j2]
+        elif len(in_dim) == 3:
+            for i in range(len(out_corr)):
+                for j in range(len(out_corr)):
+                    jj = i // dim_sizes[in_dim[0]] // dim_sizes[in_dim[1]]
+                    ii = i % dim_sizes[in_dim[0]]
+                    i2 = jj + ii * dim_sizes[out_dim[0]]
+                    jj2 = j // dim_sizes[in_dim[0]]
+                    ii2 = j % dim_sizes[in_dim[0]]
+                    j2 = jj2 + ii2 * dim_sizes[out_dim[0]]
+                    out_corr[i, j] = in_corr[i2, j2]
+        elif len(in_dim) == 4:
+            for i in range(len(out_corr)):
+                for j in range(len(out_corr)):
+                    jj = i // dim_sizes[in_dim[0]]
+                    ii = i % dim_sizes[in_dim[0]]
+                    i2 = jj + ii * dim_sizes[out_dim[0]]
+                    jj2 = j // dim_sizes[in_dim[0]]
+                    ii2 = j % dim_sizes[in_dim[0]]
+                    j2 = jj2 + ii2 * dim_sizes[out_dim[0]]
+                    out_corr[i, j] = in_corr[i2, j2]
         else:
             raise ValueError(
-                "comet_maths.matrix_conversion: currently only matrices with 2 in_dim can be flipped"
+                "comet_maths.matrix_conversion: currently only matrices with 2,3 or 4 in_dim can be flipped"
             )
     return out_corr

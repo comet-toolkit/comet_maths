@@ -133,6 +133,53 @@ def calculate_corr(MC_y, corr_axis=-99, dtype=None):
                 (MC_y.shape[0] * MC_y.shape[1] * MC_y.shape[2], MCsteps)
             )
             corr_y = np.corrcoef(MC_y)
+    elif len(MC_y.shape) == 5:
+        if corr_axis == 0:
+            corr_ys = np.zeros(
+                (len(MC_y[:, 0, 0, 0, 0]), len(MC_y[:, 0, 0, 0, 0])), dtype=dtype
+            )
+            # corr_ys = np.zeros(MC_y[:, 0, 0].shape)
+            for i in range(len(MC_y[0])):
+                for j in range(len(MC_y[0, 0])):
+                    corr_ys += np.corrcoef(MC_y[:, i, j])
+            corr_y = corr_ys / (len(MC_y[0]) * len(MC_y[0, 0]))
+
+        elif corr_axis == 1:
+            corr_ys = np.zeros(
+                (len(MC_y[0, :, 0, 0, 0]), len(MC_y[0, :, 0, 0, 0])), dtype=dtype
+            )
+            # corr_ys = np.zeros(MC_y[0, :, 0].shape)
+            for i in range(len(MC_y)):
+                for j in range(len(MC_y[0, 0])):
+                    corr_ys += np.corrcoef(MC_y[i, :, j])
+            corr_y = corr_ys / (len(MC_y) * len(MC_y[0, 0]))
+
+        elif corr_axis == 2:
+            corr_ys = np.zeros(
+                (len(MC_y[0, 0, :, 0, 0]), len(MC_y[0, 0, :, 0, 0])), dtype=dtype
+            )
+            # corr_ys = np.zeros(MC_y[0, 0].shape)
+            for i in range(len(MC_y)):
+                for j in range(len(MC_y[0])):
+                    corr_ys += np.corrcoef(MC_y[i, j])
+            corr_y = corr_ys / (len(MC_y) * len(MC_y[0]))
+        
+        elif corr_axis == 3:
+            sli = tuple([slice(None) if (idim == corr_axis) else 0 for idim in range(MC_y.ndim)])
+
+            corr_ys =  np.zeros(
+                (len(MC_y[sli]), len(MC_y[sli])), dtype=dtype
+            )
+            # corr_ys = np.zeros(MC_y[0, 0].shape)
+            for i in range(len(MC_y)):
+                for j in range(len(MC_y[0])):
+                    corr_ys += np.corrcoef(MC_y[i, j])
+            corr_y = corr_ys / (len(MC_y) * len(MC_y[0]))
+        else:
+            MC_y = MC_y.reshape(
+                (MC_y.shape[0] * MC_y.shape[1] * MC_y.shape[2] * MC_y.shape[3], MCsteps)
+            )
+            corr_y = np.corrcoef(MC_y)
     else:
         raise ValueError(
             "punpy.mc_propagation: MC_y has too high dimensions. Reduce the dimensionality of the input data"
