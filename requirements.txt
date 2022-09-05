@@ -5,6 +5,7 @@ numdifftools==0.9.39
 sklearn
 punpy
 scipy
+obsarray
 
 # for docs
 Jinja2==3.0
