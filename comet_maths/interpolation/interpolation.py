@@ -42,8 +42,6 @@ class Interpolator:
         :type unc_methods: list(str) (optional)
         :param unc_methods_hr: interpolation methods to use in the calculation of the model error for interpolation between high resolution measurements. Not used for gpr. Defaults to None, in which case a standard list is used for each interpolation method.
         :type unc_methods_hr: list(str) (optional)
-        :param add_model_error:
-        :type add_model_error:
         :param min_scale: minimum bound on the scale parameter in the gaussian process regression. Only used if gpr is selected as method. Defaults to 0.3
         :type min_scale: float (optional)
         :param extrapolate: extrapolation method, which can be set to "extrapolate" (in which case extrapolation is used using interpolation method defined in "method"), "nearest" (in which case nearest values are used for extrapolation), or "linear" (in which case linear extrapolation is used). Defaults to "extrapolate".
@@ -342,6 +340,14 @@ def interpolate_1d(
 
 
 def default_unc_methods(method):
+    """
+    Function providing for each analytical interpolation method, the default methods that are compared to determine the model uncertainty for this interpolation method.
+
+    :param method: method used in the interpolation
+    :type method: str
+    :return: methods used to determine the model uncertainty on the provided method
+    :rtype: list(str)
+    """
     if method.lower() in ["nearest", "previous", "next"]:
         unc_methods = ["nearest", "previous", "next", "linear"]
     elif method.lower() == "linear":
@@ -569,8 +575,6 @@ def gpr_basics(
     :type min_scale: float (optional)
     :param max_scale: maximum bound on the scale parameter in the gaussian process regression. Defaults to 100
     :type max_scale: float (optional)
-    :param return_cov: Boolean to indicate whether the covariance matrix for interpolation uncertainties should be calculated and returned. Defaults to False
-    :type return_cov:  bool (optional)
     :return: The measurand y evaluated at the values x (interpolated data)
     :rtype: np.ndarray
     """
@@ -747,141 +751,6 @@ def interpolate_1d_along_example(
     if (not return_corr) and (not return_uncertainties):
         return y_out
 
-    # if return_uncertainties:
-    #     y_hr_i, u_y_hr_i, corr_y_hr_i = interpolate_1d(
-    #         x_hr,
-    #         y_hr,
-    #         x_i,
-    #         method=method_hr,
-    #         u_y_i=u_y_hr,
-    #         corr_y_i=corr_y_hr,
-    #         unc_methods=unc_methods_hr,
-    #         min_scale=min_scale,
-    #         return_uncertainties=return_uncertainties,
-    #         return_corr=True,
-    #         add_model_error=add_model_error,
-    #         include_model_uncertainties=include_model_uncertainties,
-    #         extrapolate=extrapolate,
-    #         MCsteps=MCsteps,
-    #         parallel_cores=parallel_cores,
-    #     )
-    #     cov_y_hr_i = cm.convert_corr_to_cov(corr_y_hr_i, u_y_hr_i)
-    #     if x == x_hr:
-    #         y_hr_out = y_hr
-    #     else:
-    #         y_hr_out, u_y_hr_out, corr_y_hr_out = interpolate_1d(
-    #             x_hr,
-    #             y_hr,
-    #             x,
-    #             method=method_hr,
-    #             u_y_i=u_y_hr,
-    #             corr_y_i=corr_y_hr,
-    #             unc_methods=unc_methods_hr,
-    #             min_scale=min_scale,
-    #             return_uncertainties=return_uncertainties,
-    #             return_corr=True,
-    #             add_model_error=add_model_error,
-    #             include_model_uncertainties=include_model_uncertainties,
-    #             extrapolate=extrapolate,
-    #             MCsteps=MCsteps,
-    #             parallel_cores=parallel_cores,
-    #         )
-    #         cov_y_hr_out = cm.convert_corr_to_cov(corr_y_hr_out, u_y_hr_out)
-    #
-    # # if x == x_hr:
-    #     #     y_hr_out2 = y_hr
-    #     # else:
-    #     #     y_hr_out2 = interpolate_1d(
-    #     #         x_hr,
-    #     #         y_hr,
-    #     #         x,
-    #     #         method=method_hr,
-    #     #         min_scale=min_scale,
-    #     #         extrapolate=extrapolate,
-    #     #         include_model_uncertainties=include_model_uncertainties,
-    #     #     )
-    #     if relative:
-    #         y_norm_i = y_i / y_hr_i
-    #         u_y_norm_i = (
-    #             (u_y_i / y_i) ** 2 + (u_y_hr_i / y_hr_i) ** 2
-    #         ) ** 0.5 * y_norm_i
-    #         u_y_norm_i[np.where(y_norm_i==0.)]=0.
-    #     else:
-    #         y_norm_i = y_i - y_hr_i
-    #         u_y_norm_i = ((u_y_i) ** 2 + (u_y_hr_i) ** 2) ** 0.5
-    #         if corr_y_i=="rand":
-    #             corr_y_i=np.eye(len(u_y_i))
-    #         if corr_y_i=="syst":
-    #             corr_y_i=np.ones((len(u_y_i),len(y_i)))
-    #
-    #         cov_y_i = cm.convert_corr_to_cov(corr_y_i, u_y_i)
-    #
-    #         cov_y_norm_i = cov_y_i + cov_y_hr_i
-    #         u_y_norm_i2 = cm.uncertainty_from_covariance(cov_y_norm_i)
-    #         corr_y_norm_i = cm.correlation_from_covariance(cov_y_norm_i)
-    #
-    #     y_norm_hr, u_y_norm_hr = interpolate_1d(
-    #         x_i,
-    #         y_norm_i,
-    #         x,
-    #         method=method,
-    #         u_y_i=u_y_norm_i,
-    #         corr_y_i=corr_y_norm_i,
-    #         min_scale=min_scale,
-    #         return_uncertainties=return_uncertainties,
-    #         unc_methods=unc_methods,
-    #         extrapolate=extrapolate,
-    #         MCsteps=MCsteps,
-    #         parallel_cores=parallel_cores,
-    #         include_model_uncertainties=include_model_uncertainties,
-    #     )
-    #     y_norm_hr = y_norm_hr.squeeze()
-    #
-    #     if relative:
-    #         r = -u_y_hr_out / u_y_norm_hr
-    #         y_out = y_norm_hr * y_hr_out
-    #         var=(
-    #                 u_y_hr_out / y_hr_out
-    #                 + 2 * r * u_y_norm_hr / y_norm_hr * u_y_hr_out / y_hr_out
-    #         )** 2
-    #         u_y_out = (
-    #             (u_y_norm_hr / y_norm_hr) ** 2
-    #             + (
-    #                 u_y_hr_out / y_hr_out
-    #                 + 2 * r * u_y_norm_hr / y_norm_hr * u_y_hr_out / y_hr_out
-    #             )
-    #             ** 2
-    #         ) ** 0.5 * y_out
-    #     else:
-    #         r = -u_y_hr_out / u_y_norm_hr
-    #         y_out = y_norm_hr + y_hr_out
-    #         u_y_out = (
-    #             (u_y_norm_hr) ** 2
-    #             - (u_y_hr_out) ** 2
-    #
-    #         ) ** 0.5
-    #
-    #     if plot_residuals:
-    #         plt.plot(x_i, y_norm_i, "ro", label="low-res residuals")
-    #         plt.plot(x, y_norm_hr, "g-", label="high-res residuals")
-    #         plt.fill_between(
-    #             x,
-    #             y_norm_hr - 1.9600 * u_y_norm_hr,
-    #             (y_norm_hr + 1.9600 * u_y_norm_hr),
-    #             alpha=0.25,
-    #             fc="g",
-    #             ec="None",
-    #             label="95% confidence interval",
-    #             lw=0,
-    #         )
-    #
-    #         plt.ylabel("Residuals")
-    #         plt.xlabel("x")
-    #         plt.legend()
-    #         plt.savefig("residuals.png")
-    #         plt.clf()
-    #
-    # else:
 
     else:
         prop = punpy.MCPropagation(MCsteps, parallel_cores=parallel_cores)
