@@ -80,21 +80,23 @@ def calculate_flattened_corr(
     :return: full correlation matrix combining the correlation matrices
     """
     totcorrlen = 0
-    corr_lims = [0,]
+    corr_lims = [
+        0,
+    ]
     for i in range(len(corrs)):
         totcorrlen += len(corrs[i])
         corr_lims.append(totcorrlen)
     totcorr = np.eye(totcorrlen)
-    
+
     for i in range(len(corrs)):
         for j in range(len(corrs)):
             if corr_between[i, j] > 0:
                 ist = corr_lims[i]
                 iend = corr_lims[i + 1]
                 jst = corr_lims[j]
-                jend = corr_lims[j+1]
-                totcorr[ist:iend, jst:jend] = (
-                    corr_between[i, j] * ((corrs[i]+corrs[j])/2.)
+                jend = corr_lims[j + 1]
+                totcorr[ist:iend, jst:jend] = corr_between[i, j] * (
+                    (corrs[i] + corrs[j]) / 2.0
                 )
     return totcorr
 
@@ -127,7 +129,8 @@ def separate_flattened_corr(
                 corr[
                     int(i * len(corr) / ndim) : int((i + 1) * len(corr) / ndim),
                     int(j * len(corr) / ndim) : int((j + 1) * len(corr) / ndim),
-                ] / ((corrs[i]+corrs[j])/2.)
+                ]
+                / ((corrs[i] + corrs[j]) / 2.0)
             )
 
     return corrs, corrs_between
@@ -175,7 +178,7 @@ def expand_errcorr_dims(in_corr, in_dim, out_dim, dim_sizes):
     # if the input correlation matrix is a list with one element, convert this dimension to string and restart
     elif len(in_dim) == 1:
         expand_errcorr_dims(in_corr, in_dim[0], out_dim, dim_sizes)
-    
+
     # if the input correlation matrix is along 2 dimensions, check if these dimensions are the first two or last two, and use similar approach as above
     # elif len(in_dim) == 2:
     #     if in_dim[0] == out_dim[0] and in_dim[1] == out_dim[1]:
@@ -208,28 +211,35 @@ def expand_errcorr_dims(in_corr, in_dim, out_dim, dim_sizes):
     #             "comet_maths.matrix_conversion: this type of 2D indim not yet supported"
     #         )
     else:
-        if np.all([in_dim[i] in out_dim[0:len(in_dim)] for i in range(len(in_dim))]):
-            if not in_dim==out_dim[0:len(in_dim)]:
+        if np.all([in_dim[i] in out_dim[0 : len(in_dim)] for i in range(len(in_dim))]):
+            if not in_dim == out_dim[0 : len(in_dim)]:
                 in_corr = change_order_errcorr_dims(
-                    in_corr, in_dim, out_dim[0:len(in_dim)], dim_sizes
+                    in_corr, in_dim, out_dim[0 : len(in_dim)], dim_sizes
                 )
             out_corr = first_dim_loop(in_corr, out_corr, loopshape)
-        elif np.all([in_dim[i] in out_dim[-len(in_dim)::] for i in range(len(in_dim))]):
-            if not in_dim==out_dim[-len(in_dim)::]:
+        elif np.all(
+            [in_dim[i] in out_dim[-len(in_dim) : :] for i in range(len(in_dim))]
+        ):
+            if not in_dim == out_dim[-len(in_dim) : :]:
                 in_corr = change_order_errcorr_dims(
-                    in_corr, in_dim, out_dim[-len(in_dim)::], dim_sizes
+                    in_corr, in_dim, out_dim[-len(in_dim) : :], dim_sizes
                 )
-            out_corr = last_dim_loop(in_corr, out_corr, loopshape, np.prod([dim_sizes[dim] for dim in out_dim[-len(in_dim)::]]))
+            out_corr = last_dim_loop(
+                in_corr,
+                out_corr,
+                loopshape,
+                np.prod([dim_sizes[dim] for dim in out_dim[-len(in_dim) : :]]),
+            )
         else:
             out_corrb = np.eye(totcorrlen)
-            out_dimb = np.concatenate([in_dim,loopdim])
+            out_dimb = np.concatenate([in_dim, loopdim])
 
             out_corrb = first_dim_loop(in_corr, out_corrb, loopshape)
 
             out_corr = change_order_errcorr_dims(
                 out_corrb, out_dimb, out_dim, dim_sizes
-                )
-            
+            )
+
     return out_corr
 
 

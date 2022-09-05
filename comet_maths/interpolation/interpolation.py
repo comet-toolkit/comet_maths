@@ -240,15 +240,15 @@ def interpolate_1d(
 
     elif add_model_error:
         if unc_methods is None:
-            unc_methods=default_unc_methods(method)
+            unc_methods = default_unc_methods(method)
 
-        extrapolate_methods=[extrapolate,"nearest"]
+        extrapolate_methods = [extrapolate, "nearest"]
         return interpolate_1d(
             x_i,
             y_i,
             x,
-            method=np.random.choice(unc_methods,1)[0],
-            extrapolate=np.random.choice(extrapolate_methods,1)[0],
+            method=np.random.choice(unc_methods, 1)[0],
+            extrapolate=np.random.choice(extrapolate_methods, 1)[0],
             return_uncertainties=False,
             add_model_error=False,
         )
@@ -281,14 +281,14 @@ def interpolate_1d(
             % (method)
         )
 
-    y=redo_extrapolation(x_i,y_i,x,y,extrapolate)
+    y = redo_extrapolation(x_i, y_i, x, y, extrapolate)
 
     if (not return_corr) and (not return_uncertainties):
         return y
 
     else:
         if unc_methods is None:
-            unc_methods=default_unc_methods(method)
+            unc_methods = default_unc_methods(method)
 
         if include_model_uncertainties:
             u_y_model, corr_y_model, cov_model = model_error_analytical_methods(
@@ -340,6 +340,7 @@ def interpolate_1d(
         else:
             return y, y_unc
 
+
 def default_unc_methods(method):
     if method.lower() in ["nearest", "previous", "next"]:
         unc_methods = ["nearest", "previous", "next", "linear"]
@@ -360,7 +361,8 @@ def default_unc_methods(method):
         )
     return unc_methods
 
-def redo_extrapolation(x_i,y_i,x,y,extrapolate):
+
+def redo_extrapolation(x_i, y_i, x, y, extrapolate):
     """
     function to check if extrapolate is "nearest" or "linear, and if so, redo the extrapolation
 
@@ -387,6 +389,7 @@ def redo_extrapolation(x_i,y_i,x,y,extrapolate):
         y[x > x_i[-1]] = f_lin(x[x > x_i[-1]])
 
     return y
+
 
 def model_error_analytical_methods(
     x_i, y_i, x, unc_methods=["linear", "quadratic", "cubic"]
@@ -484,7 +487,7 @@ def gaussian_process_regression(
         x_i, y_i, x, kernel=kernel, min_scale=min_scale, max_scale=max_scale
     )
 
-    y_out=redo_extrapolation(x_i,y_i,x,y_out,extrapolate)
+    y_out = redo_extrapolation(x_i, y_i, x, y_out, extrapolate)
 
     if add_model_error:
         y_out = cm.generate_sample_cov(1, y_out, cov_model, diff=0.1).squeeze()

@@ -163,13 +163,13 @@ def calculate_corr(MC_y, corr_axis=-99, dtype=None):
                 for j in range(len(MC_y[0])):
                     corr_ys += np.corrcoef(MC_y[i, j])
             corr_y = corr_ys / (len(MC_y) * len(MC_y[0]))
-        
-        elif corr_axis == 3:
-            sli = tuple([slice(None) if (idim == corr_axis) else 0 for idim in range(MC_y.ndim)])
 
-            corr_ys =  np.zeros(
-                (len(MC_y[sli]), len(MC_y[sli])), dtype=dtype
+        elif corr_axis == 3:
+            sli = tuple(
+                [slice(None) if (idim == corr_axis) else 0 for idim in range(MC_y.ndim)]
             )
+
+            corr_ys = np.zeros((len(MC_y[sli]), len(MC_y[sli])), dtype=dtype)
             # corr_ys = np.zeros(MC_y[0, 0].shape)
             for i in range(len(MC_y)):
                 for j in range(len(MC_y[0])):

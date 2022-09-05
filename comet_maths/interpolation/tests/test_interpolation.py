@@ -465,7 +465,7 @@ class TestInterpolation(unittest.TestCase):
         yi = function2(xi)
         u_yi = 0.03 * np.ones_like(yi)
         yi = cm.generate_sample(1, yi, u_yi, corr_x="rand").squeeze()
-        x_HR = np.arange(-0.5, 4., 0.09)
+        x_HR = np.arange(-0.5, 4.0, 0.09)
         y_HR = function2(x_HR)
         u_y_HR_syst = 0.9 * np.ones_like(y_HR)
         u_y_HR_rand = 0.02 * y_HR
@@ -477,8 +477,8 @@ class TestInterpolation(unittest.TestCase):
 
         y_HR = cm.generate_sample(1, y_HR, u_y_HR, corr_x=corr_y_HR)
 
-        xx2= np.arange(0.0, 3.5, 0.02)
-        y_hr_gpr3, u_y_hr_gpr3= cm.interpolate_1d_along_example(
+        xx2 = np.arange(0.0, 3.5, 0.02)
+        y_hr_gpr3, u_y_hr_gpr3 = cm.interpolate_1d_along_example(
             xi,
             yi,
             x_HR,
@@ -495,10 +495,10 @@ class TestInterpolation(unittest.TestCase):
             extrapolate="nearest",
             return_uncertainties=True,
             plot_residuals=False,
-            return_corr=False
+            return_corr=False,
         )
 
-        y_hr_lin, u_y_hr_lin =  cm.interpolate_1d(
+        y_hr_lin, u_y_hr_lin = cm.interpolate_1d(
             xi,
             yi,
             xx2,
@@ -507,10 +507,10 @@ class TestInterpolation(unittest.TestCase):
             corr_y_i="rand",
             extrapolate="extrapolate",
             return_uncertainties=True,
-            return_corr=False
+            return_corr=False,
         )
 
-        y_hr_lin2, u_y_hr_lin2 =  cm.interpolate_1d(
+        y_hr_lin2, u_y_hr_lin2 = cm.interpolate_1d(
             xi,
             yi,
             xx2,
@@ -519,24 +519,56 @@ class TestInterpolation(unittest.TestCase):
             corr_y_i="rand",
             extrapolate="linear",
             return_uncertainties=True,
-            return_corr=False
+            return_corr=False,
         )
 
-        fig3=plt.figure(figsize=(10,5))
+        fig3 = plt.figure(figsize=(10, 5))
         ax = fig3.add_subplot(1, 1, 1)
         ax.plot(xx2, function2(xx2), "b", label="True line")
         ax.plot(xi, yi, "ro", label="low-res data")
         ax.plot(x_HR, y_HR, "go", label="high-res data")
         ax.plot(xx2, y_hr_lin, "b--", label="linear interpolation with extrapolation")
-        ax.fill_between(xx2,y_hr_lin-1.9600*u_y_hr_lin,(y_hr_lin+1.9600*u_y_hr_lin),alpha=0.15,fc="b",ec="None",lw=0)
-        ax.plot(xx2, y_hr_lin2, "c--", label="gpr interpolation with linear extrapolation")
-        ax.fill_between(xx2,y_hr_lin2-1.9600*u_y_hr_lin2,(y_hr_lin2+1.9600*u_y_hr_lin2),alpha=0.15,fc="c",ec="None",lw=0)
-        ax.plot(xx2, y_hr_gpr3, "g--", label="GPR interpolation with HR example and extrapolation")
-        ax.fill_between(xx2,y_hr_gpr3-1.9600*u_y_hr_gpr3,(y_hr_gpr3+1.9600*u_y_hr_gpr3),alpha=0.15,fc="g",ec="None",lw=0)
-        ax.set_ylim(-5,5)
-        ax.set_xlim(0,3.5)
+        ax.fill_between(
+            xx2,
+            y_hr_lin - 1.9600 * u_y_hr_lin,
+            (y_hr_lin + 1.9600 * u_y_hr_lin),
+            alpha=0.15,
+            fc="b",
+            ec="None",
+            lw=0,
+        )
+        ax.plot(
+            xx2, y_hr_lin2, "c--", label="gpr interpolation with linear extrapolation"
+        )
+        ax.fill_between(
+            xx2,
+            y_hr_lin2 - 1.9600 * u_y_hr_lin2,
+            (y_hr_lin2 + 1.9600 * u_y_hr_lin2),
+            alpha=0.15,
+            fc="c",
+            ec="None",
+            lw=0,
+        )
+        ax.plot(
+            xx2,
+            y_hr_gpr3,
+            "g--",
+            label="GPR interpolation with HR example and extrapolation",
+        )
+        ax.fill_between(
+            xx2,
+            y_hr_gpr3 - 1.9600 * u_y_hr_gpr3,
+            (y_hr_gpr3 + 1.9600 * u_y_hr_gpr3),
+            alpha=0.15,
+            fc="g",
+            ec="None",
+            lw=0,
+        )
+        ax.set_ylim(-5, 5)
+        ax.set_xlim(0, 3.5)
         ax.legend(ncol=2, prop={"size": 8})
         fig3.savefig("test_extrapolation.png")
+
 
 if __name__ == "__main__":
     with warnings.catch_warnings():

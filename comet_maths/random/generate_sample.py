@@ -41,9 +41,9 @@ def generate_sample(MCsteps, x, u_x, corr_x, i=None, dtype=None):
         i = 0
     if np.count_nonzero(u_x[i]) == 0:
         sample = generate_sample_same(MCsteps, x[i], dtype=dtype)
-    elif not hasattr(x[i],"size"):
+    elif not hasattr(x[i], "size"):
         sample = generate_sample_systematic(MCsteps, x[i], u_x[i], dtype=dtype)
-    elif x[i].size==1:
+    elif x[i].size == 1:
         sample = generate_sample_systematic(MCsteps, x[i], u_x[i], dtype=dtype)
     elif isinstance(corr_x[i], str):
         if corr_x[i] == "rand":
@@ -98,9 +98,15 @@ def generate_sample_correlated(MCsteps, x, u_x, corr_x, i, dtype=None):
                     MCsteps, x[i][j].flatten(), cov_x, dtype=dtype
                 ).reshape(x[i][j].shape + (MCsteps,))
         else:
-            raise NotImplementedError("comet_maths.generate_Sample: This combination of dimension of correlation matrix (%s) and uncertainty (%s) is currently not implemented."%(corr_x[i].shape,u_x[i].shape))
+            raise NotImplementedError(
+                "comet_maths.generate_Sample: This combination of dimension of correlation matrix (%s) and uncertainty (%s) is currently not implemented."
+                % (corr_x[i].shape, u_x[i].shape)
+            )
     else:
-        raise NotImplementedError("comet_maths.generate_Sample: This combination of dimension of correlation matrix (%s) and uncertainty (%s) is currently not implemented."%(corr_x[i].shape,u_x[i].shape))
+        raise NotImplementedError(
+            "comet_maths.generate_Sample: This combination of dimension of correlation matrix (%s) and uncertainty (%s) is currently not implemented."
+            % (corr_x[i].shape, u_x[i].shape)
+        )
 
     return MC_data
 
@@ -117,9 +123,9 @@ def generate_sample_same(MCsteps, param, dtype=None):
     :rtype: array
     """
     if isinstance(param, np.ndarray):
-        tileshape=(MCsteps,) + (1,) * param.ndim
+        tileshape = (MCsteps,) + (1,) * param.ndim
     else:
-        tileshape=(MCsteps,) + (1,)
+        tileshape = (MCsteps,) + (1,)
     MC_sample = np.tile(param, tileshape)
     MC_sample = np.moveaxis(MC_sample, 0, -1)
     return MC_sample
@@ -162,26 +168,25 @@ def generate_sample_random(MCsteps, param, u_param, dtype=None):
         )
     elif len(param.shape) == 4:
         return (
-                np.random.normal(size=param.shape + (MCsteps,)).astype(dtype)
-                * u_param[:, :, :, :, None]
-                + param[:, :, :, :, None]
+            np.random.normal(size=param.shape + (MCsteps,)).astype(dtype)
+            * u_param[:, :, :, :, None]
+            + param[:, :, :, :, None]
         )
     elif len(param.shape) == 5:
         return (
-                np.random.normal(size=param.shape + (MCsteps,)).astype(dtype)
-                * u_param[:, :, :, :, :, None]
-                + param[:, :, :,:, :, None]
+            np.random.normal(size=param.shape + (MCsteps,)).astype(dtype)
+            * u_param[:, :, :, :, :, None]
+            + param[:, :, :, :, :, None]
         )
     elif len(param.shape) == 6:
         return (
-                np.random.normal(size=param.shape + (MCsteps,)).astype(dtype)
-                * u_param[:, :, :,:,:, :, None]
-                + param[:, :, :,:,:, :, None]
+            np.random.normal(size=param.shape + (MCsteps,)).astype(dtype)
+            * u_param[:, :, :, :, :, :, None]
+            + param[:, :, :, :, :, :, None]
         )
     else:
         raise ValueError(
-            "punpy.mc_propagation: parameter shape not supported: %s"
-            % (param.shape)
+            "punpy.mc_propagation: parameter shape not supported: %s" % (param.shape)
         )
 
 
@@ -236,16 +241,17 @@ def generate_sample_systematic(MCsteps, param, u_param, dtype=None):
         )
     elif len(param.shape) == 5:
         return (
-                np.dot(
-                    u_param[:, :, :, :, :, None],
-                    np.random.normal(size=MCsteps).astype(dtype)[:, None, None, None, None, None],
-                )[:, :, :, :, :, :, 0, 0, 0, 0]
-                + param[:, :, :, :, :, None]
+            np.dot(
+                u_param[:, :, :, :, :, None],
+                np.random.normal(size=MCsteps).astype(dtype)[
+                    :, None, None, None, None, None
+                ],
+            )[:, :, :, :, :, :, 0, 0, 0, 0]
+            + param[:, :, :, :, :, None]
         )
     else:
         raise ValueError(
-            "punpy.mc_propagation: parameter shape not supported: %s"
-            % (param.shape)
+            "punpy.mc_propagation: parameter shape not supported: %s" % (param.shape)
         )
 
 
