@@ -4,7 +4,7 @@ import re
 
 from setuptools import find_packages
 from setuptools import setup
-exec(open('punpy/_version.py').read())
+exec(open('comet_maths/_version.py').read())
 
 def read(filename):
     filename = os.path.join(os.path.dirname(__file__), filename)
