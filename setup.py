@@ -4,8 +4,7 @@ import re
 
 from setuptools import find_packages
 from setuptools import setup
-import versioneer
-
+exec(open('punpy/_version.py').read())
 
 def read(filename):
     filename = os.path.join(os.path.dirname(__file__), filename)
@@ -15,7 +14,7 @@ def read(filename):
 
 
 setup(
-    version='0.13',
+    version=__version__,
     name="comet_maths",
     url="https://github.com/comet-toolkit/comet_maths",
     license="LGPLv3",

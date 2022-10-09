@@ -34,7 +34,4 @@ from comet_maths.interpolation.interpolation import (
 __author__ = "Pieter De Vis <pieter.de.vis@npl.co.uk>"
 __all__ = []
 
-from ._version import get_versions
-
-__version__ = get_versions()["version"]
-del get_versions
+from ._version import __version__
