@@ -177,7 +177,7 @@ def expand_errcorr_dims(in_corr, in_dim, out_dim, dim_sizes):
             )
     # if the input correlation matrix is a list with one element, convert this dimension to string and restart
     elif len(in_dim) == 1:
-        expand_errcorr_dims(in_corr, in_dim[0], out_dim, dim_sizes)
+        return expand_errcorr_dims(in_corr, in_dim[0], out_dim, dim_sizes)
 
     # if the input correlation matrix is along 2 dimensions, check if these dimensions are the first two or last two, and use similar approach as above
     # elif len(in_dim) == 2:
