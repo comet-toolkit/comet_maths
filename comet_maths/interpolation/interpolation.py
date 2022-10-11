@@ -171,7 +171,7 @@ def interpolate_1d(
     x_i,
     y_i,
     x,
-    method="cubic",
+    method="linear",
     unc_methods=None,
     u_y_i=None,
     corr_y_i=None,
@@ -620,8 +620,8 @@ def interpolate_1d_along_example(
     y_hr,
     x,
     relative=True,
-    method="gpr",
-    method_hr="cubic",
+    method="linear",
+    method_hr="linear",
     unc_methods=None,
     unc_methods_hr=None,
     u_y_i=None,
@@ -704,7 +704,7 @@ def interpolate_1d_along_example(
         add_model_error=add_model_error,
     )
 
-    if x == x_hr:
+    if np.all(x == x_hr):
         y_hr_out = y_hr
     else:
         y_hr_out = interpolate_1d(
