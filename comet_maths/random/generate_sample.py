@@ -58,7 +58,7 @@ def generate_sample(MCsteps, x, u_x, corr_x, i=None, dtype=None):
     return sample
 
 
-def generate_sample_correlated(MCsteps, x, u_x, corr_x, i, dtype=None):
+def generate_sample_correlated(MCsteps, x, u_x, corr_x, i=None, dtype=None):
     """
     Generate correlated MC sample of input quantity with given uncertainties and correlation matrix.
     sample are generated using generate_sample_cov() after matching up the uncertainties to the right correlation matrix.
@@ -77,31 +77,46 @@ def generate_sample_correlated(MCsteps, x, u_x, corr_x, i, dtype=None):
     :return: generated sample
     :rtype: array
     """
+
+    if i is None:
+        x = np.array([x])
+        u_x = np.array([u_x])
+        corr_x = np.array([corr_x])
+        i = 0
+
     if corr_x[i].ndim == 2:
         if len(corr_x[i]) == len(u_x[i].ravel()):
             cov_x = cm.convert_corr_to_cov(corr_x[i], u_x[i])
             MC_data = generate_sample_cov(
-                MCsteps, x[i].flatten(), cov_x, dtype=dtype
-            ).reshape(x[i].shape + (MCsteps,))
+                MCsteps, x[i], cov_x, dtype=dtype
+            )
         elif len(corr_x[i]) == len(u_x[i]):
-            MC_data = np.zeros((u_x[i].shape) + (MCsteps,))
+            MC_data = np.zeros((MCsteps,)+(u_x[i].shape))
             for j in range(len(u_x[i][0])):
                 cov_x = cm.convert_corr_to_cov(corr_x[i], u_x[i][:, j])
-                MC_data[:, j, :] = generate_sample_cov(
-                    MCsteps, x[i][:, j].flatten(), cov_x, dtype=dtype
-                ).reshape(x[i][:, j].shape + (MCsteps,))
+                MC_data[:, :, j] = generate_sample_cov(
+                    MCsteps, x[i][:, j], cov_x, dtype=dtype
+                )
         elif len(corr_x[i]) == len(u_x[i][0]):
-            MC_data = np.zeros((u_x[i].shape) + (MCsteps,))
+            MC_data = np.zeros((MCsteps,)+(u_x[i].shape))
             for j in range(len(u_x[i][:, 0])):
                 cov_x = cm.convert_corr_to_cov(corr_x[i], u_x[i][j])
-                MC_data[j, :, :] = generate_sample_cov(
-                    MCsteps, x[i][j].flatten(), cov_x, dtype=dtype
-                ).reshape(x[i][j].shape + (MCsteps,))
+                MC_data[:, j, :] = generate_sample_cov(
+                    MCsteps, x[i][j], cov_x, dtype=dtype
+                )
         else:
             raise NotImplementedError(
                 "comet_maths.generate_Sample: This combination of dimension of correlation matrix (%s) and uncertainty (%s) is currently not implemented."
                 % (corr_x[i].shape, u_x[i].shape)
             )
+
+    elif (len(corr_x[i])==x[i].ndim):
+        if np.all([len(corr_x[i][j])==x[i].shape[j] for j in range(x[i].ndim)]):
+            MC_data=generate_sample_random(MCsteps, x[i], u_x[i], dtype=dtype)
+            for j in range(x[i].ndim):
+                MC_data=correlate_sample_corr(MC_data, corr_x[i][j])
+        else:
+            ValueError("When providing a list of correlation matrices for each dimension, ")
     else:
         raise NotImplementedError(
             "comet_maths.generate_Sample: This combination of dimension of correlation matrix (%s) and uncertainty (%s) is currently not implemented."
@@ -125,9 +140,8 @@ def generate_sample_same(MCsteps, param, dtype=None):
     if isinstance(param, np.ndarray):
         tileshape = (MCsteps,) + (1,) * param.ndim
     else:
-        tileshape = (MCsteps,) + (1,)
-    MC_sample = np.tile(param, tileshape)
-    MC_sample = np.moveaxis(MC_sample, 0, -1)
+        tileshape = (MCsteps,)
+    MC_sample = np.tile(param, tileshape).astype(dtype)
     return MC_sample
 
 
@@ -148,45 +162,14 @@ def generate_sample_random(MCsteps, param, u_param, dtype=None):
         return np.random.normal(size=MCsteps).astype(dtype) * u_param + param
     elif len(param.shape) == 0:
         return np.random.normal(size=MCsteps).astype(dtype) * u_param + param
-
-    elif len(param.shape) == 1:
-        return (
-            np.random.normal(size=(len(param), MCsteps)).astype(dtype)
-            * u_param[:, None]
-            + param[:, None]
-        )
-    elif len(param.shape) == 2:
-        return (
-            np.random.normal(size=param.shape + (MCsteps,)) * u_param[:, :, None]
-            + param[:, :, None]
-        )
-    elif len(param.shape) == 3:
-        return (
-            np.random.normal(size=param.shape + (MCsteps,)).astype(dtype)
-            * u_param[:, :, :, None]
-            + param[:, :, :, None]
-        )
-    elif len(param.shape) == 4:
-        return (
-            np.random.normal(size=param.shape + (MCsteps,)).astype(dtype)
-            * u_param[:, :, :, :, None]
-            + param[:, :, :, :, None]
-        )
-    elif len(param.shape) == 5:
-        return (
-            np.random.normal(size=param.shape + (MCsteps,)).astype(dtype)
-            * u_param[:, :, :, :, :, None]
-            + param[:, :, :, :, :, None]
-        )
-    elif len(param.shape) == 6:
-        return (
-            np.random.normal(size=param.shape + (MCsteps,)).astype(dtype)
-            * u_param[:, :, :, :, :, :, None]
-            + param[:, :, :, :, :, :, None]
-        )
     else:
-        raise ValueError(
-            "punpy.mc_propagation: parameter shape not supported: %s" % (param.shape)
+        sli_par=list([slice(None)] * (len(param.shape) +1))
+        sli_par[0]=None
+
+        return (
+                np.random.normal(size=(MCsteps,)+param.shape).astype(dtype)
+                * u_param[sli_par]
+                + param[sli_par]
         )
 
 
@@ -207,53 +190,17 @@ def generate_sample_systematic(MCsteps, param, u_param, dtype=None):
         return np.random.normal(size=MCsteps).astype(dtype) * u_param + param
     elif len(param.shape) == 0:
         return np.random.normal(size=MCsteps).astype(dtype) * u_param + param
-    elif len(param.shape) == 1:
-        return (
-            np.dot(
-                u_param[:, None],
-                np.random.normal(size=MCsteps).astype(dtype)[None, :],
-            )
-            + param[:, None]
-        )
-    elif len(param.shape) == 2:
-        return (
-            np.dot(
-                u_param[:, :, None],
-                np.random.normal(size=MCsteps).astype(dtype)[:, None, None],
-            )[:, :, :, 0]
-            + param[:, :, None]
-        )
-    elif len(param.shape) == 3:
-        return (
-            np.dot(
-                u_param[:, :, :, None],
-                np.random.normal(size=MCsteps).astype(dtype)[:, None, None, None],
-            )[:, :, :, :, 0, 0]
-            + param[:, :, :, None]
-        )
-    elif len(param.shape) == 4:
-        return (
-            np.dot(
-                u_param[:, :, :, :, None],
-                np.random.normal(size=MCsteps).astype(dtype)[:, None, None, None, None],
-            )[:, :, :, :, :, 0, 0, 0]
-            + param[:, :, :, :, None]
-        )
-    elif len(param.shape) == 5:
-        return (
-            np.dot(
-                u_param[:, :, :, :, :, None],
-                np.random.normal(size=MCsteps).astype(dtype)[
-                    :, None, None, None, None, None
-                ],
-            )[:, :, :, :, :, :, 0, 0, 0, 0]
-            + param[:, :, :, :, :, None]
-        )
     else:
-        raise ValueError(
-            "punpy.mc_propagation: parameter shape not supported: %s" % (param.shape)
-        )
+        sli_par=list([slice(None)] * (len(param.shape) +1))
+        sli_par[-2]=None
 
+        return (
+            np.dot(
+                np.random.normal(size=MCsteps).astype(dtype)[:, None],
+                u_param[sli_par],
+            )
+            + param
+        )
 
 def generate_sample_cov(MCsteps, param, cov_param, dtype=None, diff=0.01):
     """
@@ -274,13 +221,18 @@ def generate_sample_cov(MCsteps, param, cov_param, dtype=None, diff=0.01):
     except:
         L = cm.nearestPD_cholesky(cov_param, diff=diff)
 
-    if dtype is None:
-        return np.dot(L, np.random.normal(size=(len(param), MCsteps))) + param[:, None]
-    else:
-        return (
-            np.dot(L, np.random.normal(size=(len(param), MCsteps)).astype(dtype))
-            + param[:, None]
-        )
+    outshape=param.shape
+
+    if param.ndim>1:
+        param=param.flatten()
+
+    if len(param)!=len(L):
+        raise ValueError("The shapes of the provided variable (%s after flattening) and the provided covariance matrix (%s) are not consistent"%(param.shape,L.shape))
+
+    return (
+            np.dot(L, np.random.normal(size=(len(L),MCsteps))).astype(dtype).T
+            + param
+        ).reshape((MCsteps,)+outshape)
 
 
 def correlate_sample_corr(sample, corr, dtype=None):
@@ -306,37 +258,37 @@ def correlate_sample_corr(sample, corr, dtype=None):
             L = cm.nearestPD_cholesky(corr)
 
         sample_out = sample.copy()
-        for j in np.ndindex(sample[0][..., 0].shape):
-            sample_j = np.array([sample[i][j] for i in range(len(sample))], dtype=dtype)
+    for j in np.ndindex(sample[0][0, ...].shape):
+        sample_j = np.array([sample[i][(slice(None),)+j] for i in range(len(sample))], dtype=dtype)
 
-            # Cholesky needs to be applied to Gaussian distributions with mean=0 and std=1,
-            # We first calculate the mean and std for each input quantity
-            means = np.array(
-                [np.mean(sample[i][j]) for i in range(len(sample))],
-                dtype=dtype,
-            )[:, None]
-            stds = np.array(
-                [np.std(sample[i][j]) for i in range(len(sample))],
-                dtype=dtype,
-            )[:, None]
+        # Cholesky needs to be applied to Gaussian distributions with mean=0 and std=1,
+        # We first calculate the mean and std for each input quantity
+        means = np.array(
+            [np.mean(sample[i][(slice(None),)+j]) for i in range(len(sample))],
+            dtype=dtype,
+        )[:, None]
+        stds = np.array(
+            [np.std(sample[i][(slice(None),)+j]) for i in range(len(sample))],
+            dtype=dtype,
+        )[:, None]
 
-            # We normalise the sample with the mean and std, then apply Cholesky, and finally reapply the mean and std.
-            if all(stds[:, 0] != 0):
-                sample_j = np.dot(L, (sample_j - means) / stds) * stds + means
+        # We normalise the sample with the mean and std, then apply Cholesky, and finally reapply the mean and std.
+        if all(stds[:, 0] != 0):
+            sample_j = np.dot(L, (sample_j - means) / stds) * stds + means
 
-            # If any of the variables has no uncertainty, the normalisation will fail. Instead we leave the parameters without uncertainty unchanged.
-            else:
-                id_nonzero = np.where(stds[:, 0] != 0)[0]
-                sample_j[id_nonzero] = (
+        # If any of the variables has no uncertainty, the normalisation will fail. Instead we leave the parameters without uncertainty unchanged.
+        else:
+            id_nonzero = np.where(stds[:, 0] != 0)[0]
+            sample_j[id_nonzero] = (
                     np.dot(
                         L[id_nonzero][:, id_nonzero],
                         (sample_j[id_nonzero] - means[id_nonzero]) / stds[id_nonzero],
-                    )
+                        )
                     * stds[id_nonzero]
                     + means[id_nonzero]
-                )
+            )
 
-            for i in range(len(sample)):
-                sample_out[i][j] = sample_j[i]
+        for i in range(len(sample)):
+            sample_out[i][(slice(None),)+j] = sample_j[i]
 
-        return sample_out
+    return sample_out
