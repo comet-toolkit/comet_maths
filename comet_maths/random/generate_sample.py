@@ -90,6 +90,7 @@ def generate_sample_correlated(MCsteps, x, u_x, corr_x, i=None, dtype=None):
             if len(key)==1:
                 MC_data=correlate_sample_corr(np.movedim(MC_data,int(key),0), corr_x[i][key])
             else:
+                pass
 
 
         #     for j in range(x[i].ndim):
