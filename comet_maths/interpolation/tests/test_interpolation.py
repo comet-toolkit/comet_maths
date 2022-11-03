@@ -235,7 +235,7 @@ class TestInterpolation(unittest.TestCase):
             x_HR,
             y_HR,
             xx,
-            relative=False,
+            relative=True,
             method="cubic",
             method_hr="cubic",
             u_y_i=u_yi,

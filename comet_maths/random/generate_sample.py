@@ -84,7 +84,18 @@ def generate_sample_correlated(MCsteps, x, u_x, corr_x, i=None, dtype=None):
         corr_x = np.array([corr_x])
         i = 0
 
-    if corr_x[i].ndim == 2:
+    if isinstance(corr_x[i],dict):
+        MC_data=generate_sample_random(MCsteps, x[i], u_x[i], dtype=dtype)
+        for key in corr_x[i].keys():
+            if len(key)==1:
+                pass
+
+        #     for j in range(x[i].ndim):
+        #         MC_data=correlate_sample_corr(MC_data, corr_x[i][j])
+        # else:
+        #     ValueError("When providing a list of correlation matrices for each dimension, ")
+
+    elif corr_x[i].ndim == 2:
         if len(corr_x[i]) == len(u_x[i].ravel()):
             cov_x = cm.convert_corr_to_cov(corr_x[i], u_x[i])
             MC_data = generate_sample_cov(
@@ -110,13 +121,6 @@ def generate_sample_correlated(MCsteps, x, u_x, corr_x, i=None, dtype=None):
                 % (corr_x[i].shape, u_x[i].shape)
             )
 
-    elif (len(corr_x[i])==x[i].ndim):
-        if np.all([len(corr_x[i][j])==x[i].shape[j] for j in range(x[i].ndim)]):
-            MC_data=generate_sample_random(MCsteps, x[i], u_x[i], dtype=dtype)
-            for j in range(x[i].ndim):
-                MC_data=correlate_sample_corr(MC_data, corr_x[i][j])
-        else:
-            ValueError("When providing a list of correlation matrices for each dimension, ")
     else:
         raise NotImplementedError(
             "comet_maths.generate_Sample: This combination of dimension of correlation matrix (%s) and uncertainty (%s) is currently not implemented."
@@ -258,6 +262,7 @@ def correlate_sample_corr(sample, corr, dtype=None):
             L = cm.nearestPD_cholesky(corr)
 
         sample_out = sample.copy()
+
     for j in np.ndindex(sample[0][0, ...].shape):
         sample_j = np.array([sample[i][(slice(None),)+j] for i in range(len(sample))], dtype=dtype)
 

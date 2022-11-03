@@ -61,7 +61,7 @@ def calculate_Jacobian(fun, x, Jx_diag=False, step=None):
     return Jx
 
 
-def calculate_corr(MC_y, corr_axis=-99, dtype=None):
+def calculate_corr(MC_y, corr_axis=-99):
     """
     Calculate the correlation matrix between the MC-generated samples of output quantities.
     If corr_axis is specified, this axis will be the one used to calculate the correlation matrix (e.g. if corr_axis=0 and x.shape[0]=n, the correlation matrix will have shape (n,n)).
@@ -74,118 +74,42 @@ def calculate_corr(MC_y, corr_axis=-99, dtype=None):
     :return: correlation matrix
     :rtype: array
     """
-    # print("the shape is:",MC_y.shape)
-    MCsteps = MC_y.shape[-1]
+    if (isinstance(corr_axis,int)) or (isinstance(corr_axis,str)):
+        corr_axis=[corr_axis]
 
     if len(MC_y.shape) < 3:
-        corr_y = np.corrcoef(MC_y)
+        corr_y = np.corrcoef(MC_y,rowvar=False)
 
-    elif len(MC_y.shape) == 3:
-        if corr_axis == 0:
-            corr_ys = np.zeros((len(MC_y[:, 0, 0]), len(MC_y[:, 0, 0])), dtype=dtype)
-            for i in range(len(MC_y[0])):
-                corr_ys += np.corrcoef(MC_y[:, i])
-            corr_y = corr_ys / len(MC_y[0])
-
-        elif corr_axis == 1:
-            corr_ys = np.zeros((len(MC_y[0, :, 0]), len(MC_y[0, :, 0])), dtype=dtype)
-            # corr_ys = np.zeros(MC_y[0].shape)
-            for i in range(len(MC_y)):
-                corr_ys += np.corrcoef(MC_y[i])
-            corr_y = corr_ys / len(MC_y)
-
-        else:
-            MC_y = MC_y.reshape((MC_y.shape[0] * MC_y.shape[1], MCsteps))
-            corr_y = np.corrcoef(MC_y)
-
-    elif len(MC_y.shape) == 4:
-        if corr_axis == 0:
-            corr_ys = np.zeros(
-                (len(MC_y[:, 0, 0, 0]), len(MC_y[:, 0, 0, 0])), dtype=dtype
-            )
-            # corr_ys = np.zeros(MC_y[:, 0, 0].shape)
-            for i in range(len(MC_y[0])):
-                for j in range(len(MC_y[0, 0])):
-                    corr_ys += np.corrcoef(MC_y[:, i, j])
-            corr_y = corr_ys / (len(MC_y[0]) * len(MC_y[0, 0]))
-
-        elif corr_axis == 1:
-            corr_ys = np.zeros(
-                (len(MC_y[0, :, 0, 0]), len(MC_y[0, :, 0, 0])), dtype=dtype
-            )
-            # corr_ys = np.zeros(MC_y[0, :, 0].shape)
-            for i in range(len(MC_y)):
-                for j in range(len(MC_y[0, 0])):
-                    corr_ys += np.corrcoef(MC_y[i, :, j])
-            corr_y = corr_ys / (len(MC_y) * len(MC_y[0, 0]))
-
-        elif corr_axis == 2:
-            corr_ys = np.zeros(
-                (len(MC_y[0, 0, :, 0]), len(MC_y[0, 0, :, 0])), dtype=dtype
-            )
-            # corr_ys = np.zeros(MC_y[0, 0].shape)
-            for i in range(len(MC_y)):
-                for j in range(len(MC_y[0])):
-                    corr_ys += np.corrcoef(MC_y[i, j])
-            corr_y = corr_ys / (len(MC_y) * len(MC_y[0]))
-        else:
-            MC_y = MC_y.reshape(
-                (MC_y.shape[0] * MC_y.shape[1] * MC_y.shape[2], MCsteps)
-            )
-            corr_y = np.corrcoef(MC_y)
-    elif len(MC_y.shape) == 5:
-        if corr_axis == 0:
-            corr_ys = np.zeros(
-                (len(MC_y[:, 0, 0, 0, 0]), len(MC_y[:, 0, 0, 0, 0])), dtype=dtype
-            )
-            # corr_ys = np.zeros(MC_y[:, 0, 0].shape)
-            for i in range(len(MC_y[0])):
-                for j in range(len(MC_y[0, 0])):
-                    corr_ys += np.corrcoef(MC_y[:, i, j])
-            corr_y = corr_ys / (len(MC_y[0]) * len(MC_y[0, 0]))
-
-        elif corr_axis == 1:
-            corr_ys = np.zeros(
-                (len(MC_y[0, :, 0, 0, 0]), len(MC_y[0, :, 0, 0, 0])), dtype=dtype
-            )
-            # corr_ys = np.zeros(MC_y[0, :, 0].shape)
-            for i in range(len(MC_y)):
-                for j in range(len(MC_y[0, 0])):
-                    corr_ys += np.corrcoef(MC_y[i, :, j])
-            corr_y = corr_ys / (len(MC_y) * len(MC_y[0, 0]))
-
-        elif corr_axis == 2:
-            corr_ys = np.zeros(
-                (len(MC_y[0, 0, :, 0, 0]), len(MC_y[0, 0, :, 0, 0])), dtype=dtype
-            )
-            # corr_ys = np.zeros(MC_y[0, 0].shape)
-            for i in range(len(MC_y)):
-                for j in range(len(MC_y[0])):
-                    corr_ys += np.corrcoef(MC_y[i, j])
-            corr_y = corr_ys / (len(MC_y) * len(MC_y[0]))
-
-        elif corr_axis == 3:
-            sli = tuple(
-                [slice(None) if (idim == corr_axis) else 0 for idim in range(MC_y.ndim)]
-            )
-
-            corr_ys = np.zeros((len(MC_y[sli]), len(MC_y[sli])), dtype=dtype)
-            # corr_ys = np.zeros(MC_y[0, 0].shape)
-            for i in range(len(MC_y)):
-                for j in range(len(MC_y[0])):
-                    corr_ys += np.corrcoef(MC_y[i, j])
-            corr_y = corr_ys / (len(MC_y) * len(MC_y[0]))
-        else:
-            MC_y = MC_y.reshape(
-                (MC_y.shape[0] * MC_y.shape[1] * MC_y.shape[2] * MC_y.shape[3], MCsteps)
-            )
-            corr_y = np.corrcoef(MC_y)
     else:
-        raise ValueError(
-            "punpy.mc_propagation: MC_y has too high dimensions. Reduce the dimensionality of the input data"
-        )
+        corr_y = np.empty(len(corr_axis),dtype=object)
+        for i in range(len(corr_axis)):
+            if isinstance(corr_axis[i],str):
+                comb_axes=corr_axis[i].split(".")
+                sli=[0]*MC_y.ndim
+                sli[0]=slice(None)
+                for ii in range(len(comb_axes)):
+                    sli[int(comb_axes[ii])+1]=slice(None)
+
+                if len(corr_axis)==1:
+                    corr_y = np.corrcoef(MC_y[sli].reshape((len(MC_y),-1)),rowvar=False)
+                else:
+                    corr_y[i] = np.corrcoef(MC_y[sli].reshape((len(MC_y),-1)),rowvar=False)
+
+            elif corr_axis[0]>=0:
+                sli=[0]*MC_y.ndim
+                sli[0]=slice(None)
+                sli[corr_axis[i]+1]=slice(None)
+
+                if len(corr_axis)==1:
+                    corr_y = np.corrcoef(MC_y[sli],rowvar=False)
+                else:
+                    corr_y[i] = np.corrcoef(MC_y[sli],rowvar=False)
+
+            else:
+                corr_y = np.corrcoef(MC_y.reshape((len(MC_y),-1)),rowvar=False)
 
     return corr_y
+
 
 
 def nearestPD_cholesky(A, diff=0.001, corr=False, return_cholesky=True):
