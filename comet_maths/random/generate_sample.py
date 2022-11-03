@@ -88,7 +88,9 @@ def generate_sample_correlated(MCsteps, x, u_x, corr_x, i=None, dtype=None):
         MC_data=generate_sample_random(MCsteps, x[i], u_x[i], dtype=dtype)
         for key in corr_x[i].keys():
             if len(key)==1:
-                pass
+                MC_data=correlate_sample_corr(np.movedim(MC_data,int(key),0), corr_x[i][key])
+            else:
+
 
         #     for j in range(x[i].ndim):
         #         MC_data=correlate_sample_corr(MC_data, corr_x[i][j])
@@ -141,10 +143,10 @@ def generate_sample_same(MCsteps, param, dtype=None):
     :return: generated sample
     :rtype: array
     """
+    tileshape = (MCsteps,)
     if isinstance(param, np.ndarray):
-        tileshape = (MCsteps,) + (1,) * param.ndim
-    else:
-        tileshape = (MCsteps,)
+        if param.size>1:
+            tileshape = (MCsteps,) + (1,) * param.ndim
     MC_sample = np.tile(param, tileshape).astype(dtype)
     return MC_sample
 
