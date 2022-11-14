@@ -751,7 +751,6 @@ def interpolate_1d_along_example(
     if (not return_corr) and (not return_uncertainties):
         return y_out
 
-
     else:
         prop = punpy.MCPropagation(MCsteps, parallel_cores=parallel_cores)
         intp = Interpolator(

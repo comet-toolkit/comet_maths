@@ -1,6 +1,7 @@
 """comet_maths - Mathematical algorithms and tools to use within CoMet toolkit."""
 from comet_maths.random.generate_sample import (
     generate_sample,
+    generate_error_sample,
     generate_sample_systematic,
     generate_sample_random,
     generate_sample_cov,

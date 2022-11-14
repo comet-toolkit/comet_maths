@@ -74,42 +74,45 @@ def calculate_corr(MC_y, corr_axis=-99):
     :return: correlation matrix
     :rtype: array
     """
-    if (isinstance(corr_axis,int)) or (isinstance(corr_axis,str)):
-        corr_axis=[corr_axis]
+    if (isinstance(corr_axis, int)) or (isinstance(corr_axis, str)):
+        corr_axis = [corr_axis]
 
     if len(MC_y.shape) < 3:
-        corr_y = np.corrcoef(MC_y,rowvar=False)
+        corr_y = np.corrcoef(MC_y, rowvar=False)
 
     else:
-        corr_y = np.empty(len(corr_axis),dtype=object)
+        corr_y = np.empty(len(corr_axis), dtype=object)
         for i in range(len(corr_axis)):
-            if isinstance(corr_axis[i],str):
-                comb_axes=corr_axis[i].split(".")
-                sli=[0]*MC_y.ndim
-                sli[0]=slice(None)
+            if isinstance(corr_axis[i], str):
+                comb_axes = corr_axis[i].split(".")
+                sli = [0] * MC_y.ndim
+                sli[0] = slice(None)
                 for ii in range(len(comb_axes)):
-                    sli[int(comb_axes[ii])+1]=slice(None)
+                    sli[int(comb_axes[ii]) + 1] = slice(None)
 
-                if len(corr_axis)==1:
-                    corr_y = np.corrcoef(MC_y[sli].reshape((len(MC_y),-1)),rowvar=False)
+                if len(corr_axis) == 1:
+                    corr_y = np.corrcoef(
+                        MC_y[sli].reshape((len(MC_y), -1)), rowvar=False
+                    )
                 else:
-                    corr_y[i] = np.corrcoef(MC_y[sli].reshape((len(MC_y),-1)),rowvar=False)
+                    corr_y[i] = np.corrcoef(
+                        MC_y[sli].reshape((len(MC_y), -1)), rowvar=False
+                    )
 
-            elif corr_axis[0]>=0:
-                sli=[0]*MC_y.ndim
-                sli[0]=slice(None)
-                sli[corr_axis[i]+1]=slice(None)
+            elif corr_axis[0] >= 0:
+                sli = [0] * MC_y.ndim
+                sli[0] = slice(None)
+                sli[corr_axis[i] + 1] = slice(None)
 
-                if len(corr_axis)==1:
-                    corr_y = np.corrcoef(MC_y[sli],rowvar=False)
+                if len(corr_axis) == 1:
+                    corr_y = np.corrcoef(MC_y[sli], rowvar=False)
                 else:
-                    corr_y[i] = np.corrcoef(MC_y[sli],rowvar=False)
+                    corr_y[i] = np.corrcoef(MC_y[sli], rowvar=False)
 
             else:
-                corr_y = np.corrcoef(MC_y.reshape((len(MC_y),-1)),rowvar=False)
+                corr_y = np.corrcoef(MC_y.reshape((len(MC_y), -1)), rowvar=False)
 
     return corr_y
-
 
 
 def nearestPD_cholesky(A, diff=0.001, corr=False, return_cholesky=True):
@@ -118,6 +121,12 @@ def nearestPD_cholesky(A, diff=0.001, corr=False, return_cholesky=True):
 
     :param A: correlation matrix or covariance matrix
     :type A: array
+    :param diff: maximum difference that the error correlation matrix is allowed to be changed by to make it positive definite. Defaults to 0.001
+    :type diff: float, optional
+    :param corr: boolean to indicate whether error correlation matrix is used (True) or error covariance matrix is used (False). Defaults to False
+    :type corr: bool, optional
+    :param return_cholesky: boolean to indicate whether the cholesky decomposition should be returned (True) or just the nearest positive definitive error correlation/covariance matrix (False). Defaults to True.
+    :type return_cholesky: bool, optional
     :return: nearest positive-definite matrix
     :rtype: array
 
