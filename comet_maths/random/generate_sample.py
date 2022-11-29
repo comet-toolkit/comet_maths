@@ -22,7 +22,7 @@ __status__ = "Development"
 
 
 def generate_sample(
-    MCsteps, x, u_x, corr_x, i=None, dtype=None, pdf_shape="gaussian", pdf_params=None
+    MCsteps, x, u_x, corr_x, i=None, dtype=None, pdf_shape="gaussian", pdf_params=None, comp_list=False
 ):
     """
     Generate correlated MC sample of input quantity with given uncertainties and correlation matrix.
@@ -49,6 +49,7 @@ def generate_sample(
         u_x = np.array([u_x])
         corr_x = np.array([corr_x])
         i = 0
+
     if np.count_nonzero(u_x[i]) == 0:
         sample = generate_sample_same(MCsteps, x[i], dtype=dtype)
     elif not hasattr(x[i], "size"):
@@ -59,6 +60,7 @@ def generate_sample(
             dtype=dtype,
             pdf_shape=pdf_shape,
             pdf_params=pdf_params,
+            comp_list=comp_list
         )
     elif x[i].size == 1:
         sample = generate_sample_random(
@@ -68,6 +70,7 @@ def generate_sample(
             dtype=dtype,
             pdf_shape=pdf_shape,
             pdf_params=pdf_params,
+            comp_list=comp_list
         )
     elif isinstance(corr_x[i], str):
         if corr_x[i].lower() == "rand":
@@ -78,6 +81,7 @@ def generate_sample(
                 dtype=dtype,
                 pdf_shape=pdf_shape,
                 pdf_params=pdf_params,
+                comp_list=comp_list
             )
         elif corr_x[i].lower() == "syst":
             sample = generate_sample_systematic(
@@ -87,6 +91,7 @@ def generate_sample(
                 dtype=dtype,
                 pdf_shape=pdf_shape,
                 pdf_params=pdf_params,
+                comp_list=comp_list
             )
     else:
         sample = generate_sample_correlated(
@@ -98,6 +103,7 @@ def generate_sample(
             dtype=dtype,
             pdf_shape=pdf_shape,
             pdf_params=pdf_params,
+            comp_list=comp_list
         )
 
     if MCsteps == 1:
@@ -211,7 +217,7 @@ def generate_sample_pdf(size, pdf_shape, pdf_params=None, dtype=None):
 
 
 def generate_sample_random(
-    MCsteps, param, u_param, dtype=None, pdf_shape="gaussian", pdf_params=None
+    MCsteps, param, u_param, dtype=None, pdf_shape="gaussian", pdf_params=None, comp_list=False
 ):
     """
     Generate MC sample of input quantity with random uncertainties.
@@ -231,6 +237,8 @@ def generate_sample_random(
     :return: generated sample
     :rtype: array
     """
+    if comp_list:
+        u_param=np.sum([u_param_i**2 for u_param_i in u_param])**0.5
 
     if not hasattr(param, "__len__"):
         sample_pdf = generate_sample_pdf(MCsteps, pdf_shape, pdf_params, dtype=dtype)
@@ -258,7 +266,7 @@ def generate_sample_random(
 
 
 def generate_sample_systematic(
-    MCsteps, param, u_param, dtype=None, pdf_shape="gaussian", pdf_params=None
+    MCsteps, param, u_param, dtype=None, pdf_shape="gaussian", pdf_params=None, comp_list=False
 ):
     """
     Generate correlated MC sample of input quantity with systematic uncertainties.
@@ -278,6 +286,9 @@ def generate_sample_systematic(
     :return: generated sample
     :rtype: array
     """
+    if comp_list:
+        u_param=np.sum([u_param_i**2 for u_param_i in u_param])**0.5
+
     if not hasattr(param, "__len__"):
         sample_pdf = generate_sample_pdf(MCsteps, pdf_shape, pdf_params, dtype=dtype)
         sample = sample_pdf * u_param + param
@@ -333,7 +344,7 @@ def find_truncated_id(sample, pdf_params):
 
 
 def generate_sample_correlated(
-    MCsteps, x, u_x, corr_x, i=None, dtype=None, pdf_shape="gaussian", pdf_params=None
+    MCsteps, x, u_x, corr_x, i=None, dtype=None, pdf_shape="gaussian", pdf_params=None, comp_list=False
 ):
     """
     Generate correlated MC sample of input quantity with given uncertainties and correlation matrix.
@@ -366,96 +377,106 @@ def generate_sample_correlated(
         corr_x = np.array([corr_x])
         i = 0
 
-    if isinstance(corr_x[i], dict):
-        MC_data = generate_sample_random(
-            MCsteps,
-            x[i],
-            u_x[i],
-            dtype=dtype,
-            pdf_shape=pdf_shape,
-            pdf_params=pdf_params,
+    if comp_list:
+        MC_data = generate_sample_correlated(
+            MCsteps, x=x[i], u_x=u_x[i][0], corr_x=corr_x[i][0], dtype=dtype, pdf_shape=pdf_shape, pdf_params=pdf_params, comp_list=False
         )
-        for dim in corr_x[i].keys():
-            if isinstance(corr_x[i][dim], str):
-                if (
-                    corr_x[i][dim].lower() == "rand"
-                    or corr_x[i][dim].lower() == "random"
-                ):
-                    continue
+        for j in range(1,len(u_x[i])):
+            MC_data += generate_sample_correlated(
+                MCsteps, x=np.zeros_like(x[i]), u_x=u_x[i][j], corr_x=corr_x[i][j], dtype=dtype, pdf_shape=pdf_shape, pdf_params=pdf_params, comp_list=False
+            )
 
-            if len(dim) == 1:
+    else:
+        if isinstance(corr_x[i], dict):
+            MC_data = generate_sample_random(
+                MCsteps,
+                x[i],
+                u_x[i],
+                dtype=dtype,
+                pdf_shape=pdf_shape,
+                pdf_params=pdf_params,
+            )
+            for dim in corr_x[i].keys():
                 if isinstance(corr_x[i][dim], str):
                     if (
-                        corr_x[i][dim].lower() == "syst"
-                        or corr_x[i][dim].lower() == "systematic"
+                        corr_x[i][dim].lower() == "rand"
+                        or corr_x[i][dim].lower() == "random"
                     ):
-                        corr_x[i][dim] = np.ones(
-                            (x[i].shape[int(dim)], x[i].shape[int(dim)])
-                        )
+                        continue
 
-                MC_data = correlate_sample_corr(
-                    np.moveaxis(MC_data, int(dim) + 1, 0), corr_x[i][dim]
-                )
-                MC_data = np.moveaxis(MC_data, 0, int(dim) + 1)
-            else:
-                mult_dim = dim.split(".")
-                if np.any(
-                    [
-                        int(mult_dim[ii]) >= int(mult_dim[ii + 1])
-                        for ii in range(len(mult_dim) - 1)
-                    ]
-                ):
-                    raise ValueError(
-                        "The dimensions in the error-correlation dictionary key with multiple dimensions (separated by .) need to be in ascending order (don't forget to adjust the correlation matrix when changing this)!"
+                if len(dim) == 1:
+                    if isinstance(corr_x[i][dim], str):
+                        if (
+                            corr_x[i][dim].lower() == "syst"
+                            or corr_x[i][dim].lower() == "systematic"
+                        ):
+                            corr_x[i][dim] = np.ones(
+                                (x[i].shape[int(dim)], x[i].shape[int(dim)])
+                            )
+
+                    MC_data = correlate_sample_corr(
+                        np.moveaxis(MC_data, int(dim) + 1, 0), corr_x[i][dim]
                     )
-                multi_dim_shape = tuple()
-                sli = [slice(None)] * MC_data.ndim
-                for ii, idim in enumerate(mult_dim):
-                    MC_data = np.moveaxis(MC_data, int(idim) + 1, ii)
-                    multi_dim_shape = multi_dim_shape + (x[i].shape[int(idim)],)
-                    sli[ii] = 0
-                normal_dim_shape = MC_data[sli].shape
-                MC_data = MC_data.reshape((-1,) + normal_dim_shape)
-                if isinstance(corr_x[i][dim], str):
-                    if (
-                        corr_x[i][dim].lower() == "syst"
-                        or corr_x[i][dim].lower() == "systematic"
+                    MC_data = np.moveaxis(MC_data, 0, int(dim) + 1)
+                else:
+                    mult_dim = dim.split(".")
+                    if np.any(
+                        [
+                            int(mult_dim[ii]) >= int(mult_dim[ii + 1])
+                            for ii in range(len(mult_dim) - 1)
+                        ]
                     ):
-                        corr_x[i][dim] = np.ones((MC_data.shape[0], MC_data.shape[0]))
-                MC_data = correlate_sample_corr(MC_data, corr_x[i][dim])
-                MC_data = MC_data.reshape(multi_dim_shape + normal_dim_shape)
-                for ii in range(len(mult_dim) - 1, -1, -1):
-                    MC_data = np.moveaxis(MC_data, ii, int(mult_dim[ii]) + 1)
+                        raise ValueError(
+                            "The dimensions in the error-correlation dictionary key with multiple dimensions (separated by .) need to be in ascending order (don't forget to adjust the correlation matrix when changing this)!"
+                        )
+                    multi_dim_shape = tuple()
+                    sli = [slice(None)] * MC_data.ndim
+                    for ii, idim in enumerate(mult_dim):
+                        MC_data = np.moveaxis(MC_data, int(idim) + 1, ii)
+                        multi_dim_shape = multi_dim_shape + (x[i].shape[int(idim)],)
+                        sli[ii] = 0
+                    normal_dim_shape = MC_data[sli].shape
+                    MC_data = MC_data.reshape((-1,) + normal_dim_shape)
+                    if isinstance(corr_x[i][dim], str):
+                        if (
+                            corr_x[i][dim].lower() == "syst"
+                            or corr_x[i][dim].lower() == "systematic"
+                        ):
+                            corr_x[i][dim] = np.ones((MC_data.shape[0], MC_data.shape[0]))
+                    MC_data = correlate_sample_corr(MC_data, corr_x[i][dim])
+                    MC_data = MC_data.reshape(multi_dim_shape + normal_dim_shape)
+                    for ii in range(len(mult_dim) - 1, -1, -1):
+                        MC_data = np.moveaxis(MC_data, ii, int(mult_dim[ii]) + 1)
 
-    elif corr_x[i].ndim == 2:
-        if len(corr_x[i]) == len(u_x[i].ravel()):
-            cov_x = cm.convert_corr_to_cov(corr_x[i], u_x[i])
-            MC_data = generate_sample_cov(MCsteps, x[i], cov_x, dtype=dtype)
-        elif len(corr_x[i]) == len(u_x[i]):
-            MC_data = np.zeros((MCsteps,) + (u_x[i].shape))
-            for j in range(len(u_x[i][0])):
-                cov_x = cm.convert_corr_to_cov(corr_x[i], u_x[i][:, j])
-                MC_data[:, :, j] = generate_sample_cov(
-                    MCsteps, x[i][:, j], cov_x, dtype=dtype
+        elif corr_x[i].ndim == 2:
+            if len(corr_x[i]) == len(u_x[i].ravel()):
+                cov_x = cm.convert_corr_to_cov(corr_x[i], u_x[i])
+                MC_data = generate_sample_cov(MCsteps, x[i], cov_x, dtype=dtype)
+            elif len(corr_x[i]) == len(u_x[i]):
+                MC_data = np.zeros((MCsteps,) + (u_x[i].shape))
+                for j in range(len(u_x[i][0])):
+                    cov_x = cm.convert_corr_to_cov(corr_x[i], u_x[i][:, j])
+                    MC_data[:, :, j] = generate_sample_cov(
+                        MCsteps, x[i][:, j], cov_x, dtype=dtype
+                    )
+            elif len(corr_x[i]) == len(u_x[i][0]):
+                MC_data = np.zeros((MCsteps,) + (u_x[i].shape))
+                for j in range(len(u_x[i][:, 0])):
+                    cov_x = cm.convert_corr_to_cov(corr_x[i], u_x[i][j])
+                    MC_data[:, j, :] = generate_sample_cov(
+                        MCsteps, x[i][j], cov_x, dtype=dtype
+                    )
+            else:
+                raise NotImplementedError(
+                    "comet_maths.generate_Sample: This combination of dimension of correlation matrix (%s) and uncertainty (%s) is currently not implemented."
+                    % (corr_x[i].shape, u_x[i].shape)
                 )
-        elif len(corr_x[i]) == len(u_x[i][0]):
-            MC_data = np.zeros((MCsteps,) + (u_x[i].shape))
-            for j in range(len(u_x[i][:, 0])):
-                cov_x = cm.convert_corr_to_cov(corr_x[i], u_x[i][j])
-                MC_data[:, j, :] = generate_sample_cov(
-                    MCsteps, x[i][j], cov_x, dtype=dtype
-                )
+
         else:
             raise NotImplementedError(
                 "comet_maths.generate_Sample: This combination of dimension of correlation matrix (%s) and uncertainty (%s) is currently not implemented."
                 % (corr_x[i].shape, u_x[i].shape)
             )
-
-    else:
-        raise NotImplementedError(
-            "comet_maths.generate_Sample: This combination of dimension of correlation matrix (%s) and uncertainty (%s) is currently not implemented."
-            % (corr_x[i].shape, u_x[i].shape)
-        )
 
     return MC_data
 
