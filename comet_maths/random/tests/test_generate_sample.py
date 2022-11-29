@@ -340,23 +340,27 @@ class TestGenerateSample(unittest.TestCase):
         sample = generate_sample_correlated(
             10000,
             x5,
-            [u_x5,u_x5],
-            [{
-                "3": "syst",
-                "4": "syst",
-                "0": "syst",
-                "1": "syst",
-                "2": "syst",
-            },{
-                "3": "syst",
-                "4": "syst",
-                "0": "syst",
-                "1": "syst",
-                "2": "syst",
-            }],comp_list=True
+            [u_x5, u_x5],
+            [
+                {
+                    "3": "syst",
+                    "4": "syst",
+                    "0": "syst",
+                    "1": "syst",
+                    "2": "syst",
+                },
+                {
+                    "3": "syst",
+                    "4": "syst",
+                    "0": "syst",
+                    "1": "syst",
+                    "2": "syst",
+                },
+            ],
+            comp_list=True,
         )
         npt.assert_equal(sample.shape, (10000, 2, 3, 4, 5, 6))
-        npt.assert_allclose(2**0.5*u_x5, np.std(sample, axis=0), rtol=0.1)
+        npt.assert_allclose(2 ** 0.5 * u_x5, np.std(sample, axis=0), rtol=0.1)
         npt.assert_allclose(x5, np.mean(sample, axis=0), rtol=0.1, atol=0.05)
         npt.assert_allclose(
             corr_5_syst,

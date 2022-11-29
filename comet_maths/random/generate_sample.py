@@ -22,7 +22,15 @@ __status__ = "Development"
 
 
 def generate_sample(
-    MCsteps, x, u_x, corr_x, i=None, dtype=None, pdf_shape="gaussian", pdf_params=None, comp_list=False
+    MCsteps,
+    x,
+    u_x,
+    corr_x,
+    i=None,
+    dtype=None,
+    pdf_shape="gaussian",
+    pdf_params=None,
+    comp_list=False,
 ):
     """
     Generate correlated MC sample of input quantity with given uncertainties and correlation matrix.
@@ -41,6 +49,8 @@ def generate_sample(
     :type pdf_shape: str, optional
     :param pdf_params: dictionaries defining optional additional parameters that define the probability density function, Defaults to None (gaussian does not require additional parameters)
     :type pdf_params: dict, optional
+    :param comp_list: boolean to define whether u_x and corr_x are given as a list or individual uncertainty components. Defaults to False, in chich case a single combined uncertainty component is given per input quantity.
+    :type comp_list: bool, optional
     :return: generated sample
     :rtype: array
     """
@@ -60,7 +70,7 @@ def generate_sample(
             dtype=dtype,
             pdf_shape=pdf_shape,
             pdf_params=pdf_params,
-            comp_list=comp_list
+            comp_list=comp_list,
         )
     elif x[i].size == 1:
         sample = generate_sample_random(
@@ -70,7 +80,7 @@ def generate_sample(
             dtype=dtype,
             pdf_shape=pdf_shape,
             pdf_params=pdf_params,
-            comp_list=comp_list
+            comp_list=comp_list,
         )
     elif isinstance(corr_x[i], str):
         if corr_x[i].lower() == "rand":
@@ -81,7 +91,7 @@ def generate_sample(
                 dtype=dtype,
                 pdf_shape=pdf_shape,
                 pdf_params=pdf_params,
-                comp_list=comp_list
+                comp_list=comp_list,
             )
         elif corr_x[i].lower() == "syst":
             sample = generate_sample_systematic(
@@ -91,7 +101,7 @@ def generate_sample(
                 dtype=dtype,
                 pdf_shape=pdf_shape,
                 pdf_params=pdf_params,
-                comp_list=comp_list
+                comp_list=comp_list,
             )
     else:
         sample = generate_sample_correlated(
@@ -103,7 +113,7 @@ def generate_sample(
             dtype=dtype,
             pdf_shape=pdf_shape,
             pdf_params=pdf_params,
-            comp_list=comp_list
+            comp_list=comp_list,
         )
 
     if MCsteps == 1:
@@ -112,7 +122,15 @@ def generate_sample(
 
 
 def generate_error_sample(
-    MCsteps, x, u_x, corr_x, i=None, dtype=None, pdf_shape="gaussian", pdf_params=None
+    MCsteps,
+    x,
+    u_x,
+    corr_x,
+    i=None,
+    dtype=None,
+    pdf_shape="gaussian",
+    pdf_params=None,
+    comp_list=False,
 ):
     """
     Generate the errors of a correlated MC sample of input quantity with given uncertainties and correlation matrix.
@@ -131,6 +149,8 @@ def generate_error_sample(
     :type pdf_shape: str, optional
     :param pdf_params: dictionaries defining optional additional parameters that define the probability density function, Defaults to None (gaussian does not require additional parameters)
     :type pdf_params: dict, optional
+    :param comp_list: boolean to define whether u_x and corr_x are given as a list or individual uncertainty components. Defaults to False, in chich case a single combined uncertainty component is given per input quantity.
+    :type comp_list: bool, optional
     :return: generated sample
     :rtype: array
     """
@@ -147,6 +167,7 @@ def generate_error_sample(
                 dtype=dtype,
                 pdf_shape=pdf_shape,
                 pdf_params=pdf_params,
+                comp_list=comp_list,
             )
             - x[i]
         )
@@ -217,7 +238,13 @@ def generate_sample_pdf(size, pdf_shape, pdf_params=None, dtype=None):
 
 
 def generate_sample_random(
-    MCsteps, param, u_param, dtype=None, pdf_shape="gaussian", pdf_params=None, comp_list=False
+    MCsteps,
+    param,
+    u_param,
+    dtype=None,
+    pdf_shape="gaussian",
+    pdf_params=None,
+    comp_list=False,
 ):
     """
     Generate MC sample of input quantity with random uncertainties.
@@ -234,11 +261,13 @@ def generate_sample_random(
     :type pdf_shape: str, optional
     :param pdf_params: dictionaries defining optional additional parameters that define the probability density function, Defaults to None (gaussian does not require additional parameters)
     :type pdf_params: dict, optional
+    :param comp_list: boolean to define whether u_x and corr_x are given as a list or individual uncertainty components. Defaults to False, in chich case a single combined uncertainty component is given per input quantity.
+    :type comp_list: bool, optional
     :return: generated sample
     :rtype: array
     """
     if comp_list:
-        u_param=np.sum([u_param_i**2 for u_param_i in u_param])**0.5
+        u_param = np.sum([u_param_i ** 2 for u_param_i in u_param]) ** 0.5
 
     if not hasattr(param, "__len__"):
         sample_pdf = generate_sample_pdf(MCsteps, pdf_shape, pdf_params, dtype=dtype)
@@ -266,7 +295,13 @@ def generate_sample_random(
 
 
 def generate_sample_systematic(
-    MCsteps, param, u_param, dtype=None, pdf_shape="gaussian", pdf_params=None, comp_list=False
+    MCsteps,
+    param,
+    u_param,
+    dtype=None,
+    pdf_shape="gaussian",
+    pdf_params=None,
+    comp_list=False,
 ):
     """
     Generate correlated MC sample of input quantity with systematic uncertainties.
@@ -283,11 +318,13 @@ def generate_sample_systematic(
     :type pdf_shape: str, optional
     :param pdf_params: dictionaries defining optional additional parameters that define the probability density function, Defaults to None (gaussian does not require additional parameters)
     :type pdf_params: dict, optional
+    :param comp_list: boolean to define whether u_x and corr_x are given as a list or individual uncertainty components. Defaults to False, in chich case a single combined uncertainty component is given per input quantity.
+    :type comp_list: bool, optional
     :return: generated sample
     :rtype: array
     """
     if comp_list:
-        u_param=np.sum([u_param_i**2 for u_param_i in u_param])**0.5
+        u_param = np.sum([u_param_i ** 2 for u_param_i in u_param]) ** 0.5
 
     if not hasattr(param, "__len__"):
         sample_pdf = generate_sample_pdf(MCsteps, pdf_shape, pdf_params, dtype=dtype)
@@ -344,7 +381,15 @@ def find_truncated_id(sample, pdf_params):
 
 
 def generate_sample_correlated(
-    MCsteps, x, u_x, corr_x, i=None, dtype=None, pdf_shape="gaussian", pdf_params=None, comp_list=False
+    MCsteps,
+    x,
+    u_x,
+    corr_x,
+    i=None,
+    dtype=None,
+    pdf_shape="gaussian",
+    pdf_params=None,
+    comp_list=False,
 ):
     """
     Generate correlated MC sample of input quantity with given uncertainties and correlation matrix.
@@ -367,6 +412,8 @@ def generate_sample_correlated(
     :type pdf_shape: str, optional
     :param pdf_params: dictionaries defining optional additional parameters that define the probability density function, Defaults to None (gaussian does not require additional parameters)
     :type pdf_params: dict, optional
+    :param comp_list: boolean to define whether u_x and corr_x are given as a list or individual uncertainty components. Defaults to False, in chich case a single combined uncertainty component is given per input quantity.
+    :type comp_list: bool, optional
     :return: generated sample
     :rtype: array
     """
@@ -379,11 +426,25 @@ def generate_sample_correlated(
 
     if comp_list:
         MC_data = generate_sample_correlated(
-            MCsteps, x=x[i], u_x=u_x[i][0], corr_x=corr_x[i][0], dtype=dtype, pdf_shape=pdf_shape, pdf_params=pdf_params, comp_list=False
+            MCsteps,
+            x=x[i],
+            u_x=u_x[i][0],
+            corr_x=corr_x[i][0],
+            dtype=dtype,
+            pdf_shape=pdf_shape,
+            pdf_params=pdf_params,
+            comp_list=False,
         )
-        for j in range(1,len(u_x[i])):
+        for j in range(1, len(u_x[i])):
             MC_data += generate_sample_correlated(
-                MCsteps, x=np.zeros_like(x[i]), u_x=u_x[i][j], corr_x=corr_x[i][j], dtype=dtype, pdf_shape=pdf_shape, pdf_params=pdf_params, comp_list=False
+                MCsteps,
+                x=np.zeros_like(x[i]),
+                u_x=u_x[i][j],
+                corr_x=corr_x[i][j],
+                dtype=dtype,
+                pdf_shape=pdf_shape,
+                pdf_params=pdf_params,
+                comp_list=False,
             )
 
     else:
@@ -442,7 +503,9 @@ def generate_sample_correlated(
                             corr_x[i][dim].lower() == "syst"
                             or corr_x[i][dim].lower() == "systematic"
                         ):
-                            corr_x[i][dim] = np.ones((MC_data.shape[0], MC_data.shape[0]))
+                            corr_x[i][dim] = np.ones(
+                                (MC_data.shape[0], MC_data.shape[0])
+                            )
                     MC_data = correlate_sample_corr(MC_data, corr_x[i][dim])
                     MC_data = MC_data.reshape(multi_dim_shape + normal_dim_shape)
                     for ii in range(len(mult_dim) - 1, -1, -1):
