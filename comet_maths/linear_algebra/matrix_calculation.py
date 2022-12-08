@@ -61,7 +61,7 @@ def calculate_Jacobian(fun, x, Jx_diag=False, step=None):
     return Jx
 
 
-def calculate_corr(MC_y, corr_axis=-99):
+def calculate_corr(MC_y, corr_axis=-99,PD_corr=True,dtype=None):
     """
     Calculate the correlation matrix between the MC-generated samples of output quantities.
     If corr_axis is specified, this axis will be the one used to calculate the correlation matrix (e.g. if corr_axis=0 and x.shape[0]=n, the correlation matrix will have shape (n,n)).
@@ -71,6 +71,10 @@ def calculate_corr(MC_y, corr_axis=-99):
     :type MC_y: array
     :param corr_axis: set to positive integer to select the axis used in the correlation matrix. The correlation matrix will then be averaged over other dimensions. Defaults to -99, for which the input array will be flattened and the full correlation matrix calculated.
     :type corr_axis: integer, optional
+    :param PD_corr: set to True to make sure returned correlation matrices are positive semi-definite, default to True
+    :type PD_corr: bool, optional
+    :param dtype: numpy dtype for output variables
+    :type dtype: numpy dtype
     :return: correlation matrix
     :rtype: array
     """
@@ -93,24 +97,37 @@ def calculate_corr(MC_y, corr_axis=-99):
                 if len(corr_axis) == 1:
                     corr_y = np.corrcoef(
                         MC_y[sli].reshape((len(MC_y), -1)), rowvar=False
-                    )
+                    ).astype(dtype)
+
                 else:
                     corr_y[i] = np.corrcoef(
                         MC_y[sli].reshape((len(MC_y), -1)), rowvar=False
-                    )
+                    ).astype(dtype)
 
-            elif corr_axis[0] >= 0:
+            elif corr_axis[i] >= 0:
                 sli = [0] * MC_y.ndim
                 sli[0] = slice(None)
                 sli[corr_axis[i] + 1] = slice(None)
 
                 if len(corr_axis) == 1:
-                    corr_y = np.corrcoef(MC_y[sli], rowvar=False)
+                    corr_y = np.corrcoef(MC_y[sli], rowvar=False).astype(dtype)
                 else:
-                    corr_y[i] = np.corrcoef(MC_y[sli], rowvar=False)
+                    corr_y[i] = np.corrcoef(MC_y[sli], rowvar=False).astype(dtype)
 
             else:
-                corr_y = np.corrcoef(MC_y.reshape((len(MC_y), -1)), rowvar=False)
+                corr_y = np.corrcoef(MC_y.reshape((len(MC_y), -1)), rowvar=False).astype(dtype)
+
+    if PD_corr and corr_y.ndim==2:
+        if not cm.isPD(corr_y):
+            corr_y = cm.nearestPD_cholesky(
+                corr_y, corr=True, return_cholesky=False
+            )
+    elif PD_corr and corr_y.ndim==3:
+        for i in range(len(corr_y)):
+            if not cm.isPD(corr_y[i]):
+                    corr_y[i] = cm.nearestPD_cholesky(
+                        corr_y[i], corr=True, return_cholesky=False
+                    )
 
     return corr_y
 
