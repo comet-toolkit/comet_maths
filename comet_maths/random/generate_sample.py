@@ -437,7 +437,6 @@ def generate_sample_correlated(
                 pdf_shape=pdf_shape,
                 pdf_params=pdf_params,
             )
-            print(corr_x[i].keys())
             for dim in corr_x[i].keys():
                 if isinstance(corr_x[i][dim], str):
                     if (
@@ -452,11 +451,9 @@ def generate_sample_correlated(
                             corr_x[i][dim].lower() == "syst"
                             or corr_x[i][dim].lower() == "systematic"
                         ):
-                            print(x[i].shape,dim)
                             corr_x[i][dim] = np.ones(
                                 (x[i].shape[int(dim)], x[i].shape[int(dim)])
                             )
-                    print(corr_x[i])
                     MC_data = correlate_sample_corr(
                         np.moveaxis(MC_data, int(dim) + 1, 0), corr_x[i][dim]
                     )
