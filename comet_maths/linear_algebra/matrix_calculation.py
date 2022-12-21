@@ -160,13 +160,20 @@ def nearestPD_cholesky(A, diff=0.001, corr=False, return_cholesky=True):
     try:
         _, s, V = np.linalg.svd(B)
     except:
-        _, s, V = np.linalg.svd(B + 1.0e-6 * np.eye(A.shape[0]))
+        try:
+            _, s, V = np.linalg.svd(B + 1.0e-6 * np.eye(A.shape[0]))
+        except:
+            warnings.warn("svd failed")
+            V=None
 
-    H = np.dot(V.T, np.dot(np.diag(s), V))
+    if V is None:
+        A3 = B
+    else:
+        H = np.dot(V.T, np.dot(np.diag(s), V))
 
-    A2 = (B + H) / 2
+        A2 = (B + H) / 2
 
-    A3 = (A2 + A2.T) / 2
+        A3 = (A2 + A2.T) / 2
 
     try:
         chol = np.linalg.cholesky(A3)
