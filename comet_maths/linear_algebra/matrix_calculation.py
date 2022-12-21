@@ -109,6 +109,8 @@ def calculate_corr(MC_y, corr_axis=-99,PD_corr=True,dtype=None):
                 sli[0] = slice(None)
                 sli[corr_axis[i] + 1] = slice(None)
 
+                print("this",sli)
+
                 if len(corr_axis) == 1:
                     corr_y = np.corrcoef(MC_y[sli], rowvar=False).astype(dtype)
                 else:
