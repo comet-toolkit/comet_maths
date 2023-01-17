@@ -71,8 +71,7 @@ The first alternative is a truncated Gaussian distribution. This distribution is
 A typical use case of this distribution is when a certain input quantity can never be negative.
 In such a case the uncertainty propagation could be done like this::
 
-   ur_y = prop.propagate_random(measurement_function, [x1, x2, x3],
-          [ur_x1, ur_x2, ur_x3], corr_between = corr_x1x2x3, pdf_shape="truncated_gaussian", pdf_params={"min":0.})
+      sample=cm.generate_sample(100,x,u_x,corr_x="rand",pdf_shape="truncated_gaussian", pdf_params={"min":0.})
 
 When the alternative probability density functions require additional parameters, these can be passed in the optional pdf_params dictionary.
 For the truncated Gaussian example, this dictionary can contain a value for "min" and "max" for the minimum and maximum allowed values respectively.
