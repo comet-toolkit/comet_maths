@@ -9,13 +9,14 @@
 Random Generator Algorithm Theoretical Basis
 ================================================
 
-To generate the PDF, comet_maths generates samples of draws from the PDF for each of the input quantities (total number of
-draws is set by keyword `MCsteps`). The standard Probability Density Function (PDF) is Gaussian, but other PDF are available
-too (see :ref:`pdf`). Internally, comet_maths always generates independent random normally distributed
+The aim of the random generator in comet_maths is to generate samples of draws from a given Probability Density Function (PDF).
+The standard Probability Density Function (PDF) is Gaussian, but other PDF are available
+too (see :ref:`pdf`). For Gaussian PDF, comet_maths generates samples of draws (total number of
+draws is set by keyword `MCsteps`) based on the provided input quantities (the mean of the PDF) and provided uncertainties (the width of the PDF).
+
+Internally, comet_maths always generates independent random normally distributed
 samples first and then correlates them where necessary using the Cholesky decomposition method (see paragraph below).
 Using this Cholesky decomposition correlates the PDF of the input quantities which means the joint PDF are defined.
-Each draw in the sample is then run through the measurement function and as a result we can a sample (and thus the
-PDF) of the measurand Y.
 
 Cholesky decomposition is a usefull method from linear algebra, which allows to efficiently draw samples from a
 multivariate probability distribution (joint PDF). The Cholesky decomposition is a decomposition of a
