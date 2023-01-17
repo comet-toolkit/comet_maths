@@ -4,6 +4,8 @@ from comet_maths.random.generate_sample import (
     generate_error_sample,
     generate_sample_systematic,
     generate_sample_random,
+    generate_sample_correlated,
+    generate_sample_same,
     generate_sample_cov,
     correlate_sample_corr,
 )

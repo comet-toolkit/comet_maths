@@ -26,7 +26,7 @@ def generate_sample(
     MCsteps,
     x,
     u_x,
-    corr_x,
+    corr_x=None,
     i=None,
     dtype=None,
     pdf_shape="gaussian",
@@ -40,8 +40,8 @@ def generate_sample(
     :type x: list[array]
     :param u_x: list of uncertainties/covariances on input quantities (usually numpy arrays)
     :type u_x: list[array]
-    :param corr_x: list of correlation matrices (n,n) along non-repeating axis, or list of correlation matrices for each repeated measurement.
-    :type corr_x: list[array]
+    :param corr_x: (list of) correlation matrices (n,n). This keyword must be set unless x and u_x are a single number.
+    :type corr_x: list[array] or array or str, optional
     :param i: index of the input quantity (in x)
     :type i: int, optional
     :param dtype: dtype of the produced sample

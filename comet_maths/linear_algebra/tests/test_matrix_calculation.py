@@ -47,27 +47,27 @@ class TestMatrixCalculation(unittest.TestCase):
             10000, x5, u_x5, corr_5_syst
         )  # ((corr_5_syst+corr_5_rand)/2))
         npt.assert_allclose(
-            np.ones((2, 2)), cm.calculate_corr(sample, corr_axis=0), atol=0.06
+            np.ones((2, 2)), cm.calculate_corr(sample, corr_dims=0), atol=0.06
         )
         npt.assert_allclose(
-            np.ones((3, 3)), cm.calculate_corr(sample, corr_axis=1), atol=0.06
+            np.ones((3, 3)), cm.calculate_corr(sample, corr_dims=1), atol=0.06
         )
         npt.assert_allclose(
-            np.ones((4, 4)), cm.calculate_corr(sample, corr_axis=2), atol=0.06
+            np.ones((4, 4)), cm.calculate_corr(sample, corr_dims=2), atol=0.06
         )
         npt.assert_allclose(
-            np.ones((5, 5)), cm.calculate_corr(sample, corr_axis=3), atol=0.06
+            np.ones((5, 5)), cm.calculate_corr(sample, corr_dims=3), atol=0.06
         )
         npt.assert_allclose(
-            np.ones((6, 6)), cm.calculate_corr(sample, corr_axis=4), atol=0.06
+            np.ones((6, 6)), cm.calculate_corr(sample, corr_dims=4), atol=0.06
         )
         npt.assert_allclose(
-            np.ones((6, 6)), cm.calculate_corr(sample, corr_axis="4"), atol=0.06
+            np.ones((6, 6)), cm.calculate_corr(sample, corr_dims="4"), atol=0.06
         )
         npt.assert_allclose(
-            np.ones((30, 30)), cm.calculate_corr(sample, corr_axis="3.4"), atol=0.06
+            np.ones((30, 30)), cm.calculate_corr(sample, corr_dims="3.4"), atol=0.06
         )
-        corr2 = cm.calculate_corr(sample, corr_axis=[3, 4])
+        corr2 = cm.calculate_corr(sample, corr_dims=[3, 4])
         npt.assert_allclose(np.ones((5, 5)), corr2[0], atol=0.06)
         npt.assert_allclose(np.ones((6, 6)), corr2[1], atol=0.06)
 

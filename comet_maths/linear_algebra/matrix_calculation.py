@@ -61,16 +61,16 @@ def calculate_Jacobian(fun, x, Jx_diag=False, step=None):
     return Jx
 
 
-def calculate_corr(MC_y, corr_axis=-99,PD_corr=True,dtype=None):
+def calculate_corr(MC_y, corr_dims=-99,PD_corr=True,dtype=None):
     """
     Calculate the correlation matrix between the MC-generated samples of output quantities.
-    If corr_axis is specified, this axis will be the one used to calculate the correlation matrix (e.g. if corr_axis=0 and x.shape[0]=n, the correlation matrix will have shape (n,n)).
+    If corr_dims is specified, this axis will be the one used to calculate the correlation matrix (e.g. if corr_dims=0 and x.shape[0]=n, the correlation matrix will have shape (n,n)).
     This will be done for each combination of parameters in the other dimensions and the resulting correlation matrices are averaged.
 
     :param MC_y: MC-generated samples of the output quantities (measurands)
     :type MC_y: array
-    :param corr_axis: set to positive integer to select the axis used in the correlation matrix. The correlation matrix will then be averaged over other dimensions. Defaults to -99, for which the input array will be flattened and the full correlation matrix calculated.
-    :type corr_axis: integer, optional
+    :param corr_dims: set to positive integer to select the axis used in the correlation matrix. The correlation matrix will then be averaged over other dimensions. Defaults to -99, for which the input array will be flattened and the full correlation matrix calculated.
+    :type corr_dims: integer, optional
     :param PD_corr: set to True to make sure returned correlation matrices are positive semi-definite, default to True
     :type PD_corr: bool, optional
     :param dtype: numpy dtype for output variables
@@ -78,43 +78,67 @@ def calculate_corr(MC_y, corr_axis=-99,PD_corr=True,dtype=None):
     :return: correlation matrix
     :rtype: array
     """
-    if (isinstance(corr_axis, int)) or (isinstance(corr_axis, str)):
-        corr_axis = [corr_axis]
+    if (isinstance(corr_dims, int)) or (isinstance(corr_dims, str)):
+        corr_dims = [corr_dims]
 
     if len(MC_y.shape) < 3:
         corr_y = np.corrcoef(MC_y, rowvar=False)
 
     else:
-        corr_y = np.empty(len(corr_axis), dtype=object)
-        for i in range(len(corr_axis)):
-            if isinstance(corr_axis[i], str):
-                comb_axes = corr_axis[i].split(".")
+        corr_y = np.empty(len(corr_dims), dtype=object)
+        for i in range(len(corr_dims)):
+            if isinstance(corr_dims[i], str):
+                comb_axes = corr_dims[i].split(".")
                 sli = [0] * MC_y.ndim
                 sli[0] = slice(None)
+                
+                slib = [-1] * MC_y.ndim
+                slib[0] = slice(None)
+
                 for ii in range(len(comb_axes)):
                     sli[int(comb_axes[ii]) + 1] = slice(None)
+                    slib[int(comb_axes[ii]) + 1] = slice(None)
 
-                if len(corr_axis) == 1:
+                if len(corr_dims) == 1:
                     corr_y = np.corrcoef(
                         MC_y[sli].reshape((len(MC_y), -1)), rowvar=False
                     ).astype(dtype)
+                    corr_yb = np.corrcoef(
+                        MC_y[slib].reshape((len(MC_y), -1)), rowvar=False
+                    ).astype(dtype)
+                    if np.any((corr_y-corr_yb)>0.05):
+                        warnings.warn("comet_maths.matrix_calculation: The correlation matrix along the dimension with index %s is not constant (at least one element varies by more than 0.05 between first and last index of other dimensions). Are you sure it makes sense to use this dimension as a separate correlation dimension?"%corr_dims)
 
                 else:
                     corr_y[i] = np.corrcoef(
                         MC_y[sli].reshape((len(MC_y), -1)), rowvar=False
                     ).astype(dtype)
+                    corr_yb = np.corrcoef(
+                        MC_y[slib].reshape((len(MC_y), -1)), rowvar=False
+                    ).astype(dtype)
+                    if np.any((corr_y[i]-corr_yb)>0.05):
+                        warnings.warn("comet_maths.matrix_calculation: The correlation matrix along the dimension with index %s is not constant (at least one element varies by more than 0.05 between first and last index of other dimensions). Are you sure it makes sense to use this dimension as a separate correlation dimension?"%corr_dims)
 
-            elif corr_axis[i] >= 0:
+
+            elif corr_dims[i] >= 0:
                 sli = [0] * MC_y.ndim
                 sli[0] = slice(None)
-                sli[corr_axis[i] + 1] = slice(None)
+                sli[corr_dims[i] + 1] = slice(None)
 
-                print("this",sli)
+                slib = [-1] * MC_y.ndim
+                slib[0] = slice(None)
+                slib[corr_dims[i] + 1] = slice(None)
 
-                if len(corr_axis) == 1:
+                if len(corr_dims) == 1:
                     corr_y = np.corrcoef(MC_y[sli], rowvar=False).astype(dtype)
+                    corr_yb = np.corrcoef(MC_y[slib], rowvar=False).astype(dtype)
+                    if np.any((corr_y-corr_yb)>0.05):
+                        warnings.warn("comet_maths.matrix_calculation: The correlation matrix along the dimension with index %s is not constant (at least one element varies by more than 0.05 between first and last index of other dimensions). Are you sure it makes sense to use this dimension as a separate correlation dimension?"%corr_dims)
                 else:
                     corr_y[i] = np.corrcoef(MC_y[sli], rowvar=False).astype(dtype)
+                    corr_yb = np.corrcoef(MC_y[slib], rowvar=False).astype(dtype)
+                    if np.any((corr_y[i]-corr_yb)>0.05):
+                        warnings.warn("comet_maths.matrix_calculation: The correlation matrix along the dimension with index %s is not constant (at least one element varies by more than 0.05 between first and last index of other dimensions). Are you sure it makes sense to use this dimension as a separate correlation dimension?"%corr_dims)
 
             else:
                 corr_y = np.corrcoef(MC_y.reshape((len(MC_y), -1)), rowvar=False).astype(dtype)
@@ -127,14 +151,14 @@ def calculate_corr(MC_y, corr_axis=-99,PD_corr=True,dtype=None):
     elif PD_corr and corr_y.ndim==3:
         for i in range(len(corr_y)):
             if not cm.isPD(corr_y[i]):
-                    corr_y[i] = cm.nearestPD_cholesky(
-                        corr_y[i], corr=True, return_cholesky=False
-                    )
+                corr_y[i] = cm.nearestPD_cholesky(
+                    corr_y[i], corr=True, return_cholesky=False
+                )
 
     return corr_y
 
 
-def nearestPD_cholesky(A, diff=0.001, corr=False, return_cholesky=True):
+def nearestPD_cholesky(A, diff=0.03, corr=False, return_cholesky=True):
     """
     Find the nearest positive-definite matrix
 
@@ -191,7 +215,7 @@ def nearestPD_cholesky(A, diff=0.001, corr=False, return_cholesky=True):
         k = 1
         while not isPD(A3):
             mineig = np.min(np.real(np.linalg.eigvals(A3)))
-            A3 += I * (-mineig * k ** 2 + spacing)
+            A3 += I * (-mineig * k ** 1.5 + spacing)/2.
             k += 1
 
         if corr == True:
@@ -199,9 +223,9 @@ def nearestPD_cholesky(A, diff=0.001, corr=False, return_cholesky=True):
             maxdiff = np.max(np.abs(A - A3))
             if maxdiff > diff:
                 raise ValueError(
-                    "One of the correlation matrices is not postive definite. "
+                    "One of the correlation matrices is not postive definite (max diff=%s)."
                     "Correlation matrices need to be at least positive "
-                    "semi-definite."
+                    "semi-definite."%maxdiff
                 )
             else:
                 warnings.warn(
