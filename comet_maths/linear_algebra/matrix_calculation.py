@@ -182,6 +182,11 @@ def nearestPD_cholesky(A, diff=0.03, corr=False, return_cholesky=True):
     matrix" (1988): https://doi.org/10.1016/0024-3795(88)90223-6
     """
 
+    if isinstance(A,np.float):
+        return A
+    elif A.size==1:
+        return A
+
     B = (A + A.T) / 2
     try:
         _, s, V = np.linalg.svd(B)
