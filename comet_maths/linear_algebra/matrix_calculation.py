@@ -225,8 +225,7 @@ def nearestPD_cholesky(A, diff=0.03, corr=False, return_cholesky=True):
             except:
                 import matplotlib.pyplot as plt
                 print(A3,np.count_nonzero(~np.isfinite(A3)),np.count_nonzero(~np.isfinite(A)), k ,spacing)
-                raise ValueError
-
+                raise ValueError("Comet_maths was unable to make the error correlation positive definite (there might be nans due to zero uncertainty)")
         if corr == True:
             A3 = cm.correlation_from_covariance(A3)
             maxdiff = np.max(np.abs(A - A3))
