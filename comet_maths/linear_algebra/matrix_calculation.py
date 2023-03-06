@@ -215,13 +215,18 @@ def nearestPD_cholesky(A, diff=0.03, corr=False, return_cholesky=True):
     except:
 
         spacing = np.spacing(np.linalg.norm(A))
-
+        if np.isnan(spacing):
+            spacing=0
         I = np.eye(A.shape[0])
         k = 1
         while not isPD(A3):
-            mineig = np.min(np.real(np.linalg.eigvals(A3)))
-            A3 += I * (-mineig * k ** 1.5 + spacing)/2.
-            k += 1
+            try:
+                mineig = np.min(np.real(np.linalg.eigvals(A3)))
+                A3 += I * (-mineig * k ** 1.5 + spacing)/2.
+                k += 1
+            except:
+                print(A3, k ,spacing)
+                raise ValueError
 
         if corr == True:
             A3 = cm.correlation_from_covariance(A3)
