@@ -135,7 +135,7 @@ class TestGenerateSample(unittest.TestCase):
 
         sample = generate_sample_systematic(1000, x2, u_x2, pdf_shape="tophat")
         npt.assert_equal(sample.shape, (1000, 5, 6))
-        npt.assert_allclose(u_x2 / 3 ** 0.5, np.std(sample, axis=0), rtol=0.1)
+        npt.assert_allclose(u_x2 / 3**0.5, np.std(sample, axis=0), rtol=0.1)
 
         sample = generate_sample_systematic(1000, x5, u_x5)
         npt.assert_equal(sample.shape, (1000, 2, 3, 4, 5, 6))
@@ -178,7 +178,7 @@ class TestGenerateSample(unittest.TestCase):
 
         sample = generate_sample_random(1000, x2, u_x2, pdf_shape="tophat")
         npt.assert_equal(sample.shape, (1000, 5, 6))
-        npt.assert_allclose(u_x2 / 3 ** 0.5, np.std(sample, axis=0), rtol=0.1)
+        npt.assert_allclose(u_x2 / 3**0.5, np.std(sample, axis=0), rtol=0.1)
 
         sample = generate_sample_random(10000, x5, u_x5)
         npt.assert_equal(sample.shape, (10000, 2, 3, 4, 5, 6))
@@ -360,7 +360,7 @@ class TestGenerateSample(unittest.TestCase):
             comp_list=True,
         )
         npt.assert_equal(sample.shape, (10000, 2, 3, 4, 5, 6))
-        npt.assert_allclose(2 ** 0.5 * u_x5, np.std(sample, axis=0), rtol=0.1)
+        npt.assert_allclose(2**0.5 * u_x5, np.std(sample, axis=0), rtol=0.1)
         npt.assert_allclose(x5, np.mean(sample, axis=0), rtol=0.1, atol=0.05)
         npt.assert_allclose(
             corr_5_syst,

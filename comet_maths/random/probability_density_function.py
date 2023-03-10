@@ -20,6 +20,7 @@ __maintainer__ = "Pieter De Vis"
 __email__ = "pieter.de.vis@npl.co.uk"
 __status__ = "Development"
 
+
 def generate_sample_pdf(size, pdf_shape, pdf_params=None, dtype=None):
     """
     Function to generate samples from standard probability functions (with zero as mean and 1 as width)
@@ -41,4 +42,3 @@ def generate_sample_pdf(size, pdf_shape, pdf_params=None, dtype=None):
         return (rng.uniform(size=size, low=-1.0, high=1.0)).astype(dtype)
     else:
         raise NotImplementedError("pdf shape (%s) not implemented" % (pdf_shape))
-

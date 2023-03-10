@@ -214,6 +214,7 @@ def generate_sample_same(MCsteps, param, dtype=None):
     MC_sample = np.tile(param, tileshape).astype(dtype)
     return MC_sample
 
+
 def generate_sample_random(
     MCsteps,
     param,
@@ -244,7 +245,7 @@ def generate_sample_random(
     :rtype: array
     """
     if comp_list:
-        u_param = np.sum([u_param_i ** 2 for u_param_i in u_param]) ** 0.5
+        u_param = np.sum([u_param_i**2 for u_param_i in u_param]) ** 0.5
 
     if not hasattr(param, "__len__"):
         sample_pdf = generate_sample_pdf(MCsteps, pdf_shape, pdf_params, dtype=dtype)
@@ -255,7 +256,7 @@ def generate_sample_random(
     else:
         sli_par = list([slice(None)] * (len(param.shape) + 1))
         sli_par[0] = None
-        sli_par=tuple(sli_par)
+        sli_par = tuple(sli_par)
 
         sample_pdf = generate_sample_pdf(
             (MCsteps,) + param.shape, pdf_shape, pdf_params, dtype=dtype
@@ -303,7 +304,7 @@ def generate_sample_systematic(
     :rtype: array
     """
     if comp_list:
-        u_param = np.sum([u_param_i ** 2 for u_param_i in u_param]) ** 0.5
+        u_param = np.sum([u_param_i**2 for u_param_i in u_param]) ** 0.5
 
     if not hasattr(param, "__len__"):
         sample_pdf = generate_sample_pdf(MCsteps, pdf_shape, pdf_params, dtype=dtype)
@@ -314,7 +315,7 @@ def generate_sample_systematic(
     else:
         sli_par = list([slice(None)] * (len(param.shape) + 1))
         sli_par[-2] = None
-        sli_par=tuple(sli_par)
+        sli_par = tuple(sli_par)
 
         sample_pdf = generate_sample_pdf(MCsteps, pdf_shape, pdf_params, dtype=dtype)
         sample = (
@@ -593,7 +594,8 @@ def correlate_sample_corr(sample, corr, dtype=None):
         )
     elif len(corr) != len(sample):
         raise ValueError(
-            "punpy.mc_propagation: The correlation matrix is not the right shape. corr_shape: %s, sample_shape: %s"%(corr.shape,sample.shape)
+            "punpy.mc_propagation: The correlation matrix is not the right shape. corr_shape: %s, sample_shape: %s"
+            % (corr.shape, sample.shape)
         )
     else:
         try:

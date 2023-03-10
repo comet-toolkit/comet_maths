@@ -403,7 +403,7 @@ class TestInterpolation(unittest.TestCase):
             include_model_uncertainties=False,
         )
 
-        u_y_gpr = (u_y_gpr ** 2 + (u_y_gpr3) ** 2) ** 0.5
+        u_y_gpr = (u_y_gpr**2 + (u_y_gpr3) ** 2) ** 0.5
 
         y_hr_gpr, u_y_hr_gpr = cm.gaussian_process_regression(
             x_HR,

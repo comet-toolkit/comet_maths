@@ -586,7 +586,7 @@ def gpr_basics(
     if u_y_i is None:
         alpha = 1e-10  # default value for GaussianProcessRegressor
     else:
-        alpha = u_y_i ** 2
+        alpha = u_y_i**2
 
     # Mesh the input space for evaluations of the real function, the prediction and
     # its MSE

@@ -61,7 +61,7 @@ def calculate_Jacobian(fun, x, Jx_diag=False, step=None):
     return Jx
 
 
-def calculate_corr(MC_y, corr_dims=-99,PD_corr=True,dtype=None):
+def calculate_corr(MC_y, corr_dims=-99, PD_corr=True, dtype=None):
     """
     Calculate the correlation matrix between the MC-generated samples of output quantities.
     If corr_dims is specified, this axis will be the one used to calculate the correlation matrix (e.g. if corr_dims=0 and x.shape[0]=n, the correlation matrix will have shape (n,n)).
@@ -91,7 +91,7 @@ def calculate_corr(MC_y, corr_dims=-99,PD_corr=True,dtype=None):
                 comb_axes = corr_dims[i].split(".")
                 sli = [0] * MC_y.ndim
                 sli[0] = slice(None)
-                
+
                 slib = [-1] * MC_y.ndim
                 slib[0] = slice(None)
 
@@ -101,24 +101,29 @@ def calculate_corr(MC_y, corr_dims=-99,PD_corr=True,dtype=None):
 
                 if len(corr_dims) == 1:
                     corr_y = np.corrcoef(
-                        MC_y[sli].reshape((len(MC_y), -1)), rowvar=False
-                        ,dtype=dtype)
+                        MC_y[sli].reshape((len(MC_y), -1)), rowvar=False, dtype=dtype
+                    )
                     corr_yb = np.corrcoef(
-                        MC_y[slib].reshape((len(MC_y), -1)), rowvar=False
-                        ,dtype=dtype)
-                    if np.any((corr_y-corr_yb)>0.05):
-                        warnings.warn("comet_maths.matrix_calculation: The correlation matrix along the dimension with index %s is not constant (at least one element varies by more than 0.05 between first and last index of other dimensions). Are you sure it makes sense to use this dimension as a separate correlation dimension?"%corr_dims)
+                        MC_y[slib].reshape((len(MC_y), -1)), rowvar=False, dtype=dtype
+                    )
+                    if np.any((corr_y - corr_yb) > 0.05):
+                        warnings.warn(
+                            "comet_maths.matrix_calculation: The correlation matrix along the dimension with index %s is not constant (at least one element varies by more than 0.05 between first and last index of other dimensions). Are you sure it makes sense to use this dimension as a separate correlation dimension?"
+                            % corr_dims
+                        )
 
                 else:
                     corr_y[i] = np.corrcoef(
-                        MC_y[sli].reshape((len(MC_y), -1)), rowvar=False
-                        ,dtype=dtype)
+                        MC_y[sli].reshape((len(MC_y), -1)), rowvar=False, dtype=dtype
+                    )
                     corr_yb = np.corrcoef(
-                        MC_y[slib].reshape((len(MC_y), -1)), rowvar=False
-                        ,dtype=dtype)
-                    if np.any((corr_y[i]-corr_yb)>0.05):
-                        warnings.warn("comet_maths.matrix_calculation: The correlation matrix along the dimension with index %s is not constant (at least one element varies by more than 0.05 between first and last index of other dimensions). Are you sure it makes sense to use this dimension as a separate correlation dimension?"%corr_dims)
-
+                        MC_y[slib].reshape((len(MC_y), -1)), rowvar=False, dtype=dtype
+                    )
+                    if np.any((corr_y[i] - corr_yb) > 0.05):
+                        warnings.warn(
+                            "comet_maths.matrix_calculation: The correlation matrix along the dimension with index %s is not constant (at least one element varies by more than 0.05 between first and last index of other dimensions). Are you sure it makes sense to use this dimension as a separate correlation dimension?"
+                            % corr_dims
+                        )
 
             elif corr_dims[i] >= 0:
                 sli = [0] * MC_y.ndim
@@ -129,25 +134,31 @@ def calculate_corr(MC_y, corr_dims=-99,PD_corr=True,dtype=None):
                 slib[0] = slice(None)
                 slib[corr_dims[i] + 1] = slice(None)
                 if len(corr_dims) == 1:
-                    corr_y = np.corrcoef(MC_y[sli], rowvar=False,dtype=dtype)
-                    corr_yb = np.corrcoef(MC_y[slib], rowvar=False,dtype=dtype)
-                    if np.any((corr_y-corr_yb)>0.05):
-                        warnings.warn("comet_maths.matrix_calculation: The correlation matrix along the dimension with index %s is not constant (at least one element varies by more than 0.05 between first and last index of other dimensions). Are you sure it makes sense to use this dimension as a separate correlation dimension?"%corr_dims)
+                    corr_y = np.corrcoef(MC_y[sli], rowvar=False, dtype=dtype)
+                    corr_yb = np.corrcoef(MC_y[slib], rowvar=False, dtype=dtype)
+                    if np.any((corr_y - corr_yb) > 0.05):
+                        warnings.warn(
+                            "comet_maths.matrix_calculation: The correlation matrix along the dimension with index %s is not constant (at least one element varies by more than 0.05 between first and last index of other dimensions). Are you sure it makes sense to use this dimension as a separate correlation dimension?"
+                            % corr_dims
+                        )
                 else:
-                    corr_y[i] = np.corrcoef(MC_y[sli], rowvar=False,dtype=dtype)
-                    corr_yb = np.corrcoef(MC_y[slib], rowvar=False,dtype=dtype)
-                    if np.any((corr_y[i]-corr_yb)>0.05):
-                        warnings.warn("comet_maths.matrix_calculation: The correlation matrix along the dimension with index %s is not constant (at least one element varies by more than 0.05 between first and last index of other dimensions). Are you sure it makes sense to use this dimension as a separate correlation dimension?"%corr_dims)
+                    corr_y[i] = np.corrcoef(MC_y[sli], rowvar=False, dtype=dtype)
+                    corr_yb = np.corrcoef(MC_y[slib], rowvar=False, dtype=dtype)
+                    if np.any((corr_y[i] - corr_yb) > 0.05):
+                        warnings.warn(
+                            "comet_maths.matrix_calculation: The correlation matrix along the dimension with index %s is not constant (at least one element varies by more than 0.05 between first and last index of other dimensions). Are you sure it makes sense to use this dimension as a separate correlation dimension?"
+                            % corr_dims
+                        )
 
             else:
-                corr_y = np.corrcoef(MC_y.reshape((len(MC_y), -1)), rowvar=False,dtype=dtype)
+                corr_y = np.corrcoef(
+                    MC_y.reshape((len(MC_y), -1)), rowvar=False, dtype=dtype
+                )
 
-    if PD_corr and corr_y.ndim==2:
+    if PD_corr and corr_y.ndim == 2:
         if not cm.isPD(corr_y):
-            corr_y = cm.nearestPD_cholesky(
-                corr_y, corr=True, return_cholesky=False
-            )
-    elif PD_corr and corr_y.ndim==3:
+            corr_y = cm.nearestPD_cholesky(corr_y, corr=True, return_cholesky=False)
+    elif PD_corr and corr_y.ndim == 3:
         for i in range(len(corr_y)):
             if not cm.isPD(corr_y[i]):
                 corr_y[i] = cm.nearestPD_cholesky(
@@ -181,9 +192,9 @@ def nearestPD_cholesky(A, diff=0.03, corr=False, return_cholesky=True):
     matrix" (1988): https://doi.org/10.1016/0024-3795(88)90223-6
     """
 
-    if isinstance(A,np.float):
+    if isinstance(A, np.float) or np.count_nonzero(A) == 0:
         return A
-    elif A.size==1:
+    elif A.size == 1:
         return A
 
     B = (A + A.T) / 2
@@ -194,7 +205,7 @@ def nearestPD_cholesky(A, diff=0.03, corr=False, return_cholesky=True):
             _, s, V = np.linalg.svd(B + 1.0e-6 * np.eye(A.shape[0]))
         except:
             warnings.warn("svd failed")
-            V=None
+            V = None
 
     if V is None:
         A3 = B
@@ -214,18 +225,27 @@ def nearestPD_cholesky(A, diff=0.03, corr=False, return_cholesky=True):
     except:
         spacing = np.spacing(np.linalg.norm(A))
         if np.isnan(spacing):
-            spacing=0.001
+            spacing = 0.001
         I = np.eye(A.shape[0])
         k = 1
         while not isPD(A3):
             try:
                 mineig = np.min(np.real(np.linalg.eigvals(A3)))
-                A3 += I * (-mineig * k ** 1.5 + spacing)/2.
+                A3 += I * (-mineig * k**1.5 + spacing) / 2.0
                 k += 1
             except:
                 import matplotlib.pyplot as plt
-                print(A3,np.count_nonzero(~np.isfinite(A3)),np.count_nonzero(~np.isfinite(A)), k ,spacing)
-                raise ValueError("Comet_maths was unable to make the error correlation positive definite (there might be nans due to zero uncertainty)")
+
+                print(
+                    A3,
+                    np.count_nonzero(~np.isfinite(A3)),
+                    np.count_nonzero(~np.isfinite(A)),
+                    k,
+                    spacing,
+                )
+                raise ValueError(
+                    "Comet_maths was unable to make the error correlation positive definite (there might be nans due to zero uncertainty)"
+                )
         if corr == True:
             A3 = cm.correlation_from_covariance(A3)
             maxdiff = np.max(np.abs(A - A3))
@@ -233,7 +253,7 @@ def nearestPD_cholesky(A, diff=0.03, corr=False, return_cholesky=True):
                 raise ValueError(
                     "One of the correlation matrices is not postive definite (max diff=%s)."
                     "Correlation matrices need to be at least positive "
-                    "semi-definite."%maxdiff
+                    "semi-definite." % maxdiff
                 )
             else:
                 warnings.warn(
