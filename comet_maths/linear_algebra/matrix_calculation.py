@@ -214,7 +214,7 @@ def nearestPD_cholesky(A, diff=0.03, corr=False, return_cholesky=True):
     except:
         spacing = np.spacing(np.linalg.norm(A))
         if np.isnan(spacing):
-            spacing=0
+            spacing=0.001
         I = np.eye(A.shape[0])
         k = 1
         while not isPD(A3):
