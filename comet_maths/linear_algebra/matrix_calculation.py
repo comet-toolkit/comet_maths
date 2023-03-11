@@ -99,6 +99,9 @@ def calculate_corr(MC_y, corr_dims=-99, PD_corr=True, dtype=None):
                     sli[int(comb_axes[ii]) + 1] = slice(None)
                     slib[int(comb_axes[ii]) + 1] = slice(None)
 
+                sli=tuple(sli)
+                slib=tuple(slib)
+
                 if len(corr_dims) == 1:
                     corr_y = np.corrcoef(
                         MC_y[sli].reshape((len(MC_y), -1)), rowvar=False, dtype=dtype
@@ -133,6 +136,10 @@ def calculate_corr(MC_y, corr_dims=-99, PD_corr=True, dtype=None):
                 slib = [-1] * MC_y.ndim
                 slib[0] = slice(None)
                 slib[corr_dims[i] + 1] = slice(None)
+
+                sli=tuple(sli)
+                slib=tuple(slib)
+
                 if len(corr_dims) == 1:
                     corr_y = np.corrcoef(MC_y[sli], rowvar=False, dtype=dtype)
                     corr_yb = np.corrcoef(MC_y[slib], rowvar=False, dtype=dtype)
@@ -192,7 +199,7 @@ def nearestPD_cholesky(A, diff=0.03, corr=False, return_cholesky=True):
     matrix" (1988): https://doi.org/10.1016/0024-3795(88)90223-6
     """
 
-    if isinstance(A, np.float) or np.count_nonzero(A) == 0:
+    if isinstance(A, float) or np.count_nonzero(A) == 0:
         return A
     elif A.size == 1:
         return A
