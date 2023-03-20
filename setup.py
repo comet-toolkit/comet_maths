@@ -23,7 +23,7 @@ setup(
     description="Mathematical algorithms and tools to use within CoMet toolkit.",
     long_description=read("README.rst"),
     packages=find_packages(exclude=("tests",)),
-    install_requires=["numpy","sklearn","scikit-learn","numdifftools","scipy","punpy","matplotlib","obsarray"],
+    install_requires=["numpy","scikit-learn","numdifftools","scipy","punpy","matplotlib","obsarray"],
     extras_require={"dev": ["pre-commit", "tox", "sphinx", "sphinx_rtd_theme"]},
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",
