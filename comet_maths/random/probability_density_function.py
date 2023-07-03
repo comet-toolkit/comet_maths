@@ -6,9 +6,7 @@ import comet_maths as cm
 
 """___Third-Party Modules___"""
 import numpy as np
-from numpy.random import default_rng
-
-rng = default_rng()
+import numpy.random as rn
 
 """___NPL Modules___"""
 # import here
@@ -20,8 +18,7 @@ __maintainer__ = "Pieter De Vis"
 __email__ = "pieter.de.vis@npl.co.uk"
 __status__ = "Development"
 
-
-def generate_sample_pdf(size, pdf_shape, pdf_params=None, dtype=None):
+def generate_sample_pdf(size, pdf_shape, pdf_params=None, dtype=None, seed=12345):
     """
     Function to generate samples from standard probability functions (with zero as mean and 1 as width)
 
@@ -37,8 +34,8 @@ def generate_sample_pdf(size, pdf_shape, pdf_params=None, dtype=None):
     :rtype: array
     """
     if pdf_shape.lower() == "gaussian" or pdf_shape.lower() == "truncated_gaussian":
-        return (rng.standard_normal(size=size)).astype(dtype)
+        return (rn.standard_normal(size=size)).astype(dtype)
     elif pdf_shape.lower() == "tophat":
-        return (rng.uniform(size=size, low=-1.0, high=1.0)).astype(dtype)
+        return (rn.uniform(size=size, low=-1.0, high=1.0)).astype(dtype)
     else:
         raise NotImplementedError("pdf shape (%s) not implemented" % (pdf_shape))

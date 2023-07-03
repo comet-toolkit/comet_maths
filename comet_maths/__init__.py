@@ -10,6 +10,10 @@ from comet_maths.random.generate_sample import (
     correlate_sample_corr,
 )
 
+from comet_maths.random.probability_density_function import (
+    generate_sample_pdf,
+)
+
 from comet_maths.linear_algebra.matrix_calculation import (
     calculate_Jacobian,
     calculate_corr,

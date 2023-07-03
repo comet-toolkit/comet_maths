@@ -7,9 +7,6 @@ from comet_maths.random.probability_density_function import generate_sample_pdf
 
 """___Third-Party Modules___"""
 import numpy as np
-from numpy.random import default_rng
-
-rng = default_rng()
 
 """___NPL Modules___"""
 # import here
@@ -20,7 +17,6 @@ __created__ = "01/02/2021"
 __maintainer__ = "Pieter De Vis"
 __email__ = "pieter.de.vis@npl.co.uk"
 __status__ = "Development"
-
 
 def generate_sample(
     MCsteps,
