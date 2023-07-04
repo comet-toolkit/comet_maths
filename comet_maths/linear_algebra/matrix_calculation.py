@@ -99,8 +99,8 @@ def calculate_corr(MC_y, corr_dims=-99, PD_corr=True, dtype=None):
                     sli[int(comb_axes[ii]) + 1] = slice(None)
                     slib[int(comb_axes[ii]) + 1] = slice(None)
 
-                sli=tuple(sli)
-                slib=tuple(slib)
+                sli = tuple(sli)
+                slib = tuple(slib)
 
                 if len(corr_dims) == 1:
                     corr_y = np.corrcoef(
@@ -137,8 +137,8 @@ def calculate_corr(MC_y, corr_dims=-99, PD_corr=True, dtype=None):
                 slib[0] = slice(None)
                 slib[corr_dims[i] + 1] = slice(None)
 
-                sli=tuple(sli)
-                slib=tuple(slib)
+                sli = tuple(sli)
+                slib = tuple(slib)
 
                 if len(corr_dims) == 1:
                     corr_y = np.corrcoef(MC_y[sli], rowvar=False, dtype=dtype)

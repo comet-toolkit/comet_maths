@@ -18,6 +18,7 @@ __maintainer__ = "Pieter De Vis"
 __email__ = "pieter.de.vis@npl.co.uk"
 __status__ = "Development"
 
+
 def generate_sample(
     MCsteps,
     x,

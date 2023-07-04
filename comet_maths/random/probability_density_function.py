@@ -18,6 +18,7 @@ __maintainer__ = "Pieter De Vis"
 __email__ = "pieter.de.vis@npl.co.uk"
 __status__ = "Development"
 
+
 def generate_sample_pdf(size, pdf_shape, pdf_params=None, dtype=None, seed=12345):
     """
     Function to generate samples from standard probability functions (with zero as mean and 1 as width)
