@@ -472,6 +472,7 @@ def generate_sample_correlated(
                         MC_data = np.moveaxis(MC_data, int(idim) + 1, ii)
                         multi_dim_shape = multi_dim_shape + (x[i].shape[int(idim)],)
                         sli[ii] = 0
+                    sli = tuple(sli)
                     normal_dim_shape = MC_data[sli].shape
                     MC_data = MC_data.reshape((-1,) + normal_dim_shape)
                     if isinstance(corr_x[i][dim], str):

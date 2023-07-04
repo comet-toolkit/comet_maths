@@ -41,7 +41,7 @@ class TestInterpolation(unittest.TestCase):
     def test_interpolation_1d(self):
         xi = np.arange(0, 3.0, 0.2)
         yi = function2(xi)
-        u_yi = 0.05 * yi
+        u_yi = 0.05 * np.abs(yi)
         yi = cm.generate_sample(1, yi, u_yi, corr_x="rand")
 
         x = np.array([0.33333, 0.666666, 1, 1.33333, 1.66666, 2, 2.3333])
