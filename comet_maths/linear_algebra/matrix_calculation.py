@@ -69,7 +69,7 @@ def calculate_corr(MC_y, corr_dims=-99, PD_corr=True, dtype=None):
 
     :param MC_y: MC-generated samples of the output quantities (measurands)
     :type MC_y: array
-    :param corr_dims: set to positive integer to select the axis used in the correlation matrix. The correlation matrix will then be averaged over other dimensions. Defaults to -99, for which the input array will be flattened and the full correlation matrix calculated.
+    :param corr_dims: set to positive integer to select the axis used in the correlation matrix. The correlation matrix will then be averaged over other dimensions. Defaults to -99, for which the input array will be flattened and the full correlation matrix calculated. When the combined correlation of 2 or more (but not all) dimensions is required, they can be provided as a string containing the different dimension integers, separated by a dot (e.g. "0.2"). When multiple error_correlations should be calculated, they can be provided as a list.
     :type corr_dims: integer, optional
     :param PD_corr: set to True to make sure returned correlation matrices are positive semi-definite, default to True
     :type PD_corr: bool, optional
@@ -78,7 +78,7 @@ def calculate_corr(MC_y, corr_dims=-99, PD_corr=True, dtype=None):
     :return: correlation matrix
     :rtype: array
     """
-    if (isinstance(corr_dims, int)) or (isinstance(corr_dims, str)):
+    if not hasattr(corr_dims,'__len__'):
         corr_dims = [corr_dims]
 
     if len(MC_y.shape) < 3:
@@ -87,7 +87,9 @@ def calculate_corr(MC_y, corr_dims=-99, PD_corr=True, dtype=None):
     else:
         corr_y = np.empty(len(corr_dims), dtype=object)
         for i in range(len(corr_dims)):
-            if isinstance(corr_dims[i], str):
+            if corr_dims[i] is None:
+                corr_y[i]=None
+            elif isinstance(corr_dims[i], str):
                 comb_axes = corr_dims[i].split(".")
                 sli = [0] * MC_y.ndim
                 sli[0] = slice(None)
