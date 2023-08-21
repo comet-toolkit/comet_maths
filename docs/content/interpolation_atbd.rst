@@ -12,7 +12,7 @@ Interpolation Algorithm Theoretical Basis
 
 
 1. Terminology and Notation
-========================
+=============================
 
 First we define how we use certain terms and notations in this document.
 Of course, these meanings only supplement (rather than replace) the full
@@ -71,7 +71,7 @@ measurement function f). The details of interpolation will be discussed
 throughout this document using the above terms.
 
 2. 1D-interpolation without high resolution example
-================================================
+========================================================
 
 Our first use case is a simple interpolation along one dimension, where
 no further information is available about how the measurand changes

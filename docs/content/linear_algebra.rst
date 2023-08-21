@@ -4,6 +4,7 @@
    Created: 15/04/20
 
 .. _linear_algebra:
+
 =======================================
 Comet_maths Linear Algebra Module
 =======================================
