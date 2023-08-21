@@ -1,5 +1,5 @@
-comet_maths package API
-========================
+comet\_maths package
+====================
 
 .. automodule:: comet_maths
    :members:
@@ -13,3 +13,5 @@ Subpackages
    :maxdepth: 4
 
    comet_maths.interpolation
+   comet_maths.linear_algebra
+   comet_maths.random

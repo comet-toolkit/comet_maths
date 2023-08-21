@@ -1,10 +1,13 @@
-comet_maths.interpolation package API
-=======================================
+comet\_maths.interpolation package
+==================================
 
 .. automodule:: comet_maths.interpolation
    :members:
    :undoc-members:
    :show-inheritance:
+
+Submodules
+----------
 
 .. toctree::
    :maxdepth: 4
