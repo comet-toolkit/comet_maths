@@ -64,6 +64,13 @@ class TestInterpolation(unittest.TestCase):
         # t3=time.time()
         # print("t3",t3-t2)
 
+        xi = np.arange(0, 3.0, 0.2)
+        yi_2d = function2(xi)[:,None]*np.ones((len(xi),10))
+        x = np.array([0.33333, 0.666666, 1, 1.33333, 1.66666, 2, 2.3333])
+        y_2d = cm.interpolate_1d(xi, yi_2d, x, method="cubic")
+
+        npt.assert_allclose(y_2d, y[:,None]*np.ones((len(x),10)), rtol=2 * np.max(u_y / y))
+
         xx = np.arange(0, 2.5, 0.01)
         yy, u_yy, corr_yy = cm.interpolate_1d(
             xi,
