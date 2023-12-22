@@ -29,7 +29,11 @@ def correlation_from_covariance(covariance: np.ndarray) -> np.ndarray:
     if covariance is not None:
         v = np.sqrt(np.diag(covariance))
         outer_v = np.outer(v, v)
-        correlation = covariance / outer_v
+        correlation = np.divide(
+            covariance,
+            outer_v,
+            where=outer_v != 0
+        )
         correlation[covariance == 0] = 0
         return correlation
 
