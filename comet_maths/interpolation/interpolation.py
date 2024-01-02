@@ -1,4 +1,4 @@
-from scipy.interpolate import InterpolatedUnivariateSpline
+from scipy.interpolate import InterpolatedUnivariateSpline, PchipInterpolator
 from scipy.interpolate import interp1d
 from scipy.interpolate import lagrange
 
@@ -282,6 +282,13 @@ def interpolate_1d(
             raise NotImplementedError("The provided x_i and y_i need to be 1 dimensional to use this method")
 
         f_i = lagrange(x_i, y_i)
+        y = f_i(x).squeeze()
+
+    elif method.lower() == "pchip":
+        if x_i.shape != y_i.shape:
+            raise NotImplementedError("The provided x_i and y_i need to be 1 dimensional to use this method")
+
+        f_i = PchipInterpolator(x_i, y_i)
         y = f_i(x).squeeze()
 
     else:
