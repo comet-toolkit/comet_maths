@@ -39,6 +39,8 @@ errors. If it finds any it will correct them, but the commit will be aborted.
 This is so that you can check its work before you continue. If you're happy,
 just commit again. 
 
+Running the test suite is possible by running `pytest`.
+
 Compatibility
 -------------
 
