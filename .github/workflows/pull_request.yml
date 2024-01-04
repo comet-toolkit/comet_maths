@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  Lint Code:
+  lint_code:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -25,7 +25,7 @@ jobs:
       run: |
         pre-commit run -a
 
-  Test Code:
+  test_code:
     runs-on: ubuntu-latest
     strategy:
       matrix:
