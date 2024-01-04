@@ -13,3 +13,8 @@ sphinx
 sphinx-gallery
 sphinx_rtd_theme
 numpydoc
+
+# for development
+tox
+ruff
+pre-commit
