@@ -34,7 +34,7 @@ setup(
         "matplotlib",
         "obsarray",
     ],
-    extras_require={"dev": ["pre-commit", "tox", "sphinx", "sphinx_rtd_theme"]},
+    extras_require={"dev": ["pre-commit", "tox", "ruff", "sphinx", "sphinx_rtd_theme"]},
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",
         "Programming Language :: Python",
