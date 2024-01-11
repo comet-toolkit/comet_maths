@@ -4,11 +4,13 @@ import re
 
 from setuptools import find_packages
 from setuptools import setup
-exec(open('comet_maths/_version.py').read())
+
+exec(open("comet_maths/_version.py").read())
+
 
 def read(filename):
     filename = os.path.join(os.path.dirname(__file__), filename)
-    text_type = type(u"")
+    text_type = type("")
     with io.open(filename, mode="r", encoding="utf-8") as fd:
         return re.sub(text_type(r":[a-z]+:`~?(.*?)`"), text_type(r"``\1``"), fd.read())
 
@@ -23,8 +25,16 @@ setup(
     description="Mathematical algorithms and tools to use within CoMet toolkit.",
     long_description=read("README.rst"),
     packages=find_packages(exclude=("tests",)),
-    install_requires=["numpy","scikit-learn","numdifftools","scipy","punpy","matplotlib","obsarray"],
-    extras_require={"dev": ["pre-commit", "tox", "sphinx", "sphinx_rtd_theme"]},
+    install_requires=[
+        "numpy",
+        "scikit-learn",
+        "numdifftools",
+        "scipy",
+        "punpy",
+        "matplotlib",
+        "obsarray",
+    ],
+    extras_require={"dev": ["pre-commit", "tox", "ruff", "sphinx", "sphinx_rtd_theme"]},
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",
         "Programming Language :: Python",
