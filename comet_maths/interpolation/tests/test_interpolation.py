@@ -1,4 +1,4 @@
-"""Tests for classname module"""
+"""Tests for interpolation module"""
 import sys
 import warnings
 

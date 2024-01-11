@@ -1,4 +1,4 @@
-from scipy.interpolate import InterpolatedUnivariateSpline
+from scipy.interpolate import InterpolatedUnivariateSpline, PchipInterpolator
 from scipy.interpolate import interp1d
 from scipy.interpolate import lagrange
 
@@ -284,6 +284,13 @@ def interpolate_1d(
         f_i = lagrange(x_i, y_i)
         y = f_i(x).squeeze()
 
+    elif method.lower() == "pchip":
+        if x_i.shape != y_i.shape:
+            raise NotImplementedError("The provided x_i and y_i need to be 1 dimensional to use this method")
+
+        f_i = PchipInterpolator(x_i, y_i)
+        y = f_i(x).squeeze()
+
     else:
         raise ValueError(
             "comet_maths.interpolation: this interpolation method (%s) is not implemented"
@@ -371,6 +378,8 @@ def default_unc_methods(method):
         unc_methods = ["lagrange", "linear", "cubic"]
     elif method.lower() == "ius":
         unc_methods = ["ius", "linear", "cubic"]
+    elif method.lower() == "pchip":
+        unc_methods = ["pchip", "linear", "cubic"]
     else:
         raise ValueError(
             "comet_maths.interpolation: uncertainties for the model error for this interpolation method (%s) are not yet implemented"
