@@ -378,6 +378,8 @@ def default_unc_methods(method):
         unc_methods = ["lagrange", "linear", "cubic"]
     elif method.lower() == "ius":
         unc_methods = ["ius", "linear", "cubic"]
+    elif method.lower() == "pchip":
+        unc_methods = ["pchip", "linear", "cubic"]
     else:
         raise ValueError(
             "comet_maths.interpolation: uncertainties for the model error for this interpolation method (%s) are not yet implemented"
