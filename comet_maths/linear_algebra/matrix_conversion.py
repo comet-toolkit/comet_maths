@@ -29,11 +29,7 @@ def correlation_from_covariance(covariance: np.ndarray) -> np.ndarray:
     if covariance is not None:
         v = np.sqrt(np.diag(covariance))
         outer_v = np.outer(v, v)
-        correlation = np.divide(
-            covariance,
-            outer_v,
-            where=outer_v != 0
-        )
+        correlation = np.divide(covariance, outer_v, where=outer_v != 0)
         correlation[covariance == 0] = 0
         return correlation
 
@@ -156,6 +152,9 @@ def expand_errcorr_dims(in_corr, in_dim, out_dim, dim_sizes):
     :return: correlation matrix contribution to the full correlation matrix
     :rtype: np.ndarray
     """
+    if in_dim == out_dim:
+        return in_corr
+
     # initialise the output correlation matrix
     totcorrlen = 1
     for i in range(len(out_dim)):

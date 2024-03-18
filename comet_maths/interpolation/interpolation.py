@@ -183,7 +183,7 @@ def interpolate_1d(
     add_model_error=False,
     MCsteps=100,
     parallel_cores=4,
-    interpolate_axis=0
+    interpolate_axis=0,
 ):
     """
     Interpolates 1D data to defined coordinates x in 1D
@@ -222,8 +222,10 @@ def interpolate_1d(
     :rtype: np.ndarray
     """
     if method.lower() == "gpr":
-        if x_i.shape!=y_i.shape:
-            raise NotImplementedError("The provided x_i and y_i need to be 1 dimensional to use this method")
+        if x_i.shape != y_i.shape:
+            raise NotImplementedError(
+                "The provided x_i and y_i need to be 1 dimensional to use this method"
+            )
 
         return gaussian_process_regression(
             x_i,
@@ -253,7 +255,7 @@ def interpolate_1d(
             extrapolate=np.random.choice(extrapolate_methods, 1)[0],
             return_uncertainties=False,
             add_model_error=False,
-            interpolate_axis=interpolate_axis
+            interpolate_axis=interpolate_axis,
         )
 
     if method.lower() in [
@@ -267,26 +269,38 @@ def interpolate_1d(
         "previous",
         "next",
     ]:
-        f_i = interp1d(x_i, y_i, kind=method.lower(), fill_value="extrapolate", axis=interpolate_axis)
+        f_i = interp1d(
+            x_i,
+            y_i,
+            kind=method.lower(),
+            fill_value="extrapolate",
+            axis=interpolate_axis,
+        )
         y = f_i(x).squeeze()
 
     elif method.lower() == "ius":
         if x_i.shape != y_i.shape:
-            raise NotImplementedError("The provided x_i and y_i need to be 1 dimensional to use this method")
+            raise NotImplementedError(
+                "The provided x_i and y_i need to be 1 dimensional to use this method"
+            )
 
         f_i = InterpolatedUnivariateSpline(x_i, y_i, ext=0)
         y = f_i(x).squeeze()
 
     elif method.lower() == "lagrange":
         if x_i.shape != y_i.shape:
-            raise NotImplementedError("The provided x_i and y_i need to be 1 dimensional to use this method")
+            raise NotImplementedError(
+                "The provided x_i and y_i need to be 1 dimensional to use this method"
+            )
 
         f_i = lagrange(x_i, y_i)
         y = f_i(x).squeeze()
 
     elif method.lower() == "pchip":
         if x_i.shape != y_i.shape:
-            raise NotImplementedError("The provided x_i and y_i need to be 1 dimensional to use this method")
+            raise NotImplementedError(
+                "The provided x_i and y_i need to be 1 dimensional to use this method"
+            )
 
         f_i = PchipInterpolator(x_i, y_i)
         y = f_i(x).squeeze()
@@ -529,7 +543,9 @@ def gaussian_process_regression(
         # next determine if a simple uncertainty from gpr is possible or if MC is necessary
         uncertainties_simple = False
         if (u_y_i is not None) and include_model_uncertainties:
-            if (corr_y_i is None) or (corr_y_i == "rand"):
+            if (corr_y_i is None) or (
+                isinstance(corr_y_i, str) and (corr_y_i == "rand")
+            ):
                 uncertainties_simple = True
             elif isinstance(corr_y_i, np.ndarray):
                 if np.all(corr_y_i == np.diag(corr_y_i)):
@@ -724,7 +740,7 @@ def interpolate_1d_along_example(
         add_model_error=add_model_error,
     )
 
-    if np.all(x == x_hr):
+    if x.shape == x_hr.shape and np.all(x == x_hr):
         y_hr_out = y_hr
     else:
         y_hr_out = interpolate_1d(

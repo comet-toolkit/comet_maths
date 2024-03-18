@@ -41,7 +41,7 @@ class TestInterpolation(unittest.TestCase):
     def test_interpolation_1d(self):
         xi = np.arange(0, 3.0, 0.2)
         yi = function2(xi)
-        u_yi = 0.05 * np.abs(yi)
+        u_yi = 0.05 * np.abs(yi) + 0.01
         yi = cm.generate_sample(1, yi, u_yi, corr_x="rand")
 
         x = np.array([0.33333, 0.666666, 1, 1.33333, 1.66666, 2, 2.3333])
@@ -65,11 +65,13 @@ class TestInterpolation(unittest.TestCase):
         # print("t3",t3-t2)
 
         xi = np.arange(0, 3.0, 0.2)
-        yi_2d = function2(xi)[:,None]*np.ones((len(xi),10))
+        yi_2d = function2(xi)[:, None] * np.ones((len(xi), 10))
         x = np.array([0.33333, 0.666666, 1, 1.33333, 1.66666, 2, 2.3333])
         y_2d = cm.interpolate_1d(xi, yi_2d, x, method="cubic")
 
-        npt.assert_allclose(y_2d, y[:,None]*np.ones((len(x),10)), rtol=2 * np.max(u_y / y))
+        npt.assert_allclose(
+            y_2d, y[:, None] * np.ones((len(x), 10)), rtol=2 * np.max(u_y / y)
+        )
 
         xx = np.arange(0, 2.5, 0.01)
         yy, u_yy, corr_yy = cm.interpolate_1d(

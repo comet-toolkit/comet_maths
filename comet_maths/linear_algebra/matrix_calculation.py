@@ -78,7 +78,7 @@ def calculate_corr(MC_y, corr_dims=-99, PD_corr=True, dtype=None):
     :return: correlation matrix
     :rtype: array
     """
-    if not hasattr(corr_dims,'__len__'):
+    if not hasattr(corr_dims, "__len__") or isinstance(corr_dims, str):
         corr_dims = [corr_dims]
 
     if len(MC_y.shape) < 3:
@@ -88,7 +88,7 @@ def calculate_corr(MC_y, corr_dims=-99, PD_corr=True, dtype=None):
         corr_y = np.empty(len(corr_dims), dtype=object)
         for i in range(len(corr_dims)):
             if corr_dims[i] is None:
-                corr_y[i]=None
+                corr_y[i] = None
             elif isinstance(corr_dims[i], str):
                 comb_axes = corr_dims[i].split(".")
                 sli = [0] * MC_y.ndim
@@ -278,9 +278,9 @@ def nearestPD_cholesky(A, diff=0.03, corr=False, return_cholesky=True):
             maxdiff = np.max(np.abs(A - A3) / (A3 + diff))
             if maxdiff > diff:
                 raise ValueError(
-                    "One of the provided covariance matrices is not postive "
-                    "definite. Covariance matrices need to be at least positive "
-                    "semi-definite. Please check your covariance matrix."
+                    "One of the correlation matrices is not postive definite (max diff=%s)."
+                    "Correlation matrices need to be at least positive "
+                    "semi-definite." % maxdiff
                 )
             else:
                 warnings.warn(

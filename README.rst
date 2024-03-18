@@ -11,7 +11,21 @@ Virtual environment
 
 It's always recommended to make a virtual environment for each of your python
 projects. Use your preferred virtual environment manager if you want and
-activate it for the rest of these commands. If you're unfamiliar, read
+activate it for the rest of these commands.
+
+If you are using conda you can create and activate your environment using::
+
+    conda create -n yourenvname -k python=3.x
+
+followed by::
+
+    conda activate yourenvname (activate environment in windows)
+
+or::
+
+    source activate yourenvname (activate environment on a UNIX operating system)
+
+You can also use venv. If you're unfamiliar, read
 https://realpython.com/python-virtual-environments-a-primer/. You can set one up
 using::
 
