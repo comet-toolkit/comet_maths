@@ -657,7 +657,7 @@ def correlate_sample_corr(sample, corr, dtype=None):
         try:
             L = np.array(np.linalg.cholesky(corr))
         except:
-            L = cm.nearestPD_cholesky(corr)
+            L = cm.nearestPD_cholesky(corr, corr=True)
 
         sample_out = sample.copy()
 

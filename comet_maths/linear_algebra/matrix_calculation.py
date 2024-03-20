@@ -177,7 +177,7 @@ def calculate_corr(MC_y, corr_dims=-99, PD_corr=True, dtype=None):
     return corr_y
 
 
-def nearestPD_cholesky(A, diff=0.03, corr=False, return_cholesky=True):
+def nearestPD_cholesky(A, diff=0.05, corr=False, return_cholesky=True):
     """
     Find the nearest positive-definite matrix
 
@@ -243,8 +243,6 @@ def nearestPD_cholesky(A, diff=0.03, corr=False, return_cholesky=True):
                 A3 += I * (-mineig * k**1.5 + spacing) / 2.0
                 k += 1
             except:
-                import matplotlib.pyplot as plt
-
                 print(
                     A3,
                     np.count_nonzero(~np.isfinite(A3)),
