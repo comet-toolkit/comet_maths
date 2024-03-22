@@ -372,6 +372,7 @@ def interpolate_1d(
         else:
             return y, y_unc
 
+
 def default_unc_methods(method):
     """
     Function providing for each analytical interpolation method, the default methods that are compared to determine the model uncertainty for this interpolation method.
@@ -648,6 +649,7 @@ def gpr_basics(
     y_pred, cov = gp.predict(xt, return_cov=True)
     y_out = y_pred.squeeze()
     return y_out, cov
+
 
 def interpolate_1d_along_example(
     x_i: np.ndarray,

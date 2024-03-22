@@ -224,7 +224,14 @@ class TestInterpolation(unittest.TestCase):
         xx = np.arange(0.1, 2.5, 0.02)
 
         y_hr_cubic = cm.interpolate_1d_along_example(
-            xi, yi, x_HR, y_HR, xx, relative=True, method="cubic", method_hr="cubic",
+            xi,
+            yi,
+            x_HR,
+            y_HR,
+            xx,
+            relative=True,
+            method="cubic",
+            method_hr="cubic",
         )
 
         y_hr_cubic2, u_y_hr_cubic2 = cm.interpolate_1d_along_example(
@@ -401,7 +408,7 @@ class TestInterpolation(unittest.TestCase):
             include_model_uncertainties=False,
         )
 
-        u_y_gpr = (u_y_gpr ** 2 + (u_y_gpr3) ** 2) ** 0.5
+        u_y_gpr = (u_y_gpr**2 + (u_y_gpr3) ** 2) ** 0.5
 
         y_hr_gpr, u_y_hr_gpr = cm.gaussian_process_regression(
             x_HR,

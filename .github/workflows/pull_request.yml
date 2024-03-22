@@ -48,6 +48,14 @@ jobs:
       run: |
         mkdir test_report
         tox
+
+  publish_coverage_report:
+    needs: test_code
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11"]
+    steps:
     - name: html to pdf
       uses: fifsky/html-to-pdf-action@master
       with:
