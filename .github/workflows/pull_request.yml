@@ -29,11 +29,11 @@ jobs:
       run: |
         pre-commit run -a
 
-  test_code:
+  test_code_python3p8:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.8","3.11"]
+        python-version: ["3.8"]
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python ${{ matrix.python-version }}
@@ -49,13 +49,15 @@ jobs:
         mkdir test_report
         tox
 
-  publish_coverage_report:
+
+  test_and_coverage_report_python3p11:
     needs: test_code
     runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version: ["3.11"]
     steps:
+    - uses: actions/checkout@v4
     - name: html to pdf
       uses: fifsky/html-to-pdf-action@master
       with:
