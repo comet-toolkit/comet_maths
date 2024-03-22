@@ -50,7 +50,7 @@ jobs:
         tox
 
 
-  test_and_coverage_report_python3p11:
+  test_coverage_report_python3p11:
     needs: test_code
     runs-on: ubuntu-latest
     strategy:
