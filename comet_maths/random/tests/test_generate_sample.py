@@ -213,6 +213,30 @@ class TestGenerateSample(unittest.TestCase):
             atol=0.1,
         )
 
+    def test_generate_sample_corr(self):
+        cov_5_rand = cm.convert_corr_to_cov(corr_5_rand, u_x5)
+        cov_5_syst = cm.convert_corr_to_cov(corr_5_syst, u_x5)
+
+        sample = generate_sample_corr(10000, x5, u_x5, corr_5_rand)
+        npt.assert_equal(sample.shape, (10000, 2, 3, 4, 5, 6))
+        npt.assert_allclose(u_x5, np.std(sample, axis=0), rtol=0.1)
+        npt.assert_allclose(x5, np.mean(sample, axis=0), rtol=0.1, atol=0.05)
+        npt.assert_allclose(
+            corr_5_rand,
+            np.corrcoef(sample.reshape((10000, -1)), rowvar=False),
+            atol=0.1,
+        )
+
+        sample = generate_sample_corr(10000, x5, u_x5, corr_5_syst)
+        npt.assert_equal(sample.shape, (10000, 2, 3, 4, 5, 6))
+        npt.assert_allclose(u_x5, np.std(sample, axis=0), rtol=0.1)
+        npt.assert_allclose(x5, np.mean(sample, axis=0), rtol=0.1, atol=0.05)
+        npt.assert_allclose(
+            corr_5_syst,
+            np.corrcoef(sample.reshape((10000, -1)), rowvar=False),
+            atol=0.1,
+        )
+
     def test_generate_sample_correlated(self):
         sample = generate_sample_correlated(10000, x5, u_x5, corr_5_rand)
         npt.assert_equal(sample.shape, (10000, 2, 3, 4, 5, 6))

@@ -98,7 +98,7 @@ mypy:
       junit: cov_report.xml
     expire_in: 1 hour
 
-tox-3.6:
+tox-3.10:
   extends: ".tox"
   stage: "Test"
   image: "python:3.6"
@@ -106,10 +106,10 @@ tox-3.6:
     - if: '$CI_COMMIT_TAG'
       when: always
 
-tox-3.7:
+tox-3.11:
   extends: ".tox"
   stage: "Test"
-  image: "python:3.7"
+  image: "python:3.11"
 
 tox-3.8:
   extends: ".tox"
@@ -146,7 +146,7 @@ tox-3.8:
 #     needs: []
 
 test_report:
-  needs: ["tox-3.7"]
+  needs: ["tox-3.11"]
   stage: Publish test report
   image: 
      name: oberonamsterdam/wkhtmltopdf

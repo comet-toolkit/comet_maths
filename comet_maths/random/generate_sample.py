@@ -491,21 +491,23 @@ def generate_sample_correlated(
 
         elif corr_x[i].ndim == 2:
             if len(corr_x[i]) == len(u_x[i].ravel()):
-                cov_x = cm.convert_corr_to_cov(corr_x[i], u_x[i])
-                MC_data = generate_sample_cov(MCsteps, x[i], cov_x, dtype=dtype)
+                # cov_x = cm.convert_corr_to_cov(corr_x[i], u_x[i])
+                MC_data = generate_sample_corr(
+                    MCsteps, x[i], u_x[i], corr_x[i], dtype=dtype
+                )
             elif len(corr_x[i]) == len(u_x[i]):
                 MC_data = np.zeros((MCsteps,) + (u_x[i].shape))
                 for j in range(len(u_x[i][0])):
-                    cov_x = cm.convert_corr_to_cov(corr_x[i], u_x[i][:, j])
-                    MC_data[:, :, j] = generate_sample_cov(
-                        MCsteps, x[i][:, j], cov_x, dtype=dtype
+                    # cov_x = cm.convert_corr_to_cov(corr_x[i], u_x[i][:, j])
+                    MC_data[:, :, j] = generate_sample_corr(
+                        MCsteps, x[i][:, j], u_x[i][:, j], corr_x[i], dtype=dtype
                     )
             elif len(corr_x[i]) == len(u_x[i][0]):
                 MC_data = np.zeros((MCsteps,) + (u_x[i].shape))
                 for j in range(len(u_x[i][:, 0])):
-                    cov_x = cm.convert_corr_to_cov(corr_x[i], u_x[i][j])
-                    MC_data[:, j, :] = generate_sample_cov(
-                        MCsteps, x[i][j], cov_x, dtype=dtype
+                    # cov_x = cm.convert_corr_to_cov(corr_x[i], u_x[i][j])
+                    MC_data[:, j, :] = generate_sample_corr(
+                        MCsteps, x[i][j], u_x[i][j], corr_x[i], dtype=dtype
                     )
             else:
                 raise NotImplementedError(
@@ -520,6 +522,62 @@ def generate_sample_correlated(
             )
 
     return MC_data
+
+
+def generate_sample_corr(
+    MCsteps,
+    param,
+    u_param,
+    corr_param,
+    diff=0.01,
+    dtype=None,
+    pdf_shape="gaussian",
+    pdf_params=None,
+):
+    """
+    Generate correlated MC sample of input quantity with a given covariance matrix.
+    sample are generated independent and then correlated using Cholesky decomposition.
+
+    :param MCsteps: number of MC steps
+    :type MCsteps: int
+    :param param: values of input quantity (mean of distribution)
+    :type param: array
+    :param cov_param: covariance matrix for input quantity
+    :type cov_param: array
+    :param diff: maximum difference that the error correlation matrix is allowed to be changed by to make it positive definite. Defaults to 0.001
+    :type diff: float, optional
+    :param dtype: dtype of the produced sample
+    :type dtype: numpy.dtype, optional
+    :param pdf_shape: string identifier of the probability density function shape, defaults to gaussian
+    :type pdf_shape: str, optional
+    :param pdf_params: dictionaries defining optional additional parameters that define the probability density function, Defaults to None (gaussian does not require additional parameters)
+    :type pdf_params: dict, optional
+    :return: generated sample
+    :rtype: array
+    """
+    try:
+        L = np.linalg.cholesky(corr_param)
+    except:
+        L = cm.nearestPD_cholesky(corr_param, diff=diff, corr=True)
+
+    outshape = param.shape
+
+    if param.ndim > 1:
+        param = param.flatten()
+        u_param = u_param.flatten()
+
+    if len(param) != len(L):
+        raise ValueError(
+            "The shapes of the provided variable (%s after flattening) and the provided covariance matrix (%s) are not consistent"
+            % (param.shape, L.shape)
+        )
+
+    rand_sample = generate_sample_random(
+        MCsteps, param, u_param, dtype, pdf_shape, pdf_params
+    )
+    return correlate_sample_corr(rand_sample.T, corr_param, dtype).T.reshape(
+        (MCsteps,) + outshape
+    )
 
 
 def generate_sample_cov(
@@ -599,7 +657,7 @@ def correlate_sample_corr(sample, corr, dtype=None):
         try:
             L = np.array(np.linalg.cholesky(corr))
         except:
-            L = cm.nearestPD_cholesky(corr)
+            L = cm.nearestPD_cholesky(corr, corr=True)
 
         sample_out = sample.copy()
 
