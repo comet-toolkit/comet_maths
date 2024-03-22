@@ -5,4 +5,3 @@ from comet_maths.interpolation.interpolation import (
 )
 
 from comet_maths.interpolation.uncertainty_analysis import __all__
-from comet_maths.interpolation.gaussian_process_regression import __all__

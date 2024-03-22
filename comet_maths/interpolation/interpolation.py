@@ -6,13 +6,14 @@ from scipy.interpolate import InterpolatedUnivariateSpline, PchipInterpolator
 from scipy.interpolate import interp1d
 from scipy.interpolate import lagrange
 
+from sklearn.gaussian_process import GaussianProcessRegressor
+from sklearn.gaussian_process.kernels import RBF, Matern, ConstantKernel as C
+
 import matplotlib.pyplot as plt
 import numpy as np
 import punpy
 
-from comet_maths.interpolation.gaussian_process_regression import (
-    gaussian_process_regression,
-)
+import comet_maths as cm
 
 __author__ = ["Pieter De Vis <pieter.de.vis@npl.co.uk>"]
 __all__ = ["Interpolator", "interpolate_1d", "interpolate_1d_along_example"]
