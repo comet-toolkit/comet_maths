@@ -49,7 +49,7 @@ jobs:
         mkdir test_report
         tox
     - name: Archive code coverage results
-        uses: actions/upload-artifact@v4
-        with:
-          name: code-coverage-report
-          path: test_report/cov_report/
+      uses: actions/upload-artifact@v4
+      with:
+        name: code-coverage-report
+        path: test_report/cov_report/
