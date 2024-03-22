@@ -51,7 +51,6 @@ jobs:
 
 
   test_code_and_coverage_report_python3p11:
-    needs: test_code
     runs-on: ubuntu-latest
     strategy:
       matrix:
