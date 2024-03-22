@@ -29,11 +29,11 @@ jobs:
       run: |
         pre-commit run -a
 
-  test_code_python3p8:
+  test_code:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.8"]
+        python-version: ["3.8","3.11"]
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python ${{ matrix.python-version }}
