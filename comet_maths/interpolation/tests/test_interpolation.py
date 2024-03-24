@@ -1,4 +1,5 @@
 """Tests for interpolation module"""
+
 import sys
 import warnings
 
@@ -17,15 +18,10 @@ import time
 
 
 """___NPL Modules___"""
-# import here
 import punpy
 
-"""___Authorship___"""
-__author__ = "Pieter De Vis"
-__created__ = "01/02/2021"
-__maintainer__ = "Pieter De Vis"
-__email__ = "pieter.de.vis@npl.co.uk"
-__status__ = "Development"
+__author__ = ["Pieter De Vis <pieter.de.vis@npl.co.uk>"]
+__all__ = []
 
 
 def function1(x):
