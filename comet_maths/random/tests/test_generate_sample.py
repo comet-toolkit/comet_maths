@@ -34,6 +34,7 @@ corr_5_syst = np.ones((2 * 3 * 4 * 5 * 6, 2 * 3 * 4 * 5 * 6))
 corr_5_rand = np.eye(2 * 3 * 4 * 5 * 6)
 np.random.seed(12345)
 
+
 class TestGenerateSample(unittest.TestCase):
     def test_generate_sample(self):
         sample = generate_sample(1000, [x1, x2], [u_x1, u_x2], ["rand", "syst"], i=0)
