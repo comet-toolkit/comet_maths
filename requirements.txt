@@ -8,8 +8,8 @@ scipy
 obsarray
 
 # for docs
-Jinja2
 sphinx
-sphinx-gallery
-sphinx_rtd_theme
-numpydoc
+sphinx_design
+ipython
+sphinx_autosummary_accessors
+sphinx_book_theme
