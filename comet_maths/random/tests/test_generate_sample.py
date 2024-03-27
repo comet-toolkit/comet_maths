@@ -32,7 +32,7 @@ x5 = np.random.random((2, 3, 4, 5, 6))
 u_x5 = np.ones_like(x5)
 corr_5_syst = np.ones((2 * 3 * 4 * 5 * 6, 2 * 3 * 4 * 5 * 6))
 corr_5_rand = np.eye(2 * 3 * 4 * 5 * 6)
-
+np.random.seed(12345)
 
 class TestGenerateSample(unittest.TestCase):
     def test_generate_sample(self):

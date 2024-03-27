@@ -12,52 +12,17 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
+
 # If extensions (or modules to document with autodoc) are in another
 # directory, add these directories to sys.path here. If the directory is
 # relative to the documentation root, use os.path.abspath to make it
 # absolute, like shown here.
-#
-import os
-import sys
 
-sys.path.insert(0, os.path.abspath(".."))
+import sphinx_autosummary_accessors
 import comet_maths
 
-# SH added to run apidoc on build
-this_directory = os.path.dirname(__file__)
-
-
-def run_apidoc(_):
-    ignore_paths = ["./../../*/tests/"]
-
-    argv = [
-        "-f",
-        "-T",
-        "-e",
-        "-M",
-        "-o",
-        os.path.join(this_directory, "content", "api"),
-        comet_maths.__path__[0],
-    ] + ignore_paths
-
-    try:
-        # Sphinx 1.7+
-        from sphinx.ext import apidoc
-
-        apidoc.main(argv)
-    except ImportError:
-        # Sphinx 1.6 (and earlier)
-        from sphinx import apidoc
-
-        argv.insert(0, apidoc.__file__)
-        apidoc.main(argv)
-
-
-def setup(app):
-    app.connect("builder-inited", run_apidoc)
-
-
 project_title = "comet_maths".replace("_", " ").title()
+
 
 # -- General configuration ---------------------------------------------
 
@@ -73,12 +38,18 @@ default_role = "code"
 # CFAB added napolean to support google-style docstrings
 extensions = [
     "sphinx.ext.autodoc",
+    "sphinx.ext.autosummary",
+    "sphinx.ext.intersphinx",
     "sphinx.ext.viewcode",
     "sphinx.ext.napoleon",
+    "IPython.sphinxext.ipython_directive",
+    "IPython.sphinxext.ipython_console_highlighting",
+    "sphinx_design",
+    "sphinx_autosummary_accessors",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ["_templates"]
+templates_path = ["_templates", sphinx_autosummary_accessors.templates_path]
 
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
@@ -91,8 +62,8 @@ master_doc = "index"
 
 # General information about the project.
 project = project_title
-copyright = "Pieter De Vis"
-author = "Pieter De Vis"
+copyright = "CoMet Toolkit Team"
+author = "CoMet Toolkit Team"
 
 # The version info for the project you're documenting, acts as replacement
 # for |version| and |release|, also used in various other places throughout
@@ -118,6 +89,12 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = "sphinx"
 
+rst_prolog = """
+.. role:: python(code)
+    :language: python
+    :class: highlight
+"""
+
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = False
 
@@ -126,8 +103,8 @@ todo_include_todos = False
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-
-html_theme = "sphinx_rtd_theme"
+#
+html_theme = "sphinx_book_theme"
 
 # Theme options are theme-specific and customize the look and feel of a
 # theme further.  For a list of options available for each theme, see the
@@ -135,17 +112,12 @@ html_theme = "sphinx_rtd_theme"
 #
 # html_theme_options = {}
 
+html_logo = "figs/comet_logo.png"
+
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-# html_static_path = ['_static']
-#
-# # SH added to override wide tables in RTD theme
-# html_context = {
-#     'css_files': [
-#         '_static/theme_overrides.css',
-#         ],
-#      }
+html_static_path = ["_static"]
 
 # -- Options for HTMLHelp output ---------------------------------------
 
@@ -178,7 +150,7 @@ latex_documents = [
         master_doc,
         "user_manual.tex",
         "{} Documentation".format(project_title),
-        "Pieter De Vis",
+        "CoMet Toolkit Team",
         "manual",
     ),
 ]
@@ -203,7 +175,7 @@ texinfo_documents = [
         "comet_maths Documentation",
         author,
         "comet_maths",
-        "Mathematical algorithms and tools to use within CoMet toolkit.",
+        "Python module with useful mathematical algorithms (including interpolation with uncertainties) for general use as well as for use in the other tools in the CoMet toolkit.",
         "Miscellaneous",
     ),
 ]
