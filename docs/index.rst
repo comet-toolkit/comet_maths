@@ -19,8 +19,7 @@ The interpolation submodules focuses on two aspects. First, it aims to provide i
         :link: content/user_guide
         :link-type: doc
 
-        The user guide provides a documentation and examples how to use **comet_maths** either standalone or in combination with *obsarray* digital effects tables.
-
+        The user guide provides a documentation and examples how to use **comet_maths** for interpolation, linear algebra or generating Monte Carlo samples.
     .. grid-item-card::  API Reference
         :link: content/API/api
         :link-type: doc
@@ -55,10 +54,6 @@ Project status
    :caption: For users
 
    content/getting_started
-   content/interpolation
-   content/interpolation_atbd
-   content/linear_algebra
-   content/linear_algebra_atbd
-   content/random_generator
-   content/random_generator_atbd
-   content/examples
+   content/user_guide
+   content/api
+   content/atbd
