@@ -5,7 +5,7 @@
 
 """___Third-Party Modules___"""
 import warnings
-from typing import List, Tuple
+from typing import List, Tuple, Union, Optional
 import numpy as np
 
 """___NPL Modules___"""
@@ -136,21 +136,21 @@ def separate_flattened_corr(
     return corrs, corrs_between
 
 
-def expand_errcorr_dims(in_corr, in_dim, out_dim, dim_sizes):
+def expand_errcorr_dims(
+    in_corr: np.ndarray,
+    in_dim: Union[str, List[str]],
+    out_dim: List[str],
+    dim_sizes: dict,
+) -> np.ndarray:
     """
     Function to expand the provided correlation matrix (which defines the correlation along 1 or 2 dimensions),
     to higher dimensions, so that the total correlation matrix can be calculated.
 
     :param in_corr: correlation matrix along the dimensions specified in in_dim
-    :type in_corr: np.ndarray
     :param in_dim: list of dimensions of the input correlation matrix
-    :type in_dim: str or List[str]
     :param out_dim: list of dimensions of the expanded matrix
-    :type out_dim: List[str]
     :param dim_sizes: dictionary with the dimensions of each of the dimensions
-    :type dim_sizes: dict
     :return: correlation matrix contribution to the full correlation matrix
-    :rtype: np.ndarray
     """
     if in_dim == out_dim:
         return in_corr
@@ -246,18 +246,16 @@ def expand_errcorr_dims(in_corr, in_dim, out_dim, dim_sizes):
     return out_corr
 
 
-def first_dim_loop(in_corr, out_corr, loopshape):
+def first_dim_loop(
+    in_corr: np.ndarray, out_corr: np.ndarray, loopshape: tuple
+) -> np.ndarray:
     """
     Loop to expand the err_corr matrix to higher dimension(s) if the dimensions in the in_corr are the first in the out_corr
 
     :param in_corr: correlation matrix along the dimensions specified in in_dim
-    :type in_corr: np.ndarray
     :param out_corr: initialised output correlation matrix
-    :type out_corr: np.ndarray
     :param loopshape: shape of the loop which determined how many times in_corr needs to be copied (determined by the out_corr dimensions not in in_corr)
-    :type loopshape: tuple
     :return: correlation matrix contribution to the full correlation matrix
-    :rtype: np.ndarray
     """
     looplen = int(np.prod(loopshape))
     for ii, mi in enumerate(np.ndindex(loopshape)):
@@ -268,20 +266,17 @@ def first_dim_loop(in_corr, out_corr, loopshape):
     return out_corr
 
 
-def last_dim_loop(in_corr, out_corr, loopshape, size_last):
+def last_dim_loop(
+    in_corr: np.ndarray, out_corr: np.ndarray, loopshape: tuple, size_last: int
+) -> np.ndarray:
     """
     Loop to expand the err_corr matrix to higher dimensions if the dimension(s) in the in_corr are the last in the out_corr
 
     :param in_corr: correlation matrix along the dimensions specified in in_dim
-    :type in_corr: np.ndarray
     :param out_corr: initialised output correlation matrix
-    :type out_corr: np.ndarray
     :param loopshape: shape of the loop which determined how many times in_corr needs to be copied (determined by the out_corr dimensions not in in_corr)
-    :type loopshape: tuple
     :param size_last: combined length of the last dimension(s)
-    :type size_last: int
     :return: correlation matrix contribution to the full correlation matrix
-    :rtype: np.ndarray
     """
     for ii, mi in enumerate(np.ndindex(loopshape)):
         idx_start = ii * size_last
@@ -291,24 +286,24 @@ def last_dim_loop(in_corr, out_corr, loopshape, size_last):
     return out_corr
 
 
-def other_dim_loop(in_corr, out_corr, loopshape, other_dim_id, out_dim, dim_sizes):
+def other_dim_loop(
+    in_corr: np.ndarray,
+    out_corr: np.ndarray,
+    loopshape: tuple,
+    other_dim_id: int,
+    out_dim: List[str],
+    dim_sizes: dict,
+) -> np.ndarray:
     """
     Loop to expand the err_corr matrix to higher dimensions if the dimension(s) in the in_corr are not first and not last in the out_corr
 
     :param in_corr: correlation matrix along the dimensions specified in in_dim
-    :type in_corr: np.ndarray
     :param out_corr: initialised output correlation matrix
-    :type out_corr: np.ndarray
     :param loopshape: shape of the loop which determined how many times in_corr needs to be copied (determined by the out_corr dimensions not in in_corr)
-    :type loopshape: tuple
     :param other_dim_id: index of the in_corr dimension in the out_dim list
-    :type other_dim_id: int
     :param out_dim: list of dimensions of the expanded matrix
-    :type out_dim: List[str]
     :param dim_sizes: dictionary with the dimensions of each of the dimensions
-    :type dim_sizes: dict
     :return: correlation matrix contribution to the full correlation matrix
-    :rtype: np.ndarray
     """
     for ii, mi in enumerate(np.ndindex(loopshape)):
         small_size = np.prod([dim_sizes[dim] for dim in out_dim[other_dim_id + 1 :]])
@@ -322,20 +317,20 @@ def other_dim_loop(in_corr, out_corr, loopshape, other_dim_id, out_dim, dim_size
     return out_corr
 
 
-def change_order_errcorr_dims(in_corr, in_dim, out_dim, dim_sizes):
+def change_order_errcorr_dims(
+    in_corr: np.ndarray,
+    in_dim: Union[str, List[str]],
+    out_dim: List[str],
+    dim_sizes: dict,
+) -> np.ndarray:
     """
     Function to flip the order of the underlying dimensions for an err_corr for matrices that describe the combination of 2 dimensions
 
     :param in_corr: correlation matrix along the dimensions specified in in_dim
-    :type in_corr: np.ndarray
     :param in_dim: list of dimensions of the input correlation matrix
-    :type in_dim: str or List[str]
     :param out_dim: list of dimensions of the expanded matrix
-    :type out_dim: List[str]
     :param dim_sizes: dictionary with the dimensions of each of the dimensions
-    :type dim_sizes: dict
     :return: correlation matrix with flipped underlying dimensions
-    :rtype: np.ndarray
     """
     if not len(in_dim) == len(out_dim):
         raise ValueError(
