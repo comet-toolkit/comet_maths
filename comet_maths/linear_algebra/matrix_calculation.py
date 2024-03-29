@@ -19,6 +19,7 @@ __maintainer__ = "Pieter De Vis"
 __email__ = "pieter.de.vis@npl.co.uk"
 __status__ = "Development"
 
+
 def calculate_Jacobian(
     fun: Callable,
     x: np.array,
