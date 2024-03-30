@@ -25,20 +25,32 @@ normal 1D interpolation
 This is the typical use case for interpolation. The added value of the tool is that it allows
 to automatically determine the uncertainties (and error-correlation information)
 on the interpolated datapoints. The following methods can be used: "linear",
-"quadratic", "cubic", "nearest", "next", "previous", "lagrange", "ius" and "gpr".
-The latter two stand for Interpolated Univariate Spline and Gaussian Process
-Regression. For the implementation of the interpolation methods themselves,
+"quadratic", "cubic", "nearest", "next", "previous", "lagrange", "ius", "pchip" and "gpr".
+The latter three stand for `Interpolated Univariate Spline', `Piecewise Cubic
+    Hermite Interpolating Polynomial' and `Gaussian Process
+Regression'. For the implementation of the interpolation methods themselves,
 we wrap the sklearn (for gpr) and scipy (for all others) implementation,
 and add uncertainty propagation to it.
 
 Within the **comet_maths** interpolation
-module, the uncertainties on both the low and high resolution datapoints are
+module, the uncertainties on the input quantity datapoints are
 propagated using a MC method (using `punpy <https://punpy.readthedocs.io/en/latest/>`_).
+In addition to the propagated measurement uncertainties, the interpolation is affected by
+model uncertainties (i.e. uncertainties in the interpolation process itself).
 The interpolation model uncertainties for the classical methods (i.e. those in scipy)
 are estimated by calculating the standard deviation between trying various
 different interpolation methods. At least three different methods from the list above
 are compared to determine this uncertainty contribution. For the gpr method, the
 model uncertainties (and/or covariance) can be outputted by the algorithm.
+Error correlation matrices can also be returned by the algorithm (return_corr keyword).
+
+.. figure:: ../figs/interpolation_test_1d.png
+
+   Example of 1d interpolation comparing cubic and GPR interpolation methods, as well as their uncertainties.
+
+.. figure:: ../figs/interpolation_test_1d_corrs.png
+
+   Example of error correlation matrices for cubic and GPR interpolation methods for the example in the figure above.
 
 1D interpolation following a high-resolution example
 =======================================================
@@ -46,7 +58,7 @@ For this use case, we have developed a method so that an interpolation can be do
 low resolution data points, which follows the shape of another set of high-resolution
 data points (or a high resolution model). This is particularly useful if the
 low-resolution data points have small uncertainties (and thus a good absolute calibration),
-yet the shape of the function between the data points is known from another set of data
+while the shape of the function between the data points is known from another set of data
 points or model which have larger uncertainties (e.g. if we have a set of measurements
 with poor absolute calibration but good relative calibration). By combining these measurements,
 the high-resolution model can be confidently anchored to the low-resolution datapoints, thereby
@@ -58,6 +70,10 @@ datapoints in order to get the final interpolated datapoints. The residuals can 
 calculated in a relative or absolute way (depending on which is most appropriate
 for a given use case). The interpolation steps throughout this method use the same
 interpolation methods and uncertainty propagation as the **normal 1D interpolation**.
+
+.. figure:: ../figs/interpolation_test_1d_along_example.png
+
+   Example of 1d interpolation along an example. The high resolution data is scaled to go through the low resolution data. Uncertainties are small and teh GPR and cubic methods agree well.
 
 Extrapolation
 =================

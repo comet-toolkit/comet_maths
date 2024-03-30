@@ -21,8 +21,21 @@ __all__ = ["Interpolator", "interpolate_1d", "interpolate_1d_along_example"]
 
 class Interpolator:
     """
-    Class to provide a set of interpolation methods for the interpolation of data. The class provides a range of interpolation methods, and enables propagation of
-    uncertainties through the interpolation.
+    Class to provide a set of interpolation methods for the interpolation of data.
+    The class provides a range of interpolation methods, and enables propagation of
+    uncertainties through the interpolation by providing measurement functions that
+    only take the numerical input quantities as arguments. All the other options for
+    interpolation are stored in the class attributes.
+
+    :param relative: Boolean to indicate whether a relative normalisation (True) or absolute normalisation (False) should be used. Defaults to True.
+    :param method: Sting to indicate which interpolation method should be used to interpolate between normalised data (core interpolation step within the approach). Defaults to Gaussian Progress Regression.
+    :param method_hr: String to indicate which interpolation method should be used to interpolate between high resolution measurements. Defaults to cubic spline interpolation.
+    :param unc_methods: interpolation methods to use in the calculation of the model error for interpolation between normalised data. Not used for gpr. Defaults to None, in which case a standard list is used for each interpolation method.
+    :param unc_methods_hr: interpolation methods to use in the calculation of the model error for interpolation between high resolution measurements. Not used for gpr. Defaults to None, in which case a standard list is used for each interpolation method.
+    :param min_scale: minimum bound on the scale parameter in the gaussian process regression. Only used if gpr is selected as method. Defaults to 0.3
+    :param extrapolate: extrapolation method, which can be set to "extrapolate" (in which case extrapolation is used using interpolation method defined in "method"), "nearest" (in which case nearest values are used for extrapolation), or "linear" (in which case linear extrapolation is used). Defaults to "extrapolate".
+    :param add_model_error: Boolean to indicate whether model error should be added to interpolated values to account for interpolation errors (useful in Monte Carlo approaches). Defaults to False
+    :param plot_residuals: Boolean to indicate whether a plot of the residuals should be made (and stored as residuals.png). Defaults to False
     """
 
     def __init__(
@@ -37,31 +50,7 @@ class Interpolator:
         add_model_error: Optional[bool] = True,
         plot_residuals: Optional[bool] = False,
     ) -> None:
-        """
-        Class initializer for interpolation class. This class is to provide
-        measurement functions that only take the numerical input quantities
-        as arguments. All the other options for interpolation are stored in
-        the class attributes by this initializer.
-
-        :param relative: Boolean to indicate whether a relative normalisation (True) or absolute normalisation (False) should be used. Defaults to True.
-        :type relative: bool (optional)
-        :param method: Sting to indicate which interpolation method should be used to interpolate between normalised data (core interpolation step within the approach). Defaults to Gaussian Progress Regression.
-        :type method: string (optional)
-        :param method_hr: String to indicate which interpolation method should be used to interpolate between high resolution measurements. Defaults to cubic spline interpolation.
-        :type method_hr: string (optional)
-        :param unc_methods: interpolation methods to use in the calculation of the model error for interpolation between normalised data. Not used for gpr. Defaults to None, in which case a standard list is used for each interpolation method.
-        :type unc_methods: list(str) (optional)
-        :param unc_methods_hr: interpolation methods to use in the calculation of the model error for interpolation between high resolution measurements. Not used for gpr. Defaults to None, in which case a standard list is used for each interpolation method.
-        :type unc_methods_hr: list(str) (optional)
-        :param min_scale: minimum bound on the scale parameter in the gaussian process regression. Only used if gpr is selected as method. Defaults to 0.3
-        :type min_scale: float (optional)
-        :param extrapolate: extrapolation method, which can be set to "extrapolate" (in which case extrapolation is used using interpolation method defined in "method"), "nearest" (in which case nearest values are used for extrapolation), or "linear" (in which case linear extrapolation is used). Defaults to "extrapolate".
-        :type extrapolate: str (optional)
-        :param add_model_error: Boolean to indicate whether model error should be added to interpolated values to account for interpolation errors (useful in Monte Carlo approaches). Defaults to False
-        :type add_model_error: bool (optional)
-        :param plot_residuals: Boolean to indicate whether a plot of the residuals should be made (and stored as residuals.png). Defaults to False
-        :type plot_residuals: bool (optional)
-        """
+        """ """
         self.relative = relative
         self.method = method
         self.method_hr = method_hr
@@ -91,17 +80,11 @@ class Interpolator:
         yet the low resolution data has a more precise calibration (and can thus be used to constrain the high-resolution model).
 
         :param x_i: Independent variable quantity x for the low resolution data
-        :type x_i: np.ndarray
         :param y_i: measured variable quantity y for the low resolution data
-        :type y_i: np.ndarray
         :param x_hr: Independent variable quantity x for the high resolution data
-        :type x_hr: np.ndarray
         :param y_hr: measured variable quantity y for the high resolution data
-        :type y_hr: np.ndarray
         :param x: Independent variable quantity x for which we are trying to obtain the measurand y
-        :type x: np.ndarray
         :return: The measurand y evaluated at the values x
-        :rtype: np.ndarray
         """
         return interpolate_1d_along_example(
             x_i,
@@ -373,14 +356,12 @@ def interpolate_1d(
             return y, y_unc
 
 
-def default_unc_methods(method):
+def default_unc_methods(method: str) -> List[str]:
     """
     Function providing for each analytical interpolation method, the default methods that are compared to determine the model uncertainty for this interpolation method.
 
     :param method: method used in the interpolation
-    :type method: str
     :return: methods used to determine the model uncertainty on the provided method
-    :rtype: list(str)
     """
     if method.lower() in ["nearest", "previous", "next"]:
         unc_methods = ["nearest", "previous", "next", "linear"]
@@ -434,23 +415,21 @@ def redo_extrapolation(
 
 
 def model_error_analytical_methods(
-    x_i, y_i, x, unc_methods=["linear", "quadratic", "cubic"]
-):
+    x_i: np.ndarray,
+    y_i: np.ndarray,
+    x: np.ndarray,
+    unc_methods: List[str] = ["linear", "quadratic", "cubic"],
+) -> np.ndarray:
     """
     Function to calculate the interpolation model uncertainty by calculating the standard
     deviation between various interpolation methods. Also includes extrapolation
     uncertainty when appropriate.
 
     :param x_i: Independent variable quantity x (coordinate data of y_i)
-    :type x_i: np.ndarray
     :param y_i: measured variable quantity y (data to interpolate)
-    :type y_i: np.ndarray
     :param x: Independent variable quantity x for which we are trying to obtain the measurand y
-    :type x: np.ndarray
     :param unc_methods: interpolation methods to use in the calculation of the model error. Not used for gpr. Defaults to None, in which case a standard list is used for each interpolation method.
-    :type unc_methods: list(str)
     :return: interpolation model uncertainty
-    :rtype: np.ndarray
     """
 
     # check if any values need to be extrapolated, and if so include both extrapolation methods
@@ -472,57 +451,41 @@ def model_error_analytical_methods(
 
 
 def gaussian_process_regression(
-    x_i,
-    y_i,
-    x,
-    u_y_i=None,
-    corr_y_i=None,
-    kernel="RBF",
-    min_scale=0.01,
-    max_scale=10000,
-    extrapolate="extrapolate",
-    return_uncertainties=True,
-    return_corr=False,
-    include_model_uncertainties=True,
-    add_model_error=False,
-    MCsteps=100,
-    parallel_cores=4,
-):
+    x_i: np.ndarray,
+    y_i: np.ndarray,
+    x: np.ndarray,
+    u_y_i: Optional[np.ndarray] = None,
+    corr_y_i: Optional[Union[np.ndarray, str]] = None,
+    kernel: Optional[str] = "RBF",
+    min_scale: Optional[float] = 0.01,
+    max_scale: Optional[float] = 10000,
+    extrapolate: Optional[str] = "extrapolate",
+    return_uncertainties: Optional[bool] = True,
+    return_corr: Optional[bool] = False,
+    include_model_uncertainties: Optional[bool] = True,
+    add_model_error: Optional[bool] = False,
+    MCsteps: Optional[int] = 100,
+    parallel_cores: Optional[int] = 4,
+) -> np.ndarray:
     """
     Function to perform interpolation using Gaussian process regression
 
     :param x_i: Independent variable quantity x (coordinate data of y_i)
-    :type x_i: np.ndarray
     :param y_i: measured variable quantity y (data to interpolate)
-    :type y_i: np.ndarray
     :param x: Independent variable quantity x for which we are trying to obtain the measurand y
-    :type x: np.ndarray
     :param u_y_i: uncertainties on y_i, defaults to None
-    :type u_y_i: np.ndarray (optional)
     :param corr_y_i: error correlation matrix (can be "rand" for random, "syst" for systematic, or a custom 2D error correlation matrix), defaults to None
-    :type corr_y_i: np.ndarray or str (optional)
     :param kernel: kernel to be used in the gpr interpolation. Defaults to "RBF".
-    :type kernel: str (optional)
     :param min_scale: minimum bound on the scale parameter in the gaussian process regression. Defaults to 0.01
-    :type min_scale: float (optional)
     :param max_scale: maximum bound on the scale parameter in the gaussian process regression. Defaults to 100
-    :type max_scale: float (optional)
     :param extrapolate: extrapolation method, which can be set to "extrapolate" (in which case extrapolation is used using interpolation method defined in "method"), "nearest" (in which case nearest values are used for extrapolation), or "linear" (in which case linear extrapolation is used). Defaults to "extrapolate".
-    :type extrapolate: str (optional)
     :param return_uncertainties: Boolean to indicate whether interpolation uncertainties should be calculated and returned. Defaults to False
-    :type return_uncertainties: bool (optional)
     :param return_corr: Boolean to indicate whether interpolation error-correlation matrix should be calculated and returned. Defaults to False
-    :type return_corr: bool (optional)
     :param include_model_uncertainties: Boolean to indicate whether model uncertainties should be added to output uncertainties to account for interpolation uncertainties. Not used for gpr. Defaults to True
-    :type include_model_uncertainties: bool (optional)
     :param add_model_error: Boolean to indicate whether model error should be added to interpolated values to account for interpolation errors (useful in Monte Carlo approaches). Defaults to False
-    :type add_model_error: bool (optional)
     :param MCsteps: number of MC iterations. Defaults to 100
-    :type MCsteps: int (optional)
     :param parallel_cores: number of CPU to be used in parallel processing. Defaults to 4
-    :type parallel_cores: int (optional)
     :return: The measurand y evaluated at the values x (interpolated data)
-    :rtype: np.ndarray
     """
     # First calculate y_out without uncertainties
     y_out, cov_model = gpr_basics(
@@ -588,33 +551,25 @@ def gaussian_process_regression(
 
 
 def gpr_basics(
-    x_i,
-    y_i,
-    x,
-    u_y_i=None,
-    kernel="RBF",
-    min_scale=0.01,
-    max_scale=10000,
-):
+    x_i: np.ndarray,
+    y_i: np.ndarray,
+    x: np.ndarray,
+    u_y_i: Optional[np.ndarray] = None,
+    kernel: Optional[str] = "RBF",
+    min_scale: Optional[float] = 0.01,
+    max_scale: Optional[float] = 10000,
+) -> np.ndarray:
     """
     Function to perform basic gaussian process regression
 
     :param x_i: Independent variable quantity x (coordinate data of y_i)
-    :type x_i: np.ndarray
     :param y_i: measured variable quantity y (data to interpolate)
-    :type y_i: np.ndarray
     :param x: Independent variable quantity x for which we are trying to obtain the measurand y
-    :type x: np.ndarray
     :param u_y_i: uncertainties on y_i, defaults to None
-    :type u_y_i: np.ndarray (optional)
     :param kernel: kernel to be used in the gpr interpolation. Defaults to "RBF".
-    :type kernel: str (optional)
     :param min_scale: minimum bound on the scale parameter in the gaussian process regression. Defaults to 0.01
-    :type min_scale: float (optional)
     :param max_scale: maximum bound on the scale parameter in the gaussian process regression. Defaults to 100
-    :type max_scale: float (optional)
     :return: The measurand y evaluated at the values x (interpolated data)
-    :rtype: np.ndarray
     """
     X = np.atleast_2d(x_i).T
 

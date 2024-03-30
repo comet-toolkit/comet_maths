@@ -7,6 +7,7 @@ import comet_maths as cm
 import warnings
 import numpy as np
 import numdifftools as nd
+from typing import List, Tuple, Union, Optional, Callable
 
 """___NPL Modules___"""
 # import here
@@ -19,18 +20,20 @@ __email__ = "pieter.de.vis@npl.co.uk"
 __status__ = "Development"
 
 
-def calculate_Jacobian(fun, x, Jx_diag=False, step=None):
+def calculate_Jacobian(
+    fun: Callable,
+    x: np.array,
+    Jx_diag: Optional[bool] = False,
+    step: Optional[float] = None,
+) -> np.array:
     """
     Calculate the local Jacobian of function y=f(x) for a given value of x
 
     :param fun: flattened measurement function
-    :type fun: function
     :param x: flattened local values of input quantities
-    :type x: array
     :param Jx_diag: Bool to indicate whether the Jacobian matrix can be described with semi-diagonal elements. With this we mean that the measurand has the same shape as each of the input quantities and the square jacobain between the measurand and each of the input quantities individually, only has diagonal elements. Defaults to False
-    :rtype Jx_diag: bool, optional
+    :param step: Defines the spacing used when calculating the Jacobian with numdifftools
     :return: Jacobian
-    :rtype: array
     """
     Jfun = nd.Jacobian(fun, step=step)
 
@@ -61,7 +64,12 @@ def calculate_Jacobian(fun, x, Jx_diag=False, step=None):
     return Jx
 
 
-def calculate_corr(MC_y, corr_dims=-99, PD_corr=True, dtype=None):
+def calculate_corr(
+    MC_y: np.ndarray,
+    corr_dims: Optional[int] = -99,
+    PD_corr: Optional[bool] = True,
+    dtype: Optional[np.dtype] = None,
+) -> np.ndarray:
     """
     Calculate the correlation matrix between the MC-generated samples of output quantities.
     If corr_dims is specified, this axis will be the one used to calculate the correlation matrix (e.g. if corr_dims=0 and x.shape[0]=n, the correlation matrix will have shape (n,n)).
@@ -177,20 +185,20 @@ def calculate_corr(MC_y, corr_dims=-99, PD_corr=True, dtype=None):
     return corr_y
 
 
-def nearestPD_cholesky(A, diff=0.05, corr=False, return_cholesky=True):
+def nearestPD_cholesky(
+    A: np.ndarray,
+    diff: Optional[float] = 0.05,
+    corr: Optional[bool] = False,
+    return_cholesky: Optional[bool] = True,
+) -> np.ndarray:
     """
     Find the nearest positive-definite matrix
 
     :param A: correlation matrix or covariance matrix
-    :type A: array
     :param diff: maximum difference that the error correlation matrix is allowed to be changed by to make it positive definite. Defaults to 0.001
-    :type diff: float, optional
     :param corr: boolean to indicate whether error correlation matrix is used (True) or error covariance matrix is used (False). Defaults to False
-    :type corr: bool, optional
     :param return_cholesky: boolean to indicate whether the cholesky decomposition should be returned (True) or just the nearest positive definitive error correlation/covariance matrix (False). Defaults to True.
-    :type return_cholesky: bool, optional
     :return: nearest positive-definite matrix
-    :rtype: array
 
     Copied and adapted from [1] under BSD license.
     A Python/Numpy port of John D'Errico's `nearestSPD` MATLAB code [2], which
@@ -292,14 +300,12 @@ def nearestPD_cholesky(A, diff=0.05, corr=False, return_cholesky=True):
                     return A3
 
 
-def isPD(B):
+def isPD(B: np.ndarray) -> bool:
     """
     Returns true when input is positive-definite, via Cholesky
 
     :param B: matrix
-    :type B: array
     :return: true when input is positive-definite
-    :rtype: bool
     """
     try:
         _ = np.linalg.cholesky(B)
