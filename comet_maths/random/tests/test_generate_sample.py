@@ -415,6 +415,25 @@ class TestGenerateSample(unittest.TestCase):
             atol=0.1,
         )
 
+    def test_generate_few_samples(self):
+        x_HR = np.arange(-0.5, 4.0, 0.09)
+        y_HR = np.zeros_like(x_HR)
+        u_y_HR_syst = 0.9 * np.ones_like(y_HR)
+        u_y_HR_rand = np.abs(0.02)
+        cov_y_HR = cm.convert_corr_to_cov(
+            np.ones((len(y_HR), len(y_HR))), u_y_HR_syst
+        ) + cm.convert_corr_to_cov(np.eye(len(y_HR)), u_y_HR_rand)
+        corr_y_HR = cm.correlation_from_covariance(cov_y_HR)
+        u_y_HR = cm.uncertainty_from_covariance(cov_y_HR)
+
+        y_HR2 = cm.generate_sample(1, y_HR, u_y_HR, corr_x=corr_y_HR)
+
+        assert np.std(y_HR2 - y_HR) < 0.05
+
+        y_HR2 = cm.generate_sample(3, y_HR, u_y_HR, corr_x=corr_y_HR)
+
+        npt.assert_allclose(np.std(y_HR2 - y_HR, axis=1), 0.02, atol=0.02)
+
 
 if __name__ == "__main__":
     unittest.main()

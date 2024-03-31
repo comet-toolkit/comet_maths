@@ -58,7 +58,11 @@ def generate_sample(
         corr_x = np.array([corr_x])
         i = 0
 
-    if np.count_nonzero(u_x[i]) == 0:
+    if np.any(u_x[i] < 0):
+        raise ValueError(
+            "comet_maths.generate_sample: u_x cannot have any negative values"
+        )
+    elif np.count_nonzero(u_x[i]) == 0:
         sample = generate_sample_same(MCsteps, x[i], dtype=dtype)
     elif not hasattr(x[i], "size"):
         sample = generate_sample_random(
@@ -453,7 +457,11 @@ def generate_sample_correlated(
                                 (x[i].shape[int(dim)], x[i].shape[int(dim)])
                             )
                     MC_data = correlate_sample_corr(
-                        np.moveaxis(MC_data, int(dim) + 1, 0), corr_x[i][dim]
+                        np.moveaxis(MC_data, int(dim) + 1, 0),
+                        corr_x[i][dim],
+                        x[i],
+                        u_x[i],
+                        dtype,
                     )
                     MC_data = np.moveaxis(MC_data, 0, int(dim) + 1)
                 else:
@@ -484,7 +492,9 @@ def generate_sample_correlated(
                             corr_x[i][dim] = np.ones(
                                 (MC_data.shape[0], MC_data.shape[0])
                             )
-                    MC_data = correlate_sample_corr(MC_data, corr_x[i][dim])
+                    MC_data = correlate_sample_corr(
+                        MC_data, corr_x[i][dim], x[i], u_x[i], dtype
+                    )
                     MC_data = MC_data.reshape(multi_dim_shape + normal_dim_shape)
                     for ii in range(len(mult_dim) - 1, -1, -1):
                         MC_data = np.moveaxis(MC_data, ii, int(mult_dim[ii]) + 1)
@@ -575,9 +585,9 @@ def generate_sample_corr(
     rand_sample = generate_sample_random(
         MCsteps, param, u_param, dtype, pdf_shape, pdf_params
     )
-    return correlate_sample_corr(rand_sample.T, corr_param, dtype).T.reshape(
-        (MCsteps,) + outshape
-    )
+    return correlate_sample_corr(
+        rand_sample.T, corr_param, param, u_param, dtype
+    ).T.reshape((MCsteps,) + outshape)
 
 
 def generate_sample_cov(
@@ -632,7 +642,7 @@ def generate_sample_cov(
     return (np.dot(L, rand_sample).T + param).reshape((MCsteps,) + outshape)
 
 
-def correlate_sample_corr(sample, corr, dtype=None):
+def correlate_sample_corr(sample, corr, mean=None, std=None, dtype=None):
     """
     Method to correlate independent sample of input quantities using correlation matrix and Cholesky decomposition.
 
@@ -640,6 +650,12 @@ def correlate_sample_corr(sample, corr, dtype=None):
     :type sample: array[array]
     :param corr: correlation matrix between input quantities
     :type corr: array
+    :param mean: mean from which the sample has been drawn. Defaults to None, in which case the mean of the provided sample is taken (can be very imprecise for samples with few draws).
+    :type mean: array
+    :param std: standard eviation used when generating the sample. Defaults to None, in which case the std of the provided sample is taken (can be very imprecise for samples with few draws).
+    :type std: array
+    :param dtype: dtype of the produced sample
+    :type dtype: numpy.dtype, optional
     :return: correlated sample of input quantities
     :rtype: array[array]
     """
@@ -668,29 +684,40 @@ def correlate_sample_corr(sample, corr, dtype=None):
 
         # Cholesky needs to be applied to Gaussian distributions with mean=0 and std=1,
         # We first calculate the mean and std for each input quantity
-        means = np.array(
-            [np.mean(sample[i][(slice(None),) + j]) for i in range(len(sample))],
-            dtype=dtype,
-        )[:, None]
-        stds = np.array(
-            [np.std(sample[i][(slice(None),) + j]) for i in range(len(sample))],
-            dtype=dtype,
-        )[:, None]
+        if mean is None:
+            mean = np.array(
+                [np.mean(sample[i][(slice(None),) + j]) for i in range(len(sample))],
+                dtype=dtype,
+            )[:, None]
+        else:
+            mean = mean[:, None]
 
+        if std is None:
+            std = np.array(
+                [np.std(sample[i][(slice(None),) + j]) for i in range(len(sample))],
+                dtype=dtype,
+            )[:, None]
+        else:
+            std = std[:, None]
         # We normalise the sample with the mean and std, then apply Cholesky, and finally reapply the mean and std.
-        if all(stds[:, 0] != 0):
-            sample_j = np.dot(L, (sample_j - means) / stds) * stds + means
+        if all(std[:, 0] != 0):
+            sample_j = np.dot(L, (sample_j - mean) / std) * std + mean
 
         # If any of the variables has no uncertainty, the normalisation will fail. Instead we leave the parameters without uncertainty unchanged.
-        else:
-            id_nonzero = np.where(stds[:, 0] != 0)[0]
+        elif any(std[:, 0] != 0):
+            id_nonzero = np.where(std[:, 0] != 0)[0]
             sample_j[id_nonzero] = (
                 np.dot(
                     L[id_nonzero][:, id_nonzero],
-                    (sample_j[id_nonzero] - means[id_nonzero]) / stds[id_nonzero],
+                    (sample_j[id_nonzero] - mean[id_nonzero]) / std[id_nonzero],
                 )
-                * stds[id_nonzero]
-                + means[id_nonzero]
+                * std[id_nonzero]
+                + mean[id_nonzero]
+            )
+
+        else:
+            raise ValueError(
+                "comet_maths.generate_sample.correlate_sample_corr: you cannot correlate a sample with 0 std"
             )
 
         for i in range(len(sample)):
