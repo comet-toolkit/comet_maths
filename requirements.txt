@@ -5,7 +5,6 @@ numdifftools
 scikit-learn
 punpy
 scipy
-obsarray
 
 # for docs
 sphinx

@@ -20,15 +20,15 @@ points, as well as uncertainties on the interpolation process itself.
 There are currently two main use cases for which the **comet_maths**
 interpolation module can be used:
 
-normal 1D interpolation
+Normal 1D interpolation
 ===========================
 This is the typical use case for interpolation. The added value of the tool is that it allows
 to automatically determine the uncertainties (and error-correlation information)
 on the interpolated datapoints. The following methods can be used: "linear",
 "quadratic", "cubic", "nearest", "next", "previous", "lagrange", "ius", "pchip" and "gpr".
-The latter three stand for `Interpolated Univariate Spline', `Piecewise Cubic
-    Hermite Interpolating Polynomial' and `Gaussian Process
-Regression'. For the implementation of the interpolation methods themselves,
+The latter three stand for "Interpolated Univariate Spline", "Piecewise Cubic
+Hermite Interpolating Polynomial" and "Gaussian Process
+Regression". For the implementation of the interpolation methods themselves,
 we wrap the sklearn (for gpr) and scipy (for all others) implementation,
 and add uncertainty propagation to it.
 
@@ -43,6 +43,8 @@ different interpolation methods. At least three different methods from the list 
 are compared to determine this uncertainty contribution. For the gpr method, the
 model uncertainties (and/or covariance) can be outputted by the algorithm.
 Error correlation matrices can also be returned by the algorithm (return_corr keyword).
+Below, an example is shown where the true values lie on y=x*sin(10x). The interpolated values and their uncertainties
+are shown for the cubic and gpr interpolation method. For more details we refer to `this jupyter notebook <https://colab.research.google.com/github/comet-toolkit/comet_training/blob/main/interpolation_example.ipynb>`_.
 
 .. figure:: ../figs/interpolation_test_1d.png
 
@@ -70,10 +72,14 @@ datapoints in order to get the final interpolated datapoints. The residuals can 
 calculated in a relative or absolute way (depending on which is most appropriate
 for a given use case). The interpolation steps throughout this method use the same
 interpolation methods and uncertainty propagation as the **normal 1D interpolation**.
+Below, the same example is shown where the true values lie on y=x*sin(10x), but now additionally there is some high resolution data available which has poor absolute calibration (i.e. it can be offset) but small relative uncertainties
+(i.e. the shape is reliable). The interpolated values and their uncertainties
+are shown for the cubic and gpr interpolation method. For more details we refer to
+`this jupyter notebook <https://colab.research.google.com/github/comet-toolkit/comet_training/blob/main/interpolation_example.ipynb>`_.
 
 .. figure:: ../figs/interpolation_test_1d_along_example.png
 
-   Example of 1d interpolation along an example. The high resolution data is scaled to go through the low resolution data. Uncertainties are small and teh GPR and cubic methods agree well.
+   Example of 1d interpolation along an example. The high resolution data is scaled to go through the low resolution data. Uncertainties are small and the GPR and cubic methods agree well.
 
 Extrapolation
 =================
@@ -103,7 +109,7 @@ regions where no low resolution data is available to constrain it.
 
 Usage
 =========
-We here give some basic examples of usages, for further examples, we refer to `this jupyter notebook <https://colab.research.google.com/github/comet-toolkit/comet_training/blob/main/interpolation_example.ipynb>`_
+We here give some basic examples of usages, for further examples, we refer to `this jupyter notebook <https://colab.research.google.com/github/comet-toolkit/comet_training/blob/main/interpolation_example.ipynb>`_.
 
 First we give an example for normal 1D interpolation with uncertainties. The data needs to be passed as numpy arrays::
 
