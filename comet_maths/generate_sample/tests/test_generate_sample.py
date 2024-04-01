@@ -2,7 +2,7 @@
 
 """___Built-In Modules___"""
 # import here
-from comet_maths.random.generate_sample import *
+from comet_maths.generate_sample.generate_sample import *
 import numpy as np
 import numpy.testing as npt
 
@@ -45,6 +45,16 @@ class TestGenerateSample(unittest.TestCase):
         sample = generate_sample(1000, [x1, x2], [u_x1, u_x2], ["rand", "syst"], i=1)
         npt.assert_equal(sample.shape, (1000, 5, 6))
         npt.assert_allclose(u_x2, np.std(sample, axis=0), rtol=0.1)
+
+        self.assertRaises(
+            ValueError,
+            generate_error_sample,
+            1000,
+            [x1, x2],
+            [-u_x1, -u_x2],
+            ["rand", "syst"],
+            i=1,
+        )
 
     def test_generate_error_sample(self):
         sample = generate_error_sample(

@@ -149,7 +149,7 @@ class TestInterpolation(unittest.TestCase):
         np.random.seed(1234567)
         xi = np.arange(0, 3.0, 0.2)
         yi = function2(xi)
-        u_yi = 0.01 * yi
+        u_yi = np.abs(0.01 * yi)
         yi = cm.generate_sample(1, yi, u_yi, corr_x="rand").squeeze()
         x_HR = np.arange(0, 3.0, 0.036)
         y_HR = function2(x_HR)
