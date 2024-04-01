@@ -296,7 +296,7 @@ def interpolate_1d(
             % (method)
         )
 
-    y = redo_extrapolation(x_i, y_i, x, y, extrapolate)
+    y = _redo_extrapolation(x_i, y_i, x, y, extrapolate)
 
     if (not return_corr) and (not return_uncertainties):
         return y
@@ -385,7 +385,7 @@ def default_unc_methods(method: str) -> List[str]:
     return unc_methods
 
 
-def redo_extrapolation(
+def _redo_extrapolation(
     x_i: np.ndarray,
     y_i: np.ndarray,
     x: np.ndarray,
@@ -492,7 +492,7 @@ def gaussian_process_regression(
         x_i, y_i, x, kernel=kernel, min_scale=min_scale, max_scale=max_scale
     )
 
-    y_out = redo_extrapolation(x_i, y_i, x, y_out, extrapolate)
+    y_out = _redo_extrapolation(x_i, y_i, x, y_out, extrapolate)
 
     if add_model_error:
         y_out = cm.generate_sample_cov(1, y_out, cov_model, diff=0.1).squeeze()

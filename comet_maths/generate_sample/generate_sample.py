@@ -3,7 +3,7 @@ import warnings
 
 """___Built-In Modules___"""
 import comet_maths as cm
-from comet_maths.random.probability_density_function import generate_sample_pdf
+from comet_maths.generate_sample.probability_density_function import generate_sample_pdf
 
 """___Third-Party Modules___"""
 import numpy as np
@@ -266,7 +266,7 @@ def generate_sample_random(
         sample = sample_pdf * u_param[sli_par] + param[sli_par]
 
     if "truncated" in pdf_shape.lower():
-        id_redo = find_truncated_id(sample, pdf_params)
+        id_redo = _find_truncated_id(sample, pdf_params)
         if len(id_redo) > 0:
             sample[id_redo] = generate_sample_random(
                 len(id_redo), param, u_param, dtype, pdf_shape, pdf_params
@@ -328,7 +328,7 @@ def generate_sample_systematic(
         )
 
     if "truncated" in pdf_shape.lower():
-        id_redo = find_truncated_id(sample, pdf_params)
+        id_redo = _find_truncated_id(sample, pdf_params)
         if len(id_redo) > 0:
             sample[id_redo] = generate_sample_systematic(
                 len(id_redo), param, u_param, dtype, pdf_shape, pdf_params
@@ -337,7 +337,7 @@ def generate_sample_systematic(
     return sample
 
 
-def find_truncated_id(sample, pdf_params):
+def _find_truncated_id(sample, pdf_params):
     """
     Function to identify which of the MC samples has elements that need to be truncated (outside min and max defined in pdf_params). if such an element is present, a new MC draw will be done.
 
@@ -459,8 +459,8 @@ def generate_sample_correlated(
                     MC_data = correlate_sample_corr(
                         np.moveaxis(MC_data, int(dim) + 1, 0),
                         corr_x[i][dim],
-                        x[i],
-                        u_x[i],
+                        np.moveaxis(x[i], int(dim), 0),
+                        np.moveaxis(u_x[i], int(dim), 0),
                         dtype,
                     )
                     MC_data = np.moveaxis(MC_data, 0, int(dim) + 1)
@@ -477,13 +477,19 @@ def generate_sample_correlated(
                         )
                     multi_dim_shape = tuple()
                     sli = [slice(None)] * MC_data.ndim
+                    x_data = x[i]
+                    u_x_data = u_x[i]
                     for ii, idim in enumerate(mult_dim):
                         MC_data = np.moveaxis(MC_data, int(idim) + 1, ii)
+                        x_data = np.moveaxis(x_data, int(idim), ii)
+                        u_x_data = np.moveaxis(u_x_data, int(idim), ii)
                         multi_dim_shape = multi_dim_shape + (x[i].shape[int(idim)],)
                         sli[ii] = 0
                     sli = tuple(sli)
                     normal_dim_shape = MC_data[sli].shape
                     MC_data = MC_data.reshape((-1,) + normal_dim_shape)
+                    x_data = x_data.reshape((-1,) + normal_dim_shape[1::])
+                    u_x_data = u_x_data.reshape((-1,) + normal_dim_shape[1::])
                     if isinstance(corr_x[i][dim], str):
                         if (
                             corr_x[i][dim].lower() == "syst"
@@ -493,7 +499,7 @@ def generate_sample_correlated(
                                 (MC_data.shape[0], MC_data.shape[0])
                             )
                     MC_data = correlate_sample_corr(
-                        MC_data, corr_x[i][dim], x[i], u_x[i], dtype
+                        MC_data, corr_x[i][dim], x_data, u_x_data, dtype
                     )
                     MC_data = MC_data.reshape(multi_dim_shape + normal_dim_shape)
                     for ii in range(len(mult_dim) - 1, -1, -1):
@@ -677,6 +683,22 @@ def correlate_sample_corr(sample, corr, mean=None, std=None, dtype=None):
 
         sample_out = sample.copy()
 
+    if mean is None:
+        mean = np.array(
+            [np.mean(sample[i], axis=0) for i in range(len(sample))],
+            dtype=dtype,
+        )[:, None]
+    else:
+        mean = mean[:, None]
+
+    if std is None:
+        std = np.array(
+            [np.std(sample[i], axis=0) for i in range(len(sample))],
+            dtype=dtype,
+        )[:, None]
+    else:
+        std = std[:, None]
+
     for j in np.ndindex(sample[0][0, ...].shape):
         sample_j = np.array(
             [sample[i][(slice(None),) + j] for i in range(len(sample))], dtype=dtype
@@ -684,35 +706,27 @@ def correlate_sample_corr(sample, corr, mean=None, std=None, dtype=None):
 
         # Cholesky needs to be applied to Gaussian distributions with mean=0 and std=1,
         # We first calculate the mean and std for each input quantity
-        if mean is None:
-            mean = np.array(
-                [np.mean(sample[i][(slice(None),) + j]) for i in range(len(sample))],
-                dtype=dtype,
-            )[:, None]
-        else:
-            mean = mean[:, None]
+        mean_j = np.array(
+            [mean[i][(slice(None),) + j] for i in range(len(sample))], dtype=dtype
+        )
+        std_j = np.array(
+            [std[i][(slice(None),) + j] for i in range(len(sample))], dtype=dtype
+        )
 
-        if std is None:
-            std = np.array(
-                [np.std(sample[i][(slice(None),) + j]) for i in range(len(sample))],
-                dtype=dtype,
-            )[:, None]
-        else:
-            std = std[:, None]
         # We normalise the sample with the mean and std, then apply Cholesky, and finally reapply the mean and std.
-        if all(std[:, 0] != 0):
-            sample_j = np.dot(L, (sample_j - mean) / std) * std + mean
+        if all(std_j[:, 0] != 0):
+            sample_j = np.dot(L, (sample_j - mean_j) / std_j) * std_j + mean_j
 
         # If any of the variables has no uncertainty, the normalisation will fail. Instead we leave the parameters without uncertainty unchanged.
-        elif any(std[:, 0] != 0):
-            id_nonzero = np.where(std[:, 0] != 0)[0]
+        elif any(std_j[:, 0] != 0):
+            id_nonzero = np.where(std_j[:, 0] != 0)[0]
             sample_j[id_nonzero] = (
                 np.dot(
                     L[id_nonzero][:, id_nonzero],
-                    (sample_j[id_nonzero] - mean[id_nonzero]) / std[id_nonzero],
+                    (sample_j[id_nonzero] - mean_j[id_nonzero]) / std_j[id_nonzero],
                 )
-                * std[id_nonzero]
-                + mean[id_nonzero]
+                * std_j[id_nonzero]
+                + mean_j[id_nonzero]
             )
 
         else:
