@@ -136,7 +136,7 @@ Next, we provide an example for the case where we are interpolating between low 
 
        x_HR=np.arange(330,410,5)
        y_HR=np.sin(x_HR)
-       u_y_HR=y_HR*0.1 # 10% relative systematic uncertainty
+       u_y_HR=np.abs(y_HR*0.1) # 10% relative systematic uncertainty
        corr_y_HR=np.ones((len(y_HR),len(y_HR))) # fully systematic error-correlation matrix
 
        x_target=np.arange(330,400,1)
