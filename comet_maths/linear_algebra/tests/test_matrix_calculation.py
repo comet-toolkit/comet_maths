@@ -16,7 +16,7 @@ __email__ = "pieter.de.vis@npl.co.uk"
 __status__ = "Development"
 
 
-def function(xflat):
+def function_flat(xflat):
     x1 = xflat[0:200]
     x2 = xflat[200:400]
     return x1**2 - 10 * x2
