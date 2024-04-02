@@ -11,7 +11,7 @@ and examples, refer to the relevant chapters in the main part of the
 documentation.
 
 Interpolation
-====================
+===============
 
 .. autosummary::
    :toctree: generated/
@@ -51,14 +51,14 @@ Generating MC Samples
 .. autosummary::
    :toctree: generated/
 
-   random.generate_sample.generate_sample
-   random.generate_sample.generate_error_sample
-   random.generate_sample.generate_sample_shape
-   random.generate_sample.generate_sample_same
-   random.generate_sample.generate_sample_random
-   random.generate_sample.generate_sample_systematic
-   random.generate_sample.generate_sample_correlated
-   random.generate_sample.generate_sample_corr
-   random.generate_sample.generate_sample_cov
-   random.generate_sample.correlate_sample_corr
-   random.probability_density_function.generate_sample_pdf
+   generate_sample.generate_sample.generate_sample
+   generate_sample.generate_sample.generate_error_sample
+   generate_sample.generate_sample.generate_sample_shape
+   generate_sample.generate_sample.generate_sample_same
+   generate_sample.generate_sample.generate_sample_random
+   generate_sample.generate_sample.generate_sample_systematic
+   generate_sample.generate_sample.generate_sample_correlated
+   generate_sample.generate_sample.generate_sample_corr
+   generate_sample.generate_sample.generate_sample_cov
+   generate_sample.generate_sample.correlate_sample_corr
+   generate_sample.probability_density_function.generate_sample_pdf
