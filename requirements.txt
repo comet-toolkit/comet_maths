@@ -1,9 +1,9 @@
 # required modules
-numpy>=0.44.2
+numpy
 matplotlib
 numdifftools
 scikit-learn
-punpy
+punpy>=1.0.0
 scipy
 
 # for docs
