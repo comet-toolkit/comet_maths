@@ -1,5 +1,5 @@
 """comet_maths - Mathematical algorithms and tools to use within CoMet toolkit."""
-from comet_maths.random.generate_sample import (
+from comet_maths.generate_sample.generate_sample import (
     generate_sample,
     generate_error_sample,
     generate_sample_systematic,
@@ -10,7 +10,7 @@ from comet_maths.random.generate_sample import (
     correlate_sample_corr,
 )
 
-from comet_maths.random.probability_density_function import (
+from comet_maths.generate_sample.probability_density_function import (
     generate_sample_pdf,
 )
 

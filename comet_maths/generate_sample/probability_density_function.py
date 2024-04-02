@@ -5,7 +5,6 @@ import warnings
 import comet_maths as cm
 
 """___Third-Party Modules___"""
-import numpy as np
 import numpy.random as rn
 
 """___NPL Modules___"""

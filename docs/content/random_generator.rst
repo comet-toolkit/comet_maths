@@ -8,7 +8,7 @@
 =========================================
 Comet_maths Random Generator Module
 =========================================
-The purpose of the random module in comet_maths is to generate Monte Carlo (MC) samples.
+The purpose of the generate_sample module in comet_maths is to generate Monte Carlo (MC) samples.
 This mainly serves the needs of the `MC uncertainty propagation module in punpy <https://punpy.readthedocs.io/en/latest/content/atbd.html#monte-carlo-method>`_.
 Typically, one needs to generate a sample where each of the elements is randomly
 drawn from a Probability Density Function (PDF).
@@ -49,7 +49,7 @@ The `dtype` keyword can be used to provide a numpy dtype for the output MC sampl
 The `pdf_shape` and `pdf_params` keywords will be detailed in the section below.
 When the `comp_list` keyword is set to True, a list of u_x and corr_x can be provided. Each of the elements of the lists will add variance to the resulting MC sample.
 
-There are also a number of other functions available from the random module in comet_maths, though generally it is recommended to just use generate_sample().
+There are also a number of other functions available from the generate_sample module in comet_maths, though generally it is recommended to just use generate_sample().
 generate_sample_random(), generate_sample_systematic() and generate_sample_correlated() simply do the same as the above but with slightly different inputs (e.g. no corr_x keyword for random and systematic).
 There is generate_sample_same() function that trivially generates a sample where u_x is zero and thus consists of repeats of the provided x array.
 Then, there is the generate_sample_cov() function where a covariance matrix is provided instead of the u_x and corr_x (which contain the same information).

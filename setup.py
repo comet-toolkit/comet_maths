@@ -32,7 +32,6 @@ setup(
         "scipy",
         "punpy",
         "matplotlib",
-        "obsarray",
     ],
     extras_require={
         "dev": [

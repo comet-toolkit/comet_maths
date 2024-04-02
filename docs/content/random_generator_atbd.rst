@@ -18,10 +18,10 @@ Internally, comet_maths always generates independent random normally distributed
 samples first and then correlates them where necessary using the Cholesky decomposition method (see paragraph below).
 Using this Cholesky decomposition correlates the PDF of the input quantities which means the joint PDF are defined.
 
-Cholesky decomposition is a usefull method from linear algebra, which allows to efficiently draw samples from a
+Cholesky decomposition is a useful method from linear algebra, which allows to efficiently draw samples from a
 multivariate probability distribution (joint PDF). The Cholesky decomposition is a decomposition of a
 positive-definite matrix into the product of a lower triangular matrix and its conjugate transpose. The positive-definite
-matrix being decomposed here is the correlation or covriance matrix (S(X)) and R is the upper triangular matrix given by the
+matrix being decomposed here is the correlation or covariance matrix (S(X)) and R is the upper triangular matrix given by the
 Cholesky decomposition:
 
 :math:`S(X)=R^T R`.
