@@ -15,6 +15,8 @@ Most of these are used within punpy and obsarray. We will here go through the mo
 First, there is function to calulate the error correlation matrix from a MC-generated sample::
 
    import comet_maths as cm
+   import numpy as np
+   sample = cm.generate_sample(1000, np.zeros(200), np.ones(200), "syst")
    err_corr = cm.calculate_corr(sample, corr_dims=0)
 
 Here it is possible to provide the dimension (or list of dimensions) along which to calculate the error correlation.
@@ -28,8 +30,8 @@ matrices). The corr argument is a boolean which allows to indicate whether the p
 If the latter is the case, we ensure there are no elements above 1. This function returns either the positive definite error
 correlation matrix, or its Cholesky decomposition::
 
-   A_cholesky = cm.nearestPD_cholesky(A, corr=True)
-   A_PD = cm.nearestPD_cholesky(A, corr=True, return_cholesky=False)
+   A_cholesky = cm.nearestPD_cholesky(err_corr, corr=True)
+   A_PD = cm.nearestPD_cholesky(err_corr, corr=True, return_cholesky=False)
 
 The Cholesky decomposition is useful to correlate samples (see :ref:`random_generator_atbd`).
 

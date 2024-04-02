@@ -28,7 +28,7 @@ The interpolation submodules focuses on two aspects. First, it aims to provide i
         ATBD mathematical description of **comet_maths** (under development).
 
     .. grid-item-card::  API Reference
-        :link: content/API/api
+        :link: content/api
         :link-type: doc
 
         The API Reference contains a description the **comet_maths** API.
@@ -55,5 +55,5 @@ Project status
 
    content/getting_started
    content/user_guide
-   content/api
    content/atbd
+   content/api

@@ -190,8 +190,7 @@ the uncertainties on the measured data points (or optionally their
 covariance matrix), and a kernel (which will require some thought to
 choose the appropriate one).
 
-.. image:: images/image1.png
-
+.. image:: ../figs/image1.png
 
 3. 1D-interpolation using high-resolution example
 =================================================
