@@ -79,6 +79,8 @@ def calculate_flattened_corr(
     :param corr_between: correlation matrix between the input quantities
     :return: full correlation matrix combining the correlation matrices
     """
+    if len(set([len(corrs[i]) for i in range(len(corrs))]))>1:
+        raise ValueError("comet_maths.calculate_flattened_corr: corrs provided need to have the same shape.")
     totcorrlen = 0
     corr_lims = [
         0,
@@ -143,7 +145,7 @@ def expand_errcorr_dims(
     dim_sizes: dict,
 ) -> np.ndarray:
     """
-    Function to expand the provided correlation matrix (which defines the correlation along 1 or 2 dimensions),
+    Function to expand the provided correlation matrix (which defines the correlation along 1 or more dimensions),
     to higher dimensions, so that the total correlation matrix can be calculated.
 
     :param in_corr: correlation matrix along the dimensions specified in in_dim
