@@ -1,5 +1,5 @@
 Welcome to comet_maths's documentation!
-=========================================================
+=========================================
 **comet_maths** is a python module with useful mathematical algorithms for general use as well as for the other tools in the `CoMet Toolkit <https://www.comet-toolkit.org>`_.
 
 There are quite a range of different functionalities within **comet_maths**. There are currently three submodules. One for linear algebra (mainly used for matrix operations in both `obsarray <https://obsarray.readthedocs.io/en/latest/>`_  and `punpy <https://punpy.readthedocs.io/en/latest/>`_ ), one for random sample generators (mainly used for sample generation in `punpy <https://punpy.readthedocs.io/en/latest/>`_ ) and one for interpolation (for general use).
