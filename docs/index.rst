@@ -31,7 +31,7 @@ The interpolation submodules focuses on two aspects. First, it aims to provide i
         :link: content/api
         :link-type: doc
 
-        The API Reference contains a description the **comet_maths** API.
+        The API Reference contains a description of each of the **comet_maths** classes and functions.
 
 Acknowledgements
 ----------------
