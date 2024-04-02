@@ -3,9 +3,10 @@ Tests for mc propagation class
 """
 
 import unittest
-
+import copy
 import numpy as np
 import numpy.testing as npt
+import comet_maths as cm
 
 from comet_maths.linear_algebra.matrix_conversion import *
 
@@ -21,6 +22,9 @@ dim_sizes = {"x": 3, "y": 2, "z": 4, "time": 4}
 errcorrx = np.eye(dim_sizes["x"])
 errcorrx[0, 2] = 0.5
 errcorrx[2, 0] = 0.5
+
+u_x = 10 * np.ones(3)
+cov_x = np.array([[100, 0, 50], [0, 100, 0], [50, 0, 100]])
 
 errcorry = np.ones((dim_sizes["y"], dim_sizes["y"]))
 errcorry[0, 1] = 0.3
@@ -59,22 +63,51 @@ class TestMatrixConversion(unittest.TestCase):
     """
 
     def test_correlation_from_covariance(self):
-        pass
+        npt.assert_equal(correlation_from_covariance(cov_x), errcorrx)
 
     def test_uncertainty_from_covariance(self):
-        pass
+        npt.assert_equal(uncertainty_from_covariance(cov_x), u_x)
 
     def test_convert_corr_to_cov(self):
-        pass
+        npt.assert_equal(convert_corr_to_cov(errcorrx, u_x), cov_x)
 
     def test_convert_cov_to_corr(self):
-        pass
+        npt.assert_equal(convert_cov_to_corr(cov_x, u_x), errcorrx)
 
     def test_calculate_flattened_corr(self):
-        pass
+        flat_corr = calculate_flattened_corr(
+            [errcorrx, 0.5*np.ones_like(errcorrx)+0.5 * np.eye(len(errcorrx))], np.array([[1, 0.4], [0.4, 1]])
+        )
+
+        npt.assert_equal(
+            flat_corr,
+            np.array(
+                [
+                    [1      , 0     , 0.5    , 0.4       , 0.1   , 0.4*0.5],
+                    [0      , 1     , 0      , 0.1       , 0.4   , 0.1  ],
+                    [0.5    , 0     , 1      , 0.4*0.5   , 0.1   , 0.4  ],
+                    [0.4    ,0.25*0.4,0.4*0.5, 1.0       , 0.5   , 0.5],
+                    [0.1    , 0.4   , 0.1    , 0.5       , 1.0   , 0.5],
+                    [0.4*0.5, 0.1   , 0.4    , 0.5       , 0.5   , 1.0],
+                ]
+            ),
+        )
 
     def test_separate_flattened_corr(self):
-        pass
+        flat_cor = np.array(
+                [
+                    [1      , 0     , 0.5    , 0.4       , 0.1   , 0.4*0.5],
+                    [0      , 1     , 0      , 0.1       , 0.4   , 0.1  ],
+                    [0.5    , 0     , 1      , 0.4*0.5   , 0.1   , 0.4  ],
+                    [0.4    ,0.25*0.4,0.4*0.5, 1.0       , 0.5   , 0.5],
+                    [0.1    , 0.4   , 0.1    , 0.5       , 1.0   , 0.5],
+                    [0.4*0.5, 0.1   , 0.4    , 0.5       , 0.5   , 1.0],
+                ]
+            )
+        corrs, corr_betw = separate_flattened_corr(flat_cor, 2)
+        npt.assert_equal(corrs[0], errcorrx)
+        npt.assert_equal(corrs[1], 0.5*np.ones_like(errcorrx)+0.5 * np.eye(len(errcorrx)))
+        npt.assert_allclose(corr_betw, np.array([[1, 0.4], [0.4, 1]]), atol=0.01)
 
     def test_change_order_errcorr_dims(self):
         errcorryx2 = change_order_errcorr_dims(
