@@ -17,8 +17,8 @@ __status__ = "Development"
 
 
 def function(xflat):
-    x1=xflat[0:200]
-    x2=xflat[200:400]
+    x1 = xflat[0:200]
+    x2 = xflat[200:400]
     return x1**2 - 10 * x2
 
 
@@ -35,15 +35,14 @@ class TestMatrixCalculation(unittest.TestCase):
     """
 
     def test_calculate_Jacobian(self):
-
         x1 = np.ones(200) * 10
         x2 = np.ones(200) * 30
-        xflat = np.concatenate([xi.ravel() for xi in [x1,x2]])
+        xflat = np.concatenate([xi.ravel() for xi in [x1, x2]])
 
         Jx = cm.calculate_Jacobian(function_flat, xflat)
-        Jx2=Jac_function(x1,x2)
+        Jx2 = Jac_function(x1, x2)
 
-        npt.assert_allclose(Jx,Jx2,atol=0.01)
+        npt.assert_allclose(Jx, Jx2, atol=0.01)
 
     def test_nearestPD_cholesky(self):
         A = np.ones((10, 10)) + np.diag(np.ones(10))

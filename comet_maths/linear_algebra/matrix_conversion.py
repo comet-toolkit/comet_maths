@@ -79,8 +79,10 @@ def calculate_flattened_corr(
     :param corr_between: correlation matrix between the input quantities
     :return: full correlation matrix combining the correlation matrices
     """
-    if len(set([len(corrs[i]) for i in range(len(corrs))]))>1:
-        raise ValueError("comet_maths.calculate_flattened_corr: corrs provided need to have the same shape.")
+    if len(set([len(corrs[i]) for i in range(len(corrs))])) > 1:
+        raise ValueError(
+            "comet_maths.calculate_flattened_corr: corrs provided need to have the same shape."
+        )
     totcorrlen = 0
     corr_lims = [
         0,

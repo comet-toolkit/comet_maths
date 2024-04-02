@@ -414,10 +414,19 @@ class TestGenerateSample(unittest.TestCase):
         errcorrx[0, 2] = 0.5
         errcorrx[2, 0] = 0.5
         a = cm.generate_sample(10000, np.zeros(3), np.ones(3), errcorrx)
-        b = cm.generate_sample(10000, np.zeros(3), np.ones(3),
-                               0.5 * np.ones_like(errcorrx) + 0.5 * np.eye(len(errcorrx)))
-        c = cm.correlate_sample_corr([a, b], np.array([[1, 0.4], [0.4, 1]]), np.zeros((2, 3)), np.ones((2, 3)),
-                                     iterate_sample=True)
+        b = cm.generate_sample(
+            10000,
+            np.zeros(3),
+            np.ones(3),
+            0.5 * np.ones_like(errcorrx) + 0.5 * np.eye(len(errcorrx)),
+        )
+        c = cm.correlate_sample_corr(
+            [a, b],
+            np.array([[1, 0.4], [0.4, 1]]),
+            np.zeros((2, 3)),
+            np.ones((2, 3)),
+            iterate_sample=True,
+        )
         corr_c = cm.calculate_corr(np.concatenate(c, axis=1))
         npt.assert_allclose(
             corr_c,
@@ -431,7 +440,7 @@ class TestGenerateSample(unittest.TestCase):
                     [0.4 * 0.5, 0.1, 0.4, 0.5, 0.5, 1.0],
                 ]
             ),
-            atol=0.05
+            atol=0.05,
         )
 
         npt.assert_equal(sample_corr[0].shape, (10000, 2, 3, 4, 5, 6))

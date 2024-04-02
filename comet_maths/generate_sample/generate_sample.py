@@ -519,7 +519,7 @@ def generate_sample_correlated(
                     MC_data[:, :, j] = generate_sample_corr(
                         MCsteps, x[i][:, j], u_x[i][:, j], corr_x[i], dtype=dtype
                     )
-            elif u_x[i].ndim>1 and len(corr_x[i]) == len(u_x[i][0]):
+            elif u_x[i].ndim > 1 and len(corr_x[i]) == len(u_x[i][0]):
                 MC_data = np.zeros((MCsteps,) + (u_x[i].shape))
                 for j in range(len(u_x[i][:, 0])):
                     # cov_x = cm.convert_corr_to_cov(corr_x[i], u_x[i][j])
@@ -649,7 +649,9 @@ def generate_sample_cov(
     return (np.dot(L, rand_sample).T + param).reshape((MCsteps,) + outshape)
 
 
-def correlate_sample_corr(sample, corr, mean=None, std=None, dtype=None, iterate_sample=False):
+def correlate_sample_corr(
+    sample, corr, mean=None, std=None, dtype=None, iterate_sample=False
+):
     """
     Method to correlate independent sample of input quantities using correlation matrix and Cholesky decomposition.
 
@@ -678,8 +680,13 @@ def correlate_sample_corr(sample, corr, mean=None, std=None, dtype=None, iterate
             "comet_math.correlate_sample_corr: The correlation matrix is not the right shape. corr_shape: %s, sample_shape: %s"
             % (corr.shape, sample.shape)
         )
-    elif isinstance(sample,list) and len(set([len(sample[i][0]) for i in range(len(sample))]))>1:
-        raise NotImplementedError("comet_math.correlate_sample_corr: it is not yet possible to provide a sample with inhomogeneous dimensions.")
+    elif (
+        isinstance(sample, list)
+        and len(set([len(sample[i][0]) for i in range(len(sample))])) > 1
+    ):
+        raise NotImplementedError(
+            "comet_math.correlate_sample_corr: it is not yet possible to provide a sample with inhomogeneous dimensions."
+        )
 
     try:
         L = np.array(np.linalg.cholesky(corr))
@@ -689,15 +696,21 @@ def correlate_sample_corr(sample, corr, mean=None, std=None, dtype=None, iterate
     sample_out = copy.deepcopy(sample)
 
     if iterate_sample:
-        sample_out_iter = np.empty(len(sample),dtype=object)
+        sample_out_iter = np.empty(len(sample), dtype=object)
         for i in range(len(sample)):
-            sample_i=np.roll(sample_out, i, axis=0)
+            sample_i = np.roll(sample_out, i, axis=0)
             if mean is not None:
                 mean_i = np.roll(mean, i, axis=0)
             if std is not None:
-                std_i=np.roll(std, i, axis=0)
-            sample_out_iter[i]=np.roll(correlate_sample_corr(sample_i, corr, mean_i, std_i, dtype=dtype, iterate_sample=False),-i,axis=0)
-        return np.mean(sample_out_iter,axis=0)
+                std_i = np.roll(std, i, axis=0)
+            sample_out_iter[i] = np.roll(
+                correlate_sample_corr(
+                    sample_i, corr, mean_i, std_i, dtype=dtype, iterate_sample=False
+                ),
+                -i,
+                axis=0,
+            )
+        return np.mean(sample_out_iter, axis=0)
 
     if mean is None:
         mean = np.array(
