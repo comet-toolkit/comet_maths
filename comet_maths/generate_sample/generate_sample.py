@@ -59,7 +59,7 @@ def generate_sample(
         corr_x = np.array([corr_x])
         i = 0
 
-    if np.any(u_x[i] < 0):
+    if (not comp_list) and (not u_x[i] is None) and np.any(u_x[i] < 0):
         raise ValueError(
             "comet_maths.generate_sample: u_x cannot have any negative values"
         )
@@ -650,7 +650,13 @@ def generate_sample_cov(
 
 
 def correlate_sample_corr(
-    sample, corr, mean=None, std=None, dtype=None, iterate_sample=False
+    sample,
+    corr,
+    mean=None,
+    std=None,
+    dtype=None,
+    iterate_sample=False,
+    maintain_sample_unmodified=False,
 ):
     """
     Method to correlate independent sample of input quantities using correlation matrix and Cholesky decomposition.
@@ -666,7 +672,9 @@ def correlate_sample_corr(
     :param dtype: dtype of the produced sample
     :type dtype: numpy.dtype, optional
     :param iterate_sample: boolean to indicate if comet_maths should iterate over the different samples when introducing correlation. (This is more time-consuming but might be necessary if the different samples have different error correlations), defaults to False.
-    :type iterate_sample: bool
+    :type iterate_sample: bool, optional
+    :param maintain_sample_unmodified: boolean to indicate if the provided sample must remain unchanged (as opposed to introducing correlation). This requires a full copy of the sample, and thus doubles the memory required. Defaults to False.
+    :type maintain_sample_unmodified: bool, optional
     :return: correlated sample of input quantities
     :rtype: array[array]
     """
@@ -693,7 +701,10 @@ def correlate_sample_corr(
     except:
         L = cm.nearestPD_cholesky(corr, corr=True)
 
-    sample_out = copy.deepcopy(sample)
+    if maintain_sample_unmodified:
+        sample_out = copy.deepcopy(sample)
+    else:
+        sample_out = sample
 
     if iterate_sample:
         sample_out_iter = np.empty(len(sample), dtype=object)
