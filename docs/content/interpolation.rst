@@ -43,6 +43,7 @@ different interpolation methods. At least three different methods from the list 
 are compared to determine this uncertainty contribution. For the gpr method, the
 model uncertainties (and/or covariance) can be outputted by the algorithm.
 Error correlation matrices can also be returned by the algorithm (return_corr keyword).
+
 Below, an example is shown where the true values lie on y=x*sin(10x). The interpolated values and their uncertainties
 are shown for the cubic and gpr interpolation method. For more details we refer to `this jupyter notebook <https://colab.research.google.com/github/comet-toolkit/comet_training/blob/main/interpolation_example.ipynb>`_.
 
@@ -72,6 +73,7 @@ datapoints in order to get the final interpolated datapoints. The residuals can 
 calculated in a relative or absolute way (depending on which is most appropriate
 for a given use case). The interpolation steps throughout this method use the same
 interpolation methods and uncertainty propagation as the **normal 1D interpolation**.
+
 Below, the same example is shown where the true values lie on y=x*sin(10x), but now additionally there is some high resolution data available which has poor absolute calibration (i.e. it can be offset) but small relative uncertainties
 (i.e. the shape is reliable). The interpolated values and their uncertainties
 are shown for the cubic and gpr interpolation method. For more details we refer to
@@ -105,6 +107,16 @@ when doing normal 1d interpolation, yet internally the "nearest" extrapolate opt
 will be used by default to interpolate the residuals when interpolating along a high-resolution
 example. This way the high resolution data is followed as closely as possible in the
 regions where no low resolution data is available to constrain it.
+
+We again show the same example where the true values lie on y=x*sin(10x), but now we are also extrapolating beyond the region for which low resolution data are available,
+The interpolated values and their uncertainties
+are shown for the cubic and gpr interpolation method. For more details we refer to
+`this jupyter notebook <https://colab.research.google.com/github/comet-toolkit/comet_training/blob/main/interpolation_example.ipynb>`_.
+
+.. figure:: ../figs/extrapolation_test_1d_along_example.png
+
+   Example of 1d interpolation along an example with extrapolation. The high resolution data is scaled to go through the low resolution data. Uncertainties in the extrapolation area get progressively larger.
+
 
 
 Usage
