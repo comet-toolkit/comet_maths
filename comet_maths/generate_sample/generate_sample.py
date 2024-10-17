@@ -696,6 +696,23 @@ def correlate_sample_corr(
             "comet_math.correlate_sample_corr: it is not yet possible to provide a sample with inhomogeneous dimensions."
         )
 
+    if iterate_sample:
+        sample_out_iter = np.empty(len(sample), dtype=object)
+        for i in range(len(sample)):
+            sample_i = np.roll(sample, i, axis=0)
+            if mean is not None:
+                mean_i = np.roll(mean, i, axis=0)
+            if std is not None:
+                std_i = np.roll(std, i, axis=0)
+            sample_out_iter[i] = np.roll(
+                correlate_sample_corr(
+                    sample_i, corr, mean_i, std_i, dtype=dtype, iterate_sample=False, maintain_sample_unmodified=True
+                ),
+                -i,
+                axis=0,
+            )
+        return np.mean(sample_out_iter, axis=0)
+
     try:
         L = np.array(np.linalg.cholesky(corr))
     except:
@@ -705,23 +722,6 @@ def correlate_sample_corr(
         sample_out = copy.deepcopy(sample)
     else:
         sample_out = sample
-
-    if iterate_sample:
-        sample_out_iter = np.empty(len(sample), dtype=object)
-        for i in range(len(sample)):
-            sample_i = np.roll(sample_out, i, axis=0)
-            if mean is not None:
-                mean_i = np.roll(mean, i, axis=0)
-            if std is not None:
-                std_i = np.roll(std, i, axis=0)
-            sample_out_iter[i] = np.roll(
-                correlate_sample_corr(
-                    sample_i, corr, mean_i, std_i, dtype=dtype, iterate_sample=False
-                ),
-                -i,
-                axis=0,
-            )
-        return np.mean(sample_out_iter, axis=0)
 
     if mean is None:
         mean = np.array(
