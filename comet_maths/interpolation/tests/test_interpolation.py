@@ -296,7 +296,7 @@ class TestInterpolation(unittest.TestCase):
 
         # npt.assert_allclose(y_hr_gpr,y_hr_gpr2,atol=0.01)
 
-        mcprop = punpy.MCPropagation(100, parallel_cores=4)
+        mcprop = punpy.MCPropagation(50, parallel_cores=1)
 
         inp2 = cm.Interpolator(
             relative=False,

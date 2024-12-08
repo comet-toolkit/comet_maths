@@ -190,7 +190,7 @@ def interpolate_1d(
     return_corr: Optional[bool] = False,
     include_model_uncertainties: Optional[bool] = True,
     add_model_error: Optional[bool] = False,
-    MCsteps: Optional[int] = 100,
+    MCsteps: Optional[int] = 50,
     parallel_cores: Optional[int] = 4,
     interpolate_axis: Optional[int] = 0,
 ) -> Union[
@@ -628,7 +628,7 @@ def interpolate_1d_along_example(
     include_model_uncertainties: Optional[bool] = True,
     add_model_error: Optional[bool] = False,
     plot_residuals: Optional[bool] = False,
-    MCsteps: Optional[int] = 100,
+    MCsteps: Optional[int] = 50,
     parallel_cores: Optional[int] = 4,
 ) -> Union[
     np.ndarray, Tuple[np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray, np.ndarray]

@@ -706,7 +706,13 @@ def correlate_sample_corr(
                 std_i = np.roll(std, i, axis=0)
             sample_out_iter[i] = np.roll(
                 correlate_sample_corr(
-                    sample_i, corr, mean_i, std_i, dtype=dtype, iterate_sample=False, maintain_sample_unmodified=True
+                    sample_i,
+                    corr,
+                    mean_i,
+                    std_i,
+                    dtype=dtype,
+                    iterate_sample=False,
+                    maintain_sample_unmodified=True,
                 ),
                 -i,
                 axis=0,
