@@ -112,6 +112,7 @@ class TestGenerateSample(unittest.TestCase):
         sample = generate_sample_same(100, x0)
         npt.assert_equal(sample.shape, (100,))
         npt.assert_equal(sample[:-1], sample[1:])
+        assert sample.dtype == int
 
         sample = generate_sample_same(100, x1)
         npt.assert_equal(sample.shape, (100, 20))
@@ -120,6 +121,11 @@ class TestGenerateSample(unittest.TestCase):
         sample = generate_sample_same(100, x2)
         npt.assert_equal(sample.shape, (100, 5, 6))
         npt.assert_equal(sample[:-1], sample[1:])
+
+        sample = generate_sample_same(100, "test")
+        npt.assert_equal(sample.shape, (100, ))
+        npt.assert_equal(sample[:-1], sample[1:])
+        assert sample.dtype.type is np.str_
 
     def test_generate_sample_systematic(self):
         np.random.seed(123456)

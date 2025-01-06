@@ -213,7 +213,10 @@ def generate_sample_same(MCsteps, param, dtype=None):
     :rtype: array
     """
     tileshape = generate_sample_shape(MCsteps, param)
-    MC_sample = np.tile(param, tileshape).astype(dtype)
+    if dtype is None:
+        MC_sample = np.tile(param, tileshape)
+    else:
+        MC_sample = np.tile(param, tileshape).astype(dtype)
     return MC_sample
 
 
