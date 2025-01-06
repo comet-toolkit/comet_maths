@@ -123,7 +123,7 @@ class TestGenerateSample(unittest.TestCase):
         npt.assert_equal(sample[:-1], sample[1:])
 
         sample = generate_sample_same(100, "test")
-        npt.assert_equal(sample.shape, (100, ))
+        npt.assert_equal(sample.shape, (100,))
         npt.assert_equal(sample[:-1], sample[1:])
         assert sample.dtype.type is np.str_
 
