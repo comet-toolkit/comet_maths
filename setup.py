@@ -26,12 +26,12 @@ setup(
     long_description=read("README.rst"),
     packages=find_packages(exclude=("tests",)),
     install_requires=[
-        "numpy==1.26.4",
-        "scikit-learn",
+        "numpy>=2.2.4",
+        "scikit-learn>=1.6.1",
         "numdifftools",
-        "scipy",
+        "scipy>=1.15.2",
         "punpy>=1.0.1",
-        "matplotlib",
+        "matplotlib>=1.8.0",
     ],
     extras_require={
         "dev": [
