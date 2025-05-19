@@ -402,14 +402,26 @@ def _redo_extrapolation(
     :param extrapolate: extrapolation method, which can be set to "extrapolate" (in which case extrapolation is used using interpolation method defined in "method"), "nearest" (in which case nearest values are used for extrapolation), or "linear" (in which case linear extrapolation is used). Defaults to "extrapolate".
     :return: interpolated values with correct extrapolation
     """
-    if extrapolate == "nearest":
-        y[x < x_i[0]] = y_i[0]
-        y[x > x_i[-1]] = y_i[-1]
+    if len(x) > 1:
+        if extrapolate == "nearest":
+            y[x < x_i[0]] = y_i[0]
+            y[x > x_i[-1]] = y_i[-1]
 
-    elif extrapolate == "linear":
-        f_lin = interp1d(x_i, y_i, kind="linear", fill_value="extrapolate")
-        y[x < x_i[0]] = f_lin(x[x < x_i[0]])
-        y[x > x_i[-1]] = f_lin(x[x > x_i[-1]])
+        elif extrapolate == "linear":
+            f_lin = interp1d(x_i, y_i, kind="linear", fill_value="extrapolate")
+            y[x < x_i[0]] = f_lin(x[x < x_i[0]])
+            y[x > x_i[-1]] = f_lin(x[x > x_i[-1]])
+    else:
+        if extrapolate == "nearest":
+            if x < x_i[0]:
+                y = y_i[0]
+            elif x > x_i[-1]:
+                y = y_i[-1]
+
+        elif extrapolate == "linear":
+            if x < x_i[0] or x > x_i[-1]:
+                f_lin = interp1d(x_i, y_i, kind="linear", fill_value="extrapolate")
+                y = f_lin(x)
 
     return y
 

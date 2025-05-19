@@ -30,7 +30,7 @@ setup(
         "scikit-learn>=1.6.1",
         "numdifftools",
         "scipy>=1.15.2",
-        "punpy>=1.0.3",
+        "punpy>=1.0.4",
         "matplotlib>=3.10.1",
     ],
     extras_require={
