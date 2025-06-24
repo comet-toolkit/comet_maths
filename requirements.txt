@@ -12,3 +12,6 @@ sphinx_design
 ipython
 sphinx_autosummary_accessors
 sphinx_book_theme
+
+# for interpolations with uncertainties
+punpy>=1.0.0
