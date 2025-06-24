@@ -203,7 +203,7 @@ def interpolate_1d(
     :param x: Independent variable quantity x for which we are trying to obtain the measurand y
     :param method: interpolation method to be used, defaults to linear
     :param unc_methods: interpolation methods to use in the calculation of the model error. Not used for gpr. Defaults to None, in which case a standard list is used for each interpolation method.
-    :param u_y_i: uncertainties on y_i, defaults to None. Using non-trivial uncertainties requires the punpy module. 
+    :param u_y_i: uncertainties on y_i, defaults to None. Using uncertainties requires the punpy module.
     :param corr_y_i: error correlation matrix (can be "rand" for random, "syst" for systematic, or a custom 2D error correlation matrix), defaults to None
     :param min_scale: minimum bound on the scale parameter in the gaussian process regression. Only used if gpr is selected as method. Defaults to 0.3
     :param extrapolate: extrapolation method, which can be set to "extrapolate" (in which case extrapolation is used using interpolation method defined in "method"), "nearest" (in which case nearest values are used for extrapolation), or "linear" (in which case linear extrapolation is used). Defaults to "extrapolate".
@@ -326,6 +326,7 @@ def interpolate_1d(
 
         else:
             import punpy
+
             prop = punpy.MCPropagation(MCsteps, parallel_cores=1)
             intp = Interpolator(
                 unc_methods=unc_methods, add_model_error=include_model_uncertainties
@@ -485,7 +486,7 @@ def gaussian_process_regression(
     :param x_i: Independent variable quantity x (coordinate data of y_i)
     :param y_i: measured variable quantity y (data to interpolate)
     :param x: Independent variable quantity x for which we are trying to obtain the measurand y
-    :param u_y_i: uncertainties on y_i, defaults to None. Using non-trivial uncertainties requires the punpy module. 
+    :param u_y_i: uncertainties on y_i, defaults to None. Using non-trivial uncertainties requires the punpy module.
     :param corr_y_i: error correlation matrix (can be "rand" for random, "syst" for systematic, or a custom 2D error correlation matrix), defaults to None
     :param kernel: kernel to be used in the gpr interpolation. Defaults to "RBF".
     :param min_scale: minimum bound on the scale parameter in the gaussian process regression. Defaults to 0.01
@@ -543,6 +544,7 @@ def gaussian_process_regression(
 
         else:
             import punpy
+
             prop = punpy.MCPropagation(MCsteps, parallel_cores=parallel_cores)
             intp = Interpolator(
                 method="gpr",
@@ -662,7 +664,7 @@ def interpolate_1d_along_example(
     :param method_hr: String to indicate which interpolation method should be used to interpolate between high resolution measurements. Defaults to cubic spline interpolation.
     :param unc_methods: interpolation methods to use in the calculation of the model error for interpolation between normalised data. Not used for gpr. Defaults to None, in which case a standard list is used for each interpolation method.
     :param unc_methods_hr: interpolation methods to use in the calculation of the model error for interpolation between high resolution measurements. Not used for gpr. Defaults to None, in which case a standard list is used for each interpolation method.
-    :param u_y_i: uncertainties on y_i, defaults to None. Using non-trivial uncertainties requires the punpy module. 
+    :param u_y_i: uncertainties on y_i, defaults to None. Using uncertainties requires the punpy module.
     :param corr_y_i: error correlation matrix for u_y_i (can be "rand" for random, "syst" for systematic, or a custom 2D error correlation matrix), defaults to None
     :param u_y_hr: uncertainties on y_hr, defaults to None
     :param corr_y_hr: error correlation matrix for u_y_hr (can be "rand" for random, "syst" for systematic, or a custom 2D error correlation matrix), defaults to None
@@ -737,6 +739,7 @@ def interpolate_1d_along_example(
 
     else:
         import punpy
+
         prop = punpy.MCPropagation(MCsteps, parallel_cores=parallel_cores)
         intp = Interpolator(
             relative=relative,
