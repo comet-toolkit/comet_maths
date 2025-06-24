@@ -402,7 +402,7 @@ def _redo_extrapolation(
     :param extrapolate: extrapolation method, which can be set to "extrapolate" (in which case extrapolation is used using interpolation method defined in "method"), "nearest" (in which case nearest values are used for extrapolation), or "linear" (in which case linear extrapolation is used). Defaults to "extrapolate".
     :return: interpolated values with correct extrapolation
     """
-    if len(x) > 1:
+    if hasattr(x,"__len__") and len(x) > 1:
         if extrapolate == "nearest":
             y[x < x_i[0]] = y_i[0]
             y[x > x_i[-1]] = y_i[-1]
