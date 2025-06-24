@@ -145,6 +145,33 @@ class TestInterpolation(unittest.TestCase):
         fig2.colorbar(p2)
         fig2.savefig("interpolation_test_1d_corrs.png", bbox_inches="tight")
 
+    def test_interpolation_1d(self):
+        xi = np.arange(0, 3.0, 0.2)
+        yi = function1(xi)
+        u_yi = 0.05 * np.abs(yi)
+        # yi = cm.generate_sample(1, yi, u_yi, corr_x="rand")
+
+        x = np.array([0.33333, 0.666666, 1, 1.33333, 1.66666, 2.00, 2.3333])
+        # t1=time.time()
+        y = cm.interpolate_1d(xi, yi, x, method="cubic")
+        y2 = cm.interpolate_1d(xi, yi, x, method="quadratic")
+
+        y, u_y, corr_y = cm.interpolate_1d(
+            xi,
+            yi,
+            x,
+            u_y_i=u_yi,
+            corr_y_i="syst",
+            method="linear",
+            return_uncertainties=True,
+            return_corr=True,
+            MCsteps=20000,
+            include_model_uncertainties=False,
+        )
+
+        print(u_y / y)
+        print(u_y, u_yi)
+
     def test_interpolation_1d_along_example(self):
         np.random.seed(1234567)
         xi = np.arange(0, 3.0, 0.2)
@@ -296,7 +323,7 @@ class TestInterpolation(unittest.TestCase):
 
         # npt.assert_allclose(y_hr_gpr,y_hr_gpr2,atol=0.01)
 
-        mcprop = punpy.MCPropagation(100, parallel_cores=4)
+        mcprop = punpy.MCPropagation(50, parallel_cores=1)
 
         inp2 = cm.Interpolator(
             relative=False,
