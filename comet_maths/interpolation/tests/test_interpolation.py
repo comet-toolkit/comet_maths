@@ -149,7 +149,7 @@ class TestInterpolation(unittest.TestCase):
         xi = np.arange(0, 3.0, 0.2)
         yi = function1(xi)
         u_yi = 0.05 * np.abs(yi)
-        #yi = cm.generate_sample(1, yi, u_yi, corr_x="rand")
+        # yi = cm.generate_sample(1, yi, u_yi, corr_x="rand")
 
         x = np.array([0.33333, 0.666666, 1, 1.33333, 1.66666, 2.00, 2.3333])
         # t1=time.time()
@@ -166,11 +166,11 @@ class TestInterpolation(unittest.TestCase):
             return_uncertainties=True,
             return_corr=True,
             MCsteps=20000,
-            include_model_uncertainties=False
+            include_model_uncertainties=False,
         )
 
-        print(u_y/y)
-        print(u_y,u_yi)
+        print(u_y / y)
+        print(u_y, u_yi)
 
     def test_interpolation_1d_along_example(self):
         np.random.seed(1234567)
