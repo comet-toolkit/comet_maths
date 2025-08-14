@@ -1,4 +1,4 @@
-""" Module for interpolation of data and enables propagation of uncertainties through the interpolation."""
+"""Module for interpolation of data and enables propagation of uncertainties through the interpolation."""
 
 from typing import Union, Optional, List, Tuple
 
