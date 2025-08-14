@@ -108,7 +108,9 @@ class Interpolator:
             plot_residuals=self.plot_residuals,
         )
 
-    def interpolate_1d(self, x_i: np.ndarray, y_i: np.ndarray, x: np.ndarray) -> Union[
+    def interpolate_1d(
+        self, x_i: np.ndarray, y_i: np.ndarray, x: np.ndarray
+    ) -> Union[
         np.ndarray,
         Tuple[np.ndarray, np.ndarray],
         Tuple[np.ndarray, np.ndarray, np.ndarray],
