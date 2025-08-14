@@ -1,4 +1,5 @@
 """describe class"""
+
 import copy
 import warnings
 
@@ -512,21 +513,39 @@ def generate_sample_correlated(
             if len(corr_x[i]) == len(u_x[i].ravel()):
                 # cov_x = cm.convert_corr_to_cov(corr_x[i], u_x[i])
                 MC_data = generate_sample_corr(
-                    MCsteps, x[i], u_x[i], corr_x[i], dtype=dtype, pdf_shape=pdf_shape, pdf_params=pdf_params
+                    MCsteps,
+                    x[i],
+                    u_x[i],
+                    corr_x[i],
+                    dtype=dtype,
+                    pdf_shape=pdf_shape,
+                    pdf_params=pdf_params,
                 )
             elif len(corr_x[i]) == len(u_x[i]):
                 MC_data = np.zeros((MCsteps,) + (u_x[i].shape))
                 for j in range(len(u_x[i][0])):
                     # cov_x = cm.convert_corr_to_cov(corr_x[i], u_x[i][:, j])
                     MC_data[:, :, j] = generate_sample_corr(
-                        MCsteps, x[i][:, j], u_x[i][:, j], corr_x[i], dtype=dtype, pdf_shape=pdf_shape, pdf_params=pdf_params
+                        MCsteps,
+                        x[i][:, j],
+                        u_x[i][:, j],
+                        corr_x[i],
+                        dtype=dtype,
+                        pdf_shape=pdf_shape,
+                        pdf_params=pdf_params,
                     )
             elif u_x[i].ndim > 1 and len(corr_x[i]) == len(u_x[i][0]):
                 MC_data = np.zeros((MCsteps,) + (u_x[i].shape))
                 for j in range(len(u_x[i][:, 0])):
                     # cov_x = cm.convert_corr_to_cov(corr_x[i], u_x[i][j])
                     MC_data[:, j, :] = generate_sample_corr(
-                        MCsteps, x[i][j], u_x[i][j], corr_x[i], dtype=dtype, pdf_shape=pdf_shape, pdf_params=pdf_params
+                        MCsteps,
+                        x[i][j],
+                        u_x[i][j],
+                        corr_x[i],
+                        dtype=dtype,
+                        pdf_shape=pdf_shape,
+                        pdf_params=pdf_params,
                     )
             else:
                 raise NotImplementedError(

@@ -1,4 +1,4 @@
-""" Module for interpolation of data and enables propagation of uncertainties through the interpolation."""
+"""Module for interpolation of data and enables propagation of uncertainties through the interpolation."""
 
 from typing import Union, Optional, List, Tuple
 
@@ -108,9 +108,7 @@ class Interpolator:
             plot_residuals=self.plot_residuals,
         )
 
-    def interpolate_1d(
-        self, x_i: np.ndarray, y_i: np.ndarray, x: np.ndarray
-    ) -> Union[
+    def interpolate_1d(self, x_i: np.ndarray, y_i: np.ndarray, x: np.ndarray) -> Union[
         np.ndarray,
         Tuple[np.ndarray, np.ndarray],
         Tuple[np.ndarray, np.ndarray, np.ndarray],
