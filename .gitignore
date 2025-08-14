@@ -119,3 +119,5 @@ ENV/
 
 # macOS temporary files
 .DS_Store
+*.png
+*.pdf
