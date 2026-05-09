@@ -804,7 +804,7 @@ def correlate_sample_corr(
             )
 
         else:
-            raise warnings.warn(
+            warnings.warn(
                 "comet_maths.generate_sample.correlate_sample_corr: you cannot correlate a sample with 0 std. Sample left unmodified"
             )
 
