@@ -291,7 +291,7 @@ def check_output(A_pd, A, diff: float = 0.05,
     try:
         chol = np.linalg.cholesky(A_pd)
     except:
-        return False, _
+        return False, None
     
     # ---------- validate ----------
     if corr:
