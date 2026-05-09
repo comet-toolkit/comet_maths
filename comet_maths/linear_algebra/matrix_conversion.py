@@ -30,9 +30,8 @@ def correlation_from_covariance(covariance: np.ndarray) -> np.ndarray:
         v = np.sqrt(np.diag(covariance))
         outer_v = np.outer(v, v)
         correlation = np.divide(covariance, outer_v, where=outer_v != 0)
-        correlation[covariance == 0] = 0
+        correlation = replace_corr_invalid_values(correlation)
         return correlation
-
 
 def uncertainty_from_covariance(covariance: np.ndarray) -> np.ndarray:
     """
@@ -44,6 +43,16 @@ def uncertainty_from_covariance(covariance: np.ndarray) -> np.ndarray:
     if covariance is not None:
         return np.sqrt(np.diag(covariance))
 
+def replace_corr_invalid_values(corr):
+    """
+    Function to replace invalid values (nans and non-1 values on the diagonal) with values from identity matrix
+
+    :param corr: correlation matrix
+    :return: fixed correlation matrix
+    """
+    corr[np.isnan(corr)]=np.eye(len(corr))[np.isnan(corr)]
+    np.fill_diagonal(corr, 1.0)
+    return corr
 
 def convert_corr_to_cov(corr: np.ndarray, u: np.ndarray) -> np.ndarray:
     """
@@ -64,8 +73,8 @@ def convert_cov_to_corr(cov: np.ndarray, u: np.ndarray) -> np.ndarray:
     :param u: uncertainties
     :return: correlation matrix
     """
-    return 1 / u.reshape((-1, 1)) * cov / (u.reshape((1, -1)))
-
+    corr = 1 / u.reshape((-1, 1)) * cov / (u.reshape((1, -1)))
+    return replace_corr_invalid_values(corr)
 
 def calculate_flattened_corr(
     corrs: List[np.ndarray], corr_between: np.ndarray

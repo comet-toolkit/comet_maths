@@ -7,7 +7,7 @@ from scipy.interpolate import interp1d
 from scipy.interpolate import lagrange
 
 from sklearn.gaussian_process import GaussianProcessRegressor
-from sklearn.gaussian_process.kernels import RBF, Matern, ConstantKernel as C
+from sklearn.gaussian_process.kernels import RBF, Matern, WhiteKernel, ConstantKernel as C
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -478,7 +478,7 @@ def gaussian_process_regression(
     include_model_uncertainties: Optional[bool] = True,
     add_model_error: Optional[bool] = False,
     MCsteps: Optional[int] = 100,
-    parallel_cores: Optional[int] = 4,
+    parallel_cores: Optional[int] = 1,
 ) -> np.ndarray:
     """
     Function to perform interpolation using Gaussian process regression
@@ -497,7 +497,7 @@ def gaussian_process_regression(
     :param include_model_uncertainties: Boolean to indicate whether model uncertainties should be added to output uncertainties to account for interpolation uncertainties. Not used for gpr. Defaults to True
     :param add_model_error: Boolean to indicate whether model error should be added to interpolated values to account for interpolation errors (useful in Monte Carlo approaches). Defaults to False
     :param MCsteps: number of MC iterations. Defaults to 100
-    :param parallel_cores: number of CPU to be used in parallel processing. Defaults to 4
+    :param parallel_cores: number of CPU to be used in parallel processing. Defaults to 1
     :return: The measurand y evaluated at the values x (interpolated data)
     """
     # First calculate y_out without uncertainties
@@ -604,11 +604,11 @@ def gpr_basics(
     if kernel == "RBF":
         kernel_mod = C(1.0, (1e-9, 1e9)) * RBF(
             length_scale=0.3, length_scale_bounds=(min_scale, max_scale)
-        )
+        )+ WhiteKernel(noise_level=1e-10)
     if kernel == "exp":
         kernel_mod = C(1.0, (1e-9, 1e9)) * Matern(
             length_scale=0.3, length_scale_bounds=(min_scale, max_scale), nu=0.5
-        )
+        )+ WhiteKernel(noise_level=1e-10)
     gp = GaussianProcessRegressor(
         kernel=kernel_mod, alpha=alpha, n_restarts_optimizer=9
     )

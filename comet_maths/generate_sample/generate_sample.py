@@ -668,7 +668,14 @@ def generate_sample_cov(
         (len(L), MCsteps), pdf_shape=pdf_shape, pdf_params=pdf_params, dtype=dtype
     )
     return (np.dot(L, rand_sample).T + param).reshape((MCsteps,) + outshape)
-
+    #return generate_sample_corr(
+    # MCsteps,
+    # param,
+    # cm.uncertainty_from_covariance(cov_param),
+    # cm.correlation_from_covariance(cov_param),
+    # diff=diff,
+    # dtype=dtype,
+    # pdf_shape=pdf_shape,
 
 def correlate_sample_corr(
     sample,
@@ -797,8 +804,8 @@ def correlate_sample_corr(
             )
 
         else:
-            raise ValueError(
-                "comet_maths.generate_sample.correlate_sample_corr: you cannot correlate a sample with 0 std"
+            raise warnings.warn(
+                "comet_maths.generate_sample.correlate_sample_corr: you cannot correlate a sample with 0 std. Sample left unmodified"
             )
 
         for i in range(len(sample)):

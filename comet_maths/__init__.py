@@ -30,6 +30,8 @@ from comet_maths.linear_algebra.matrix_conversion import (
     uncertainty_from_covariance,
     change_order_errcorr_dims,
     expand_errcorr_dims,
+    replace_corr_invalid_values
+
 )
 
 from comet_maths.interpolation.interpolation import (

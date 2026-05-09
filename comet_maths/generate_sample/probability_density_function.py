@@ -36,7 +36,7 @@ def generate_sample_pdf(size, pdf_shape, pdf_params=None, dtype=None, seed=12345
     """
     if pdf_shape.lower() == "gaussian" or pdf_shape.lower() == "truncated_gaussian":
         return (rn.standard_normal(size=size)).astype(dtype)
-    elif pdf_shape.lower() == "tophat":
+    elif pdf_shape.lower() == "tophat" or pdf_shape.lower() == "uniform" or pdf_shape.lower() == "rectangular":
         return (rn.uniform(size=size, low=-1.0, high=1.0)).astype(dtype)
     else:
         raise NotImplementedError("pdf shape (%s) not implemented" % (pdf_shape))

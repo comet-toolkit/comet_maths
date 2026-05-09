@@ -184,8 +184,139 @@ def calculate_corr(
 
     return corr_y
 
-
 def nearestPD_cholesky(
+    A: np.ndarray,
+    diff: float = 0.05,
+    corr: bool = False,
+    return_cholesky: bool = True,
+    tol: float = 1e-12,
+    max_cond: float = 1e12,
+) -> np.ndarray:
+    """
+    Robust nearest positive-definite matrix with minimal perturbation.
+    Uses check_output before returning any modified matrix.
+    """
+
+    A = np.asarray(A, dtype=float)
+
+    # ---------- Stage 0: trivial / invalid cases ----------
+    if A.ndim == 0 or A.size == 1:
+        return np.sqrt(A) if return_cholesky else A
+
+    if not np.all(np.isfinite(A)):
+        raise ValueError("Input contains NaN or inf.")
+
+    # ---------- Stage 1: fast path (UNMODIFIED return) ----------
+    try:
+        chol = np.linalg.cholesky(A)
+        return chol if return_cholesky else A
+    except np.linalg.LinAlgError:
+        pass
+
+    # ---------- Stage 2: symmetrize ----------
+    B = 0.5 * (A + A.T)
+    n = B.shape[0]
+
+    # ---------- Stage 3: explicit degeneracy handling ----------
+    if corr and np.allclose(B, 1.0, atol=1e-14):
+        eps = max(tol, 1e-12)
+        rho = 1.0 - eps
+        A_pd = rho * np.ones((n, n))
+        np.fill_diagonal(A_pd, 1.0)
+
+        valid, out = check_output(A_pd, A, diff, corr, return_cholesky, tol)
+        if valid:
+            return out
+        else:
+            raise ValueError("Equicorrelation repair failed validation.")
+
+    # ---------- Stage 4: eigen-based PD repair ----------
+    eigvals, eigvecs = np.linalg.eigh(B)
+
+    max_ev = np.max(np.abs(eigvals))
+    floor = max(tol * max(1.0, max_ev), tol)
+
+    # ---- soft eigenvalue lifting
+    eigvals_fixed = eigvals.copy()
+    mask = eigvals_fixed < floor
+    eigvals_fixed[mask] += (floor - eigvals_fixed[mask])
+
+    # ---- condition number control (smallest eigenvalues only)
+    cond = eigvals_fixed.max() / eigvals_fixed.min()
+    if cond > max_cond:
+        min_allowed = eigvals_fixed.max() / max_cond
+        eigvals_fixed[eigvals_fixed < min_allowed] = min_allowed
+
+    A_pd = eigvecs @ np.diag(eigvals_fixed) @ eigvecs.T
+    A_pd = 0.5 * (A_pd + A_pd.T)
+
+    # ---------- Stage 5: correlation normalization ----------
+    if corr:
+        d = np.sqrt(np.diag(A_pd))
+        d[d == 0] = floor
+        A_pd = A_pd / np.outer(d, d)
+        np.fill_diagonal(A_pd, 1.0)
+
+        # re-repair (tiny correction only)
+        eigvals, eigvecs = np.linalg.eigh(A_pd)
+        eigvals[eigvals < floor] = floor
+        A_pd = eigvecs @ np.diag(eigvals) @ eigvecs.T
+        A_pd = 0.5 * (A_pd + A_pd.T)
+        np.fill_diagonal(A_pd, 1.0)
+
+    # ---------- Stage 6: validate via check_output ----------
+    valid, out = check_output(A_pd, A, diff, corr, return_cholesky, tol)
+    if valid:
+        return out
+
+    # ---------- Stage 7: last-resort jitter (still validated) ----------
+    jitter = floor * np.trace(A_pd) / n
+    for _ in range(8):
+        A_pd = A_pd + jitter * np.eye(n)
+
+        valid, out = check_output(A_pd, A, diff, corr, return_cholesky, tol)
+        if valid:
+            return out
+
+        jitter *= 10.0
+
+    raise ValueError("Failed to construct a positive-definite matrix.")
+
+
+def check_output(A_pd, A, diff: float = 0.05,
+    corr: bool = False,
+    return_cholesky: bool = True,
+    tol: float = 1e-9):
+
+    try:
+        chol = np.linalg.cholesky(A_pd)
+    except:
+        return False, _
+    
+    # ---------- validate ----------
+    if corr:
+        A_pd = cm.correlation_from_covariance(A_pd)
+        maxdiff = np.max(np.abs(A - A_pd))
+        if maxdiff > diff:
+            raise ValueError(
+                f"Correlation adjustment too large (max diff={maxdiff:.3e})"
+            )
+    else:
+        rel = np.abs(A - A_pd) / (np.abs(A_pd) + tol)
+        rel = rel[np.isfinite(rel)]
+        if rel.size and np.max(rel) > diff:
+            raise ValueError(
+                f"Covariance adjustment too large (max rel diff={np.max(rel):.3e})"
+            )
+            
+    if return_cholesky:
+        return True, chol
+    else:
+        return True, A_pd
+    
+    
+
+def nearestPD_cholesky_old(
     A: np.ndarray,
     diff: Optional[float] = 0.05,
     corr: Optional[bool] = False,
@@ -298,8 +429,7 @@ def nearestPD_cholesky(
                     return np.linalg.cholesky(A3)
                 else:
                     return A3
-
-
+                
 def isPD(B: np.ndarray) -> bool:
     """
     Returns true when input is positive-definite, via Cholesky

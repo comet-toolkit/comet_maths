@@ -16,7 +16,6 @@ import numpy.testing as npt
 import matplotlib.pyplot as plt
 import time
 
-
 """___NPL Modules___"""
 import punpy
 
