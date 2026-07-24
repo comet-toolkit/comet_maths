@@ -121,3 +121,4 @@ ENV/
 .DS_Store
 *.png
 *.pdf
+CLAUDE.md
